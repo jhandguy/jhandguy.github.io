@@ -1,10 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>jhandguy.github.io</title>
+    <title>jhandguy</title>
     <link>https://jhandguy.github.io/</link>
-    <description>Recent content on jhandguy.github.io</description>
+    <description>Recent content on jhandguy</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language><atom:link href="https://jhandguy.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>About me</title>
+      <link>https://jhandguy.github.io/about/</link>
+      <pubDate>Sat, 12 Jun 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://jhandguy.github.io/about/</guid>
+      <description>🚧 Work in progress 🚧 </description>
+    </item>
+    
   </channel>
 </rss>
