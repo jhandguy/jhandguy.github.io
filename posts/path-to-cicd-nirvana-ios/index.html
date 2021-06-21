@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>A Path to CI / CD Nirvana in iOS</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.2/css/bulma.min.css">
+</head>
+
+<body id="top" class="has-background-white">
+<nav class="navbar is-dark">
+    <div class="navbar-brand">
+        <a class="navbar-item" href="/">
+            Home
+        </a>
+
+        <div class="navbar-item">
+            <a class="button is-primary" href="/about">
+                <strong>About me</strong>
+            </a>
+        </div>
+    </div>
+</nav>
+<section class="section">
+    <div class="container is-max-desktop">
+        <div class="content is-large">
+            <h1 class="title">A Path to CI / CD Nirvana in iOS</h1>
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#continuous-integration-ci">Continuous Integration (CI)</a>
+      <ul>
+        <li><a href="#ui-testing-in-ios---the-ultimate-guide">UI Testing in iOS - The Ultimate Guide</a></li>
+      </ul>
+    </li>
+    <li><a href="#continuous-deployment-cd">Continuous Deployment (CD)</a>
+      <ul>
+        <li><a href="#fastlane-swift">Fastlane Swift</a></li>
+        <li><a href="#automate-everything">Automate Everything</a></li>
+        <li><a href="#fully-automated-release---the-holy-grail">Fully Automated Release - The Holy Grail</a></li>
+      </ul>
+    </li>
+    <li><a href="#conclusion">Conclusion</a></li>
+  </ul>
+</nav>
+        </div>
+    </div>
+    <div class="container is-max-desktop mt-6">
+        <div class="content is-medium has-text-justified-tablet">
+            <p>For many companies, testing and releasing are still very blurry processes, which don’t seem to work as they should. Testing is mostly manual, slow and error-prone. Releasing is usually also manual and slow, making its frequency hard to maintain on a sprint-basis. Continuous Integration (CI) and Continuous Deployment (CD) are all about automating both testing and releasing, making it possible for a team to release every week or two. At EGYM, we have achieved just that and I am going to tell you all about it!</p>
+<blockquote>
+<p>Testing &amp; Automating is easy, but doing it at scale isn’t.</p>
+</blockquote>
+<p>🎬 Hi there, I’m Jean!</p>
+<p>In this article, I want to share with you my experience in our Path to CI / CD Nirvana in iOS, at EGYM! 😃</p>
+<p>But before that, let me invite you to <a href="https://www.youtube.com/watch?v=ZWG5QI1ibzc">watch my talk at CocoaHeads Berlin</a> about this exact topic! 📺<br>
+Sometimes, spoken words are better than written ones (and also less boring 🤣).<br>
+Also, <a href="https://www.slideshare.net/JeanMainguy/a-path-to-ci-cd-nirvana-165519475">here</a> are the slides.</p>
+<p>Have you watched it yet? 🤨 Great! 🤗<br>
+Now, let me summarise this for you in nicely-made sentences! 👌</p>
+<h2 id="continuous-integration-ci">Continuous Integration (CI)</h2>
+<hr>
+<p>CI is the process of ensuring that a new change added on top of previous ones won’t break what has been built so far, making developments smooth and flawless. 🏎</p>
+<p>That pretty much means most of the time “Testing before Merging”. ✅</p>
+<p>Do you remember the testing pyramid? Well, I won’t go through it in detail, but we have pretty much 3 layers, Unit Testing, Integration Testing and finally UI Testing. All of those are crucial for ensuring the quality of your app, but the one, in particular, I want to focus with you today is <strong>UI Testing</strong>. 📱</p>
+<p>We all know it, UI Testing is a pain when it comes to stability and maintainability, but don’t you worry, I might just have what you are looking for! 🧐</p>
+<h3 id="ui-testing-in-ios---the-ultimate-guide">UI Testing in iOS - The Ultimate Guide</h3>
+<p>That’s right, I made a complete guide for you to get started with stable, maintainable and scalable UI testing in iOS! 🎉</p>
+<h4 id="-mocking-the-networkhahahugoshortcode-s0-hbhb">🔌 <a href="/posts/mocking-the-network-ios/">Mocking the Network</a></h4>
+<p>The first thing you need to take care of is <strong>Mocking the Network</strong>. You don’t want to let your network requests hit an actual network and there are mainly two reasons for that.</p>
+<p><strong>Isolation</strong>. Of course, what if your backend friends break their test server? Well, your UI Tests will fail as well, even though nothing is wrong with the app 😱 So now you’ll say “Well let&rsquo;s deploy a dedicated environment for it then!”. And whose ownership will that be? iOS devs? Or Backend devs? Isn’t that a little bit over-engineering? 🤔 Mocking the Network allows you to avoid unnecessary headaches and “Just re-trigger it!” kind of workflows. 😆</p>
+<p><strong>Monitoring</strong>. Well yes, if you mock or stub the network, that means you need to predict exactly how many calls are going to be made during your UI test and that’s extremely valuable because you might sometimes find out that your app is actually making unnecessary calls which are eating your user’s data! 😮</p>
+<p>Overall, Mocking the Network gives you full control and helps to keep your UI tests stability to a very high standard! 💪</p>
+<p>If you want to read more about <strong>Mocking the Network</strong>, go ahead and check out my dedicated <a href="/posts/mocking-the-network-ios/">article</a>! 👀</p>
+<h4 id="-stubbing-the-navigationhahahugoshortcode-s2-hbhb">🚦 <a href="/posts/stubbing-the-navigation-ios/">Stubbing the Navigation</a></h4>
+<p>The second thing you want to address is <strong>Stubbing the Navigation</strong>. One major pain point with iOS UI Testing is that every test will always relaunch the app entirely. This means that you are forced to go through several screens manually before getting to the one you actually want to test. That breaks the isolation principle, making UI tests hard to debug. 😕</p>
+<p>One way of solving this is to inject a stub that will route your navigation in the exact screen you want to end up on. Of course, that also means that your navigation logic must be centralised in a dedicated layer like the <a href="/posts/coordinator-design-pattern-ios/">Coordinator</a> for instance! 🚦</p>
+<p>That way, your UI Tests will suddenly become blazingly fast, but also more isolated, stable and easier to maintain! 🚀</p>
+<p>If you want to read more about <strong>Stubbing the Navigation</strong>, go ahead and check out my dedicated <a href="/posts/stubbing-the-navigation-ios/">article</a>! 👀</p>
+<h4 id="-disabling-animationshahahugoshortcode-s5-hbhb">📺 <a href="/posts/disabling-animations-ios/">Disabling Animations</a></h4>
+<p>The third action you might want to take is <strong>Disabling Animations</strong>. This one is a quick and easy win, simply disabling animations while UI testing will make your tests not only faster but more stable as animations won’t be a potential risk for your assertions. 👍</p>
+<p>If you want to read more about <strong>Disabling Animations</strong>, go ahead and check out my dedicated <a href="/posts/disabling-animations-ios/">article</a>! 👀</p>
+<h4 id="-generating-accessibility-identifiers-using-reflectionhahahugoshortcode-s7-hbhb">🔮 <a href="/posts/generating-accessibility-identifiers-ios/">Generating Accessibility Identifiers using Reflection</a></h4>
+<p>Until now, Accessibility Identifiers have always been assigned manually. This is a pain and most importantly unnecessary noise in your code so you should avoid doing this. <strong>Generating Accessibility Identifiers using Reflection</strong> is a great way to get rid of all this manual work, but instead, let your code generate it for you at runtime! 🤯</p>
+<p>If you want to read more about <strong>Generating Accessibility Identifiers using Reflection</strong>, go ahead and check out my dedicated <a href="/posts/generating-accessibility-identifiers-ios/">article</a>! 👀</p>
+<h4 id="-implementing-the-robot-patternhahahugoshortcode-s9-hbhb">🤖 <a href="/posts/robot-pattern-ios/">Implementing the Robot Pattern</a></h4>
+<p>Finally, UI Tests are not only meant to be verifying that your app still behaves as expected, but they also can serve as implicit documentation of how your app works, what the main features are, for your new hires who do not have a clue about the product yet! 😮</p>
+<p><strong>Implementing the Robot Pattern</strong> will not only help you separate the What from the How of your UI Tests and make screen assertions reusable across UI Tests, but also provide a more human-readable way of specifying tests! 😎</p>
+<p>If you want to read more about <strong>Implementing the Robot Pattern</strong>, go ahead and check out my dedicated <a href="/posts/robot-pattern-ios/">article</a>! 👀</p>
+<h2 id="continuous-deployment-cd">Continuous Deployment (CD)</h2>
+<hr>
+<p>CD is the process of deploying a new version of the product, for every new change that is made, making deployments incremental meaning, less risky than releases sent-out in big chunks. This process should ideally be fully automated, just like CI. 🚀</p>
+<h3 id="fastlane-swift">Fastlane Swift</h3>
+<p>When it comes to automation for iOS we, at EGYM, use <a href="https://docs.fastlane.tools/getting-started/ios/fastlane-swift/">Fastlane Swift</a>.<br>
+It is <a href="https://docs.fastlane.tools/">Fastlane</a> but in <strong>Swift</strong>! 😱🍾</p>
+<p>The choice of Fastlane was simple, we must be able to trigger automated tasks remotely as well as locally. And using <strong>Fastlane Swift</strong>, you can democratise your CI / CD automation to the whole iOS team, as they don’t need to learn Ruby anymore: their extensive Swift knowledge will do! 👌</p>
+<h3 id="automate-everything">Automate Everything</h3>
+<p>Currently, we have a total of <strong>12 lanes</strong>:</p>
+<h4 id="-run-tests-unit--integration--ui">✅ Run Tests (Unit / Integration / UI)</h4>
+<p>Obviously, running tests is the first process you might want to automate. 🤖<br>
+In Fastlane Swift, this is easy, simply call the <code>runTests</code> action from <code>Fastfile.swift</code> and you’re all set! 🚀</p>
+<p>At EGYM, we run the tests on every Pull Request.</p>
+<h4 id="-capture-screenshots">📸 Capture Screenshots</h4>
+<p>Now, the capture screenshots lane is pretty similar to the run tests one, simply call the action <code>captureScreenshots</code> from <code>Fastfile.swift</code> and if you want to be fancy, also call the <code>frameScreenshots</code> action to add the device’s frame around your screenshots! 🖼</p>
+<p>At EGYM, we use this lane to capture, frame and share our localised screenshots with our designers so they can reuse them for marketing purposes, this saves them a lot of time and they’re really grateful for it! 🤗</p>
+<h4 id="-upload-to-testflight">✈️ Upload To Testflight</h4>
+<p>Of course, uploading to Testflight is also crucial to your development team. 👨‍✈<br>
+It requires a little more logic though, so hold on to your seats! 💺</p>
+<p>Here are the actions you need to sequentially use:</p>
+<ul>
+<li>Get the latest Testflight build number using <code>latestTestflightBuildNumber</code>;</li>
+<li>Increment the build number using <code>incrementBuildNumber</code>;</li>
+<li>Build the app using <code>buildApp</code>;</li>
+<li>Upload a new build to Testflight using <code>uploadToTestflight</code>;</li>
+<li>Download <code>.dSYMs</code> using <code>downloadDsyms</code>;</li>
+<li>Upload <code>.dSYMs</code> to Crashlytics using <code>uploadSymbolsToCrashlytics</code>;</li>
+</ul>
+<p>At EGYM, we automatically submit a new Testflight build after every Git merge to our <code>develop</code> branch.</p>
+<h4 id="-upload-to-appstore">📱 Upload To AppStore</h4>
+<p>Now, uploading to AppStore is a whole different story. 😆</p>
+<p>Overall, here are the steps we follow at EGYM:</p>
+<ul>
+<li>Generate Metadata from our <code>AppStore.strings</code> localization file ;</li>
+<li>Download Screenshots from a Google Cloud Storage bucket ;</li>
+<li>Upload a new build to Testflight ;</li>
+<li>Upload to AppStore the metadata, screenshots and link the Testflight build ;</li>
+<li>Increment the version number (patch, minor or major) ;</li>
+<li>Add, commit and push the changes (build increment) ;</li>
+<li>Create Pull Requests ;</li>
+<li>Track Deployment Frequency.</li>
+</ul>
+<p>At EGYM, our AppStore releases are triggered manually from Bitrise, but once triggered, everything else is automated, including sending for Apple Review and releasing using Phased Rollout! 🚀</p>
+<h4 id="-upload-to-crashlytics-beta">🐛 Upload To Crashlytics Beta</h4>
+<p>Unfortunately, AppStoreConnect’s build processing can take quite some time (~20 minutes); therefore, we also like to use Crashlytics Beta to distribute our development builds. 👍</p>
+<p>At EGYM, we automatically submit a new Crashlyitics Beta build on every Git push.</p>
+<h4 id="-sync-code-signing">📝 Sync Code Signing</h4>
+<p>Syncing Code Signing Certificates and Profiles is a very trivial process using Fastlane, simply call the action <code>syncCodeSigning</code> from <code>Fastfile.swift</code> and you are good to go! 🚗</p>
+<p>At EGYM, we mostly use this lane for downloading development certificates.</p>
+<h4 id="-download-translations">🛬 Download Translations</h4>
+<p>Remembering the exact CLI parameters can be a pain sometimes, that is why we also have a lane for managing our Lokalise translations! 🔡</p>
+<p>At EGYM, our Download Translations lane simply calls the <code>lokalise</code> CLI under the hood.</p>
+<h4 id="-upload-translations">🛫 Upload Translations</h4>
+<p>Similarly to Downloading Translations to Lokalise, we also have a lane for uploading them. Same way as the downloading lane, the upload one also uses the <code>lokalise</code> CLI under the hood. 🔤</p>
+<h4 id="-generate-metadata">🖨 Generate Metadata</h4>
+<p>Fastlane Metadata is a folder/file representation of what information AppStore Connect expects from your app when releasing. 🚀</p>
+<p>At EGYM, we’ve automated the generation of Metadata by creating a Swift script expecting a localisation file (<code>AppStore.strings</code>) as input! 🤖</p>
+<h4 id="-update-dependencies">✨ Update Dependencies</h4>
+<p>Updating dependencies automatically is very helpful, its main purpose is to let you know when a dependency has a new version, by creating a Pull Request when something has changed in any of your <code>.lock</code> or <code>.resolved</code> files. 🔐</p>
+<p>Simply create a lane that executes for instance <code>bundle update</code> or <code>carthage update</code> and submits a Pull Request! 📝</p>
+<p>At EGYM, we use it to update our <code>Gemfile.lock</code> and <code>Cartfile.resolved</code> files! 👌</p>
+<h4 id="-update-screenshots">🖼 Update Screenshots</h4>
+<p>As capturing screenshots can take quite some time, doing it as part of the release process might not be very wise. 🤔</p>
+<p>Instead, it might be more efficient to upload the screenshots inside a Google Cloud Storage bucket and update them on a weekly / monthly basis! 💡</p>
+<p>At EGYM, we currently host about 220 screenshots inside a dedicated Google Cloud Storage bucket, in 2 different languages for 3 different devices! 🤯</p>
+<h4 id="-move-ticket-to-ready-for-acceptance-testing">🎫 Move Ticket to Ready for Acceptance Testing</h4>
+<p>As I said earlier, we automate everything. And that includes moving tickets in our Sprint Dashboard! 😆</p>
+<p>Whenever we send a build to Testflight after a merge, once the build processing has been completed, we move the corresponding ticket to “Ready for Acceptance Testing” and send a message on Slack to our QA testers! 🚀</p>
+<p>I know, that’s babysitting at this point but well, our QA testers love it! 😍</p>
+<h3 id="fully-automated-release---the-holy-grail">Fully Automated Release - The Holy Grail</h3>
+<p>That’s right, we made it, the holy grail: a fully automated release! 👑</p>
+<p>This was a long journey, but by combining the power of both Bitrise and Fastlane, we’ve managed to submit our app for AppStore release, create version bump Pull Requests and track our Deployment Frequency, with a simple click of a button! 😱</p>
+<p>Here is the full sequence of actions we perform automatically:</p>
+<ol>
+<li><strong>Create branch “release-(version)” (from develop)</strong></li>
+<li><strong>Download AppStore.strings localisation file from Lokalise</strong></li>
+<li><strong>Generate metadata from AppStore.strings localisation file</strong></li>
+<li><strong>Download screenshots from Google Cloud Storage bucket</strong></li>
+<li><strong>Upload new build to Testflight</strong></li>
+<li><strong>Upload DSYM to Crashlytics</strong></li>
+<li><strong>Release to AppStore with metadata, screenshots and Testflight build</strong></li>
+<li><strong>Add Git tag “releases/(version)”</strong></li>
+<li><strong>Increment Version Number (patch, minor, major)</strong></li>
+<li><strong>Commit and Push</strong></li>
+<li><strong>Create Pull Requests (develop, master)</strong></li>
+<li><strong>Track Deployment Frequency in Deployment Logbook</strong></li>
+</ol>
+<p>All we need to do is trigger our <code>UploadToAppStore</code> workflow on Bitrise from the branch <code>develop</code> and a few minutes later, we get a Slack message confirming that the release was successful, along with 2 freshly created Pull Requests, one for the actual release (master) and one for the Version Bump (develop)! 🚀</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>It’s been a long journey, but definitely worthwhile! 🎉<br>
+Our workflows work so well, that we are able to catch bugs early on in our development process, as well as keeping a high Deployment Frequency without compromising on our developments speed! ✈️</p>
+<p>Worth a try? Would you like to follow our path to CI / CD Nirvana? If so, follow me on <a href="https://twitter.com/jhandguy">Twitter</a>, I’ll be happy to answer any of your questions and you’ll be the first one to know when a new article comes out! 👌</p>
+<p>Until next time, happy automating! 🤖</p>
+<p>Bye Bye! 👋</p>
+
+        </div>
+    </div>
+    <div class="container is-fullhd has-text-centered mt-6">
+        <div class="columns is-mobile">
+            <div class="column">
+                
+                <a class="button is-primary is-pulled-left" href="https://jhandguy.github.io/posts/robot-pattern-ios/"><strong>Previous</strong></a>
+                
+            </div>
+            <div class="column">
+                <a class="button is-dark" href="#top"><strong>Back to top</strong></a>
+            </div>
+            <div class="column">
+                
+                <a class="button is-primary is-pulled-right" disabled><strong>Next</strong></a>
+                
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+<footer>
+    <div class="footer has-background-light">
+        <div class="content has-text-centered">
+            <p class="subtitle is-6">Powered by <a class="has-text-primary" href="https://gohugo.io/">Hugo</a></p>
+            <a href="https://bulma.io">
+                <img src="https://bulma.io/images/made-with-bulma.png" alt="Made with Bulma" width="128" height="24">
+            </a>
+        </div>
+    </div>
+</footer>
+</html>

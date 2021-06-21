@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Lightweight Design Patterns in iOS (Part 3) - Coordinator</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.2/css/bulma.min.css">
+</head>
+
+<body id="top" class="has-background-white">
+<nav class="navbar is-dark">
+    <div class="navbar-brand">
+        <a class="navbar-item" href="/">
+            Home
+        </a>
+
+        <div class="navbar-item">
+            <a class="button is-primary" href="/about">
+                <strong>About me</strong>
+            </a>
+        </div>
+    </div>
+</nav>
+<section class="section">
+    <div class="container is-max-desktop">
+        <div class="content is-large">
+            <h1 class="title">Lightweight Design Patterns in iOS (Part 3) - Coordinator</h1>
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#coordinator-pattern">Coordinator Pattern</a></li>
+    <li><a href="#the-coordinator-in-practice">The Coordinator in practice</a></li>
+    <li><a href="#testing-the-navigation-logic">Testing the Navigation Logic</a></li>
+  </ul>
+</nav>
+        </div>
+    </div>
+    <div class="container is-max-desktop mt-6">
+        <div class="content is-medium has-text-justified-tablet">
+            <p><strong>Design Patterns</strong> are part of Mobile Development for a while now and a revolution towards <em>Quality Assurance</em> is on. Such patterns have become a standard among the community, yet implementing an <em>academic</em> one might come with a price — <em>complexity</em>.</p>
+<p>Because some <strong>Design Patterns</strong> solve very complex problems, they often result in a complicated implementation as well. So complex sometimes, that we tend to use heavy <strong>Third Party Frameworks</strong>, even for simple use cases.</p>
+<blockquote>
+<p>The time has come to combine quality and simplicity.</p>
+</blockquote>
+<p>🎬 Hi there, I’m Jean!</p>
+<p>Previously on the series <strong>Lightweight Design Patterns in iOS</strong>, we have covered the case of the <a href="/posts/presenter-design-pattern-ios/">Presenter Pattern</a> or how to implement a lightweight presentation layer! 📺<br>
+In this episode, we will take a quick look at the <strong>Coordinator Pattern</strong>, the problem it solves as well as how to implement it in a simple and yet powerful manner! 🚦</p>
+<h2 id="coordinator-pattern">Coordinator Pattern</h2>
+<hr>
+<p>The role of the <strong>Coordinator</strong> is to coordinate the navigation between screens of the same flow. 🗺<br>
+This means in Mobile Development: defining a <strong>user flow</strong>! 📲<br>
+In iOS, the <strong>Storyboard</strong> is already providing this feature but it also comes with considerable drawbacks, such as loading time and testability. 😕<br>
+The <strong>Coordinator</strong> allows you to separate the <strong>Navigation logic</strong> from the <strong>ViewController</strong> and define your screen flow directly in code! 💯</p>
+<p>Let’s now look at an example! 👀</p>
+<h2 id="the-coordinator-in-practice">The Coordinator in practice</h2>
+<hr>
+<p>We have an app, that displays a list of “things” and tapping on one of them opens a detail screen with more information concerning that item. Easy. 👍</p>
+<p>Our navigation is going to look very concise: we will first <strong>start</strong> with a list of things and later on eventually <strong>open something</strong>. This flow definition is nothing else than our <strong>CoordinatorProtocol</strong>! 👌</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">protocol</span> <span style="color:#a6e22e">CoordinatorProtocol</span>: <span style="color:#66d9ef">class</span> {
+    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">start</span>()
+    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">open</span>(<span style="color:#66d9ef">_</span> something: Something)
+}
+</code></pre></div><p>Looking good! 😎<br>
+Let’s now implement the actual <strong>Coordinator</strong>!</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Coordinator</span> {
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">let</span> window: UIWindow
+    <span style="color:#66d9ef">let</span> navigationController = UINavigationController()
+    
+    <span style="color:#66d9ef">init</span>(window: UIWindow) {
+        <span style="color:#66d9ef">self</span>.window = window
+        <span style="color:#66d9ef">self</span>.window.rootViewController = navigationController
+        <span style="color:#66d9ef">self</span>.window.makeKeyAndVisible()
+    }
+}
+</code></pre></div><p>As you can see, we need to inject a <em>UIWindow</em> in the <strong>init</strong> method, in order to make the <strong>navigationController</strong> the <em>rootViewController</em> of this window. 📱</p>
+<p>Now, implementing the <em>CoordinatorProtocol</em> will only consist of instantiating the <em>ViewControllers</em> with their dependencies injected and push them to the <em>NavigationController</em>! 💯</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">Coordinator</span>: CoordinatorProtocol {
+    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">start</span>() {
+        <span style="color:#66d9ef">let</span> viewController = MainViewController()
+        viewController.viewModel = MainViewModel()
+        viewController.coordinator = <span style="color:#66d9ef">self</span>
+        navigationController.pushViewController(viewController, animated: <span style="color:#66d9ef">true</span>)
+    }
+
+    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">open</span>(<span style="color:#66d9ef">_</span> something: Something) {
+        <span style="color:#66d9ef">let</span> viewController = SomethingViewController()
+        viewController.viewModel = SomethingViewModel()
+        viewController.coordinator = <span style="color:#66d9ef">self</span>
+        navigationController.pushViewController(viewController, animated: <span style="color:#66d9ef">true</span>)
+    }
+}
+</code></pre></div><p>And that’s it! Our flow is now implemented, and can be <strong>started/continued</strong> from anywhere in the App! 🎉</p>
+<p>Let’s start with the <em>AppDelegate</em>!</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">@UIApplicationMain</span>
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">AppDelegate</span>: UIResponder, UIApplicationDelegate {
+    <span style="color:#66d9ef">var</span> coordinator: CoordinatorProtocol!
+
+    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">application</span>(<span style="color:#66d9ef">_</span> application: UIApplication, willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = <span style="color:#66d9ef">nil</span>) -&gt; Bool {
+        coordinator = Coordinator()
+
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span>
+    }
+
+    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">application</span>(<span style="color:#66d9ef">_</span> application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -&gt; Bool {
+        coordinator.start()
+      
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span>
+    }
+}
+</code></pre></div><p>Nice and simple! Now let’s look at the <em>MainViewController</em>!</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MainViewController</span>: UITableViewController {
+  <span style="color:#66d9ef">weak</span> <span style="color:#66d9ef">var</span> coordinator: CoordinatorProtocol?
+  <span style="color:#66d9ef">var</span> viewModel: SomethingViewModel!
+  
+  ...
+  
+  <span style="color:#66d9ef">override</span> <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">tableView</span>(<span style="color:#66d9ef">_</span> tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    <span style="color:#66d9ef">let</span> something = viewModel.somethings[indexPath.row]
+    coordinator?.open(something)
+  }
+  
+  ...
+}
+</code></pre></div><p>That’s it! The entire <strong>Navigation Logic</strong> has just been delegated to an independent layer! 🎊</p>
+<h2 id="testing-the-navigation-logic">Testing the Navigation Logic</h2>
+<hr>
+<p>Unit testing the navigation has never been easier!<br>
+Before writing any test, let’s implement a <em>CoordinatorMock</em> first! 🐚</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CoordinatorMock</span>: CoordinatorProtocol {
+    <span style="color:#66d9ef">private</span>(<span style="color:#66d9ef">set</span>) <span style="color:#66d9ef">var</span> isStarted = <span style="color:#66d9ef">false</span>
+    <span style="color:#66d9ef">private</span>(<span style="color:#66d9ef">set</span>) <span style="color:#66d9ef">var</span> isSomethingOpened = <span style="color:#66d9ef">false</span>
+
+    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">start</span>() {
+        isStarted = <span style="color:#66d9ef">true</span>
+    }
+
+    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">open</span>(<span style="color:#66d9ef">_</span> something: Something) {
+        isSomethingOpened = <span style="color:#66d9ef">true</span>
+    }
+}
+</code></pre></div><p>As you can see, we are just implementing the <em>CoordinatorProtocol</em> and toggle the respective boolean properties whenever a method is called. 🚀<br>
+Simple right?! Well, look at how easy testing now is! 💪</p>
+<p>Let’s start with the <em>AppDelegate</em> and verify the <strong>start</strong> method is called!</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">AppDelegateTest</span>: XCTestCase {
+    <span style="color:#66d9ef">var</span> sut: AppDelegate!
+
+    <span style="color:#66d9ef">override</span> <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">setUp</span>() {
+        <span style="color:#66d9ef">super</span>.setUp()
+        sut = AppDelegate()
+    }
+
+    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">testAppDelegateStartsCoordinatorSuccessfully</span>() {
+        <span style="color:#66d9ef">let</span> coordinator = CoordinatorMock()
+        sut.coordinator = coordinator
+
+        <span style="color:#66d9ef">_</span> = sut.application(UIApplication.shared, didFinishLaunchingWithOptions: [:])
+
+        XCTAssertTrue(coordinator.isStarted)
+    }
+}
+</code></pre></div><p>Marvellous! 💄</p>
+<p>And now with the <em>MainViewController</em>, let’s make sure the <strong>open</strong> function is called!</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MainViewControllerTest</span>: XCTestCase {
+  <span style="color:#66d9ef">var</span> sut: MainViewController!
+    
+  <span style="color:#66d9ef">override</span> <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">setUp</span>() {
+    <span style="color:#66d9ef">super</span>.setUp()
+    sut = MainViewController()
+    sut.viewModel = SomethingViewModel()
+    
+    <span style="color:#66d9ef">_</span> = sut.view
+  }
+  
+  <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">testMainViewControllerOpensSomethingSuccessfully</span>() {
+    <span style="color:#66d9ef">let</span> coordinator = CoordinatorMock()
+    sut.coordinator = coordinator
+    
+    sut.tableView(sut.tableView, didSelectRowAt: IndexPath(item: <span style="color:#ae81ff">0</span>, section: <span style="color:#ae81ff">0</span>))
+    
+    XCTAssertTrue(coordinator.isSomethingOpened)
+  }
+}
+</code></pre></div><p>And boom! 💥<br>
+We just made a lightweight <strong>Coordinator</strong> which is even testable! 🎉</p>
+<p>Worth it? Did that help you see what problems the <strong>Coordinator Pattern</strong> is trying to solve? How to make such a pattern lightweight?</p>
+<p>If so, follow me on <a href="https://twitter.com/jhandguy">Twitter</a>, I’ll be happy to answer any of your questions and you’ll be the first one to know when a new article comes out! 👌</p>
+<p>See you next week, for the Part 4 of my series <strong>Lightweight Design Patterns in iOS</strong>!</p>
+<p>Bye bye! 👋</p>
+
+        </div>
+    </div>
+    <div class="container is-fullhd has-text-centered mt-6">
+        <div class="columns is-mobile">
+            <div class="column">
+                
+                <a class="button is-primary is-pulled-left" href="https://jhandguy.github.io/posts/presenter-design-pattern-ios/"><strong>Previous</strong></a>
+                
+            </div>
+            <div class="column">
+                <a class="button is-dark" href="#top"><strong>Back to top</strong></a>
+            </div>
+            <div class="column">
+                
+                <a class="button is-primary is-pulled-right" href="https://jhandguy.github.io/posts/factory-design-pattern-ios/"><strong>Next</strong></a>
+                
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+<footer>
+    <div class="footer has-background-light">
+        <div class="content has-text-centered">
+            <p class="subtitle is-6">Powered by <a class="has-text-primary" href="https://gohugo.io/">Hugo</a></p>
+            <a href="https://bulma.io">
+                <img src="https://bulma.io/images/made-with-bulma.png" alt="Made with Bulma" width="128" height="24">
+            </a>
+        </div>
+    </div>
+</footer>
+</html>

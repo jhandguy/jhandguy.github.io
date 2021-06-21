@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>UI Testing in iOS - Generating Accessibility Identifiers using Reflection</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.2/css/bulma.min.css">
+</head>
+
+<body id="top" class="has-background-white">
+<nav class="navbar is-dark">
+    <div class="navbar-brand">
+        <a class="navbar-item" href="/">
+            Home
+        </a>
+
+        <div class="navbar-item">
+            <a class="button is-primary" href="/about">
+                <strong>About me</strong>
+            </a>
+        </div>
+    </div>
+</nav>
+<section class="section">
+    <div class="container is-max-desktop">
+        <div class="content is-large">
+            <h1 class="title">UI Testing in iOS - Generating Accessibility Identifiers using Reflection</h1>
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#the-usual-way">The usual way</a></li>
+    <li><a href="#mirror-mirror">Mirror, mirror…</a></li>
+  </ul>
+</nav>
+        </div>
+    </div>
+    <div class="container is-max-desktop mt-6">
+        <div class="content is-medium has-text-justified-tablet">
+            <p>One of the most annoying things about UI Testing in iOS is the need to assign Accessibility Identifiers to views that are hard to access otherwise. Could be that a view is deeply nested, or that it is not easily distinguishable from other views, lots of scenarios might lead to manually assign Accessibility Identifiers… But don’t you worry, friend, I got something for you!</p>
+<blockquote>
+<p>What if we could generate and assign Accessibility Identifiers automatically, using reflection?</p>
+</blockquote>
+<p>🎬 Hi there, I’m Jean!</p>
+<p>In this article, I am going to explore this crazy idea and, who knows, maybe find something useful after all! 😃</p>
+<h2 id="the-usual-way">The usual way</h2>
+<hr>
+<p>Usually, assigning an <strong>Accessibility Identifier</strong> to a View is rather straightforward…</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SomethingViewController</span>: UIViewController {
+    
+    <span style="color:#66d9ef">@IBOutlet</span> <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">weak</span> <span style="color:#66d9ef">var</span> titleLabel: UILabel!
+    <span style="color:#66d9ef">@IBOutlet</span> <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">weak</span> <span style="color:#66d9ef">var</span> descriptionLabel: UILabel!
+    <span style="color:#66d9ef">@IBOutlet</span> <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">weak</span> <span style="color:#66d9ef">var</span> doneButton: UIButton!
+    
+    <span style="color:#66d9ef">override</span> <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">viewDidLoad</span>() {
+        titleLabel.accessibilityIdentifier          = <span style="color:#e6db74">&#34;SomethingViewController.titleLabel&#34;</span>
+        descriptionLabel.accessibilityIdentifier    = <span style="color:#e6db74">&#34;SomethingViewController.descriptionLabel&#34;</span>
+        doneButton.accessibilityIdentifier          = <span style="color:#e6db74">&#34;SomethingViewController.doneButton&#34;</span>
+    }
+}
+</code></pre></div><p>Simple! 👌<br>
+However, we can easily spot the problem here, <strong>it’s a hell of a boilerplate</strong>! 😫</p>
+<p>Now here’s the thing, what if we could iterate through all the <em>Views</em> of a <em>ViewController</em> and assign to each one of them an <strong>Accessibility Identifier</strong> consisting of the name of the <em>ViewController</em> (<strong>prefix</strong>) and the name of the <em>View</em> (<strong>suffix</strong>)? 🤔</p>
+<h2 id="mirror-mirror">Mirror, mirror…</h2>
+<hr>
+<p>That’s right! Let’s use the awesome Swift’s reflection API: <strong>Mirror</strong>! 🔮<br>
+To make it generic and reusable across all <em>ViewControllers/Views</em>, let’s wrap it inside a protocol called <strong>Accessible</strong>! 👍</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">protocol</span> <span style="color:#a6e22e">Accessible</span> {
+    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">generateAccessibilityIdentifiers</span>()
+}
+
+<span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">Accessible</span> {
+
+    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">generateAccessibilityIdentifiers</span>() {
+        <span style="color:#75715e">#if</span> <span style="color:#75715e">DEBUG</span>
+        <span style="color:#66d9ef">let</span> mirror = Mirror(reflecting: <span style="color:#66d9ef">self</span>)
+
+        <span style="color:#66d9ef">for</span> child <span style="color:#66d9ef">in</span> mirror.children {
+            <span style="color:#66d9ef">if</span>
+                <span style="color:#66d9ef">let</span> view = child.value <span style="color:#66d9ef">as</span>? UIView,
+                <span style="color:#66d9ef">let</span> identifier = child.label?.replacingOccurrences(of: <span style="color:#e6db74">&#34;.storage&#34;</span>, with: <span style="color:#e6db74">&#34;&#34;</span>) {
+
+                view.accessibilityIdentifier = <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">\(</span>type<span style="color:#e6db74">(</span>of: <span style="color:#66d9ef">self</span><span style="color:#e6db74">))</span><span style="color:#e6db74">.</span><span style="color:#e6db74">\(</span>identifier<span style="color:#e6db74">)</span><span style="color:#e6db74">&#34;</span>
+            }
+        }
+        <span style="color:#75715e">#endif</span>
+    }
+}
+</code></pre></div><p>Now, let’s take a look at the above implementation. 🧐</p>
+<p>The first step is to instantiate a <strong>Mirror</strong> reflecting the type conforming to <strong>Accessible</strong> (<em>self</em>). Then, we iterate through all children (<em>properties</em>) of <em>self</em> and, whenever a child is of type <em>View</em>, assign an <strong>Accessibility Identifier</strong> with the format: <code>&quot;ParentType.ChildProperty&quot;</code> ✅</p>
+<p>Simple! 👍<br>
+Now, going back to our initial implementation of the ViewController, things will suddenly get much smoother! 😎</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SomethingViewController</span>: UIViewController, Accessible {
+    
+    <span style="color:#66d9ef">@IBOutlet</span> <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">weak</span> <span style="color:#66d9ef">var</span> titleLabel: UILabel!
+    <span style="color:#66d9ef">@IBOutlet</span> <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">weak</span> <span style="color:#66d9ef">var</span> descriptionLabel: UILabel!
+    <span style="color:#66d9ef">@IBOutlet</span> <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">weak</span> <span style="color:#66d9ef">var</span> doneButton: UIButton!
+    
+    <span style="color:#66d9ef">override</span> <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">viewDidLoad</span>() {
+        generateAccessibilityIdentifiers()
+    }
+}
+</code></pre></div><p>That’s all! 🤯<br>
+Now, executing the command print app during UI Testing will output the following:</p>
+<pre><code>StaticText, identifier: 'SomethingViewController.titleLabel'
+StaticText, identifier: 'SomethingViewController.descriptionLabel'
+Button, identifier: 'SomethingViewController.doneButton'
+</code></pre><p>Boom! 💥<br>
+We just generated Accessibility Identifiers using Swift Reflection! 🎉<br>
+No more manual assigning, no more unnecessary boilerplate! 💪</p>
+<p>Worth a try? Did you regain faith in UI Testing? If so, follow me on <a href="https://twitter.com/jhandguy">Twitter</a>, I’ll be happy to answer any of your questions and you’ll be the first one to know when a new article comes out! 👌</p>
+<p>Want to read more about UI Testing?<br>
+Check out my 3 parts series:</p>
+<ol>
+<li><a href="/posts/mocking-the-network-ios/">Painless UI Testing in iOS (Part 1) - Mocking the Network</a></li>
+<li><a href="/posts/stubbing-the-navigation-ios/">Painless UI Testing in iOS (Part 2) - Stubbing the Navigation</a></li>
+<li><a href="/posts/disabling-animations-ios/">Painless UI Testing in iOS (Part 3) - Disabling Animations</a></li>
+</ol>
+<p>If you’d like to see a <strong>real-life example of an app doing extensive UI Testing</strong>, don’t hesitate to check out my <a href="https://github.com/jhandguy/SwiftKotlination">Github</a> repo! 📦</p>
+<p>Bye Bye! 👋</p>
+
+        </div>
+    </div>
+    <div class="container is-fullhd has-text-centered mt-6">
+        <div class="columns is-mobile">
+            <div class="column">
+                
+                <a class="button is-primary is-pulled-left" href="https://jhandguy.github.io/posts/disabling-animations-ios/"><strong>Previous</strong></a>
+                
+            </div>
+            <div class="column">
+                <a class="button is-dark" href="#top"><strong>Back to top</strong></a>
+            </div>
+            <div class="column">
+                
+                <a class="button is-primary is-pulled-right" href="https://jhandguy.github.io/posts/robot-pattern-ios/"><strong>Next</strong></a>
+                
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+<footer>
+    <div class="footer has-background-light">
+        <div class="content has-text-centered">
+            <p class="subtitle is-6">Powered by <a class="has-text-primary" href="https://gohugo.io/">Hugo</a></p>
+            <a href="https://bulma.io">
+                <img src="https://bulma.io/images/made-with-bulma.png" alt="Made with Bulma" width="128" height="24">
+            </a>
+        </div>
+    </div>
+</footer>
+</html>

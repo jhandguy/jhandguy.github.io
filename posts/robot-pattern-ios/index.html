@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>UI Testing in iOS - Robot Pattern</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.2/css/bulma.min.css">
+</head>
+
+<body id="top" class="has-background-white">
+<nav class="navbar is-dark">
+    <div class="navbar-brand">
+        <a class="navbar-item" href="/">
+            Home
+        </a>
+
+        <div class="navbar-item">
+            <a class="button is-primary" href="/about">
+                <strong>About me</strong>
+            </a>
+        </div>
+    </div>
+</nav>
+<section class="section">
+    <div class="container is-max-desktop">
+        <div class="content is-large">
+            <h1 class="title">UI Testing in iOS - Robot Pattern</h1>
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#the-usual-way">The usual way</a></li>
+    <li><a href="#beep-beep-boop-">Beep… Beep… Boop… 🤖</a></li>
+    <li><a href="#the-robot-in-action">The Robot in action!</a></li>
+  </ul>
+</nav>
+        </div>
+    </div>
+    <div class="container is-max-desktop mt-6">
+        <div class="content is-medium has-text-justified-tablet">
+            <p>Most of the time, UI Testing gets abandoned because it becomes harder to maintain over time and one reason for that is: <strong>readability</strong>. We also tend to forget that UI tests should not only serve the purpose of verification but provide meaningful documentation that everybody (including non-developers) can understand. Alright, let’s get right into it, fellas!</p>
+<blockquote>
+<p>What if we could write UI Tests in a human-readable language, that even a Product Owner could understand?</p>
+</blockquote>
+<p>🎬 Hi there, I’m Jean!</p>
+<p>In this article, I am going to introduce a better way to write UI Tests using XCTest! 😃<br>
+<em>Note: third-party libraries such as Appium or Calabash won’t be part of this post.</em></p>
+<h2 id="the-usual-way">The usual way</h2>
+<hr>
+<p>Usually, all UI Testing logic is bundled in one test function. Which inevitably leads to this…</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">uglyUITest</span>() {
+    ...
+    app.launch()
+    <span style="color:#66d9ef">let</span> title = app.navigationBars.firstMatch.otherElements.firstMatch
+    XCTAssert(title.isHittable)
+    XCTAssertEqual(title.label, <span style="color:#e6db74">&#34;U.S. - Politics&#34;</span>)
+    <span style="color:#66d9ef">let</span> stackView = app.otherElements[<span style="color:#e6db74">&#34;StoryView.stackView&#34;</span>]
+    <span style="color:#66d9ef">let</span> multimediaImage = stackView.images[<span style="color:#e6db74">&#34;StoryView.multimediaImageView&#34;</span>]
+    XCTAssert(multimediaImage.isHittable)
+    <span style="color:#66d9ef">let</span> titleLabel = stackView.staticTexts[<span style="color:#e6db74">&#34;StoryView.titleLabel&#34;</span>]
+    XCTAssertEqual(titleLabel.label, <span style="color:#e6db74">&#34;A Trump Endorsement Can Decide a Race. Here’s How to Get One.&#34;</span>)
+    <span style="color:#66d9ef">let</span> abstractLabel = stackView.staticTexts[<span style="color:#e6db74">&#34;StoryView.abstractLabel&#34;</span>]
+    XCTAssertEqual(abstractLabel.label, <span style="color:#e6db74">&#34;The president’s grip on G.O.P. primary voters is as strong as it has been since he seized the party’s nomination.&#34;</span>)
+    <span style="color:#66d9ef">let</span> bylineLabel = stackView.staticTexts[<span style="color:#e6db74">&#34;StoryView.bylineLabel&#34;</span>]
+    XCTAssertEqual(bylineLabel.label, <span style="color:#e6db74">&#34;By JONATHAN MARTIN and MAGGIE HABERMAN&#34;</span>)
+    snapshot(<span style="color:#e6db74">&#34;Story&#34;</span>)
+}
+</code></pre></div><p>I am sure you didn’t even finish reading that you already jumped to this line.<br>
+And to be fair, I’m not angry at you; this UI Test was fairly <strong>unreadable</strong>! 😵</p>
+<p>And the main reason for that is:</p>
+<blockquote>
+<p>Common UI Tests are mixing the What and the How altogether, in one place.</p>
+</blockquote>
+<p>Well, that’s obviously a problem, as this isn’t following the <a href="https://clean-code-developer.de/die-grade/orangener-grad/#Separation_of_Concerns_SoC">Separation of Concern</a> <strong>Clean Code</strong> teaches us… 🤔</p>
+<h2 id="beep-beep-boop-">Beep… Beep… Boop… 🤖</h2>
+<hr>
+<p>That’s right! Introducing, the <strong>Robot Pattern</strong> by <a href="https://jakewharton.com/testing-robots/">Jake Wharton</a>! 👏<br>
+The idea Jake had for the Android community is to separate in a UI Test the <em>What</em> from the <em>How</em>.<br>
+And to achieve this, he introduced a new layer called: <strong>Robot</strong>.</p>
+<p>Transcribed to iOS (Swift), our UI Test now looks like this…</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">prettyUITest</span>() {
+    ...
+    StoryRobot(app)
+        .start()
+        .checkTitle(contains: <span style="color:#e6db74">&#34;U.S. - Politics&#34;</span>)
+        .checkStoryImage()
+        .checkStoryTitle(contains: <span style="color:#e6db74">&#34;A Trump Endorsement Can Decide a Race. Here’s How to Get One.&#34;</span>)
+        .checkStoryAbstract(contains: <span style="color:#e6db74">&#34;The president’s grip on G.O.P. primary voters is as strong as it has been since he seized the party’s nomination.&#34;</span>)
+        .checkStoryByline(contains: <span style="color:#e6db74">&#34;By JONATHAN MARTIN and MAGGIE HABERMAN&#34;</span>)
+        .takeScreenshot(named: <span style="color:#e6db74">&#34;Story&#34;</span>)
+}
+</code></pre></div><p>How about that, didn’t it feel right to read the whole function this time? 😍<br>
+Exactly, in the UI Test itself, we are now left only with the <em>What</em> and the <em>How</em> is delegated to the <strong>Robot</strong>. Meaning: anybody can read and understand it! 👍</p>
+<h2 id="the-robot-in-action">The Robot in action!</h2>
+<hr>
+<p>First and foremost, we are going to implement a base <em>Robot</em>.<br>
+This class will take care of setting up Fastlane’s Snapshot, launching the app and providing a nice panel of util functions, such as tapping on elements, making assertions and taking screenshots… 👌</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Robot</span> {
+
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">let</span> defaultTimeout: Double = <span style="color:#ae81ff">30</span>
+
+    <span style="color:#66d9ef">var</span> app: XCUIApplication
+
+    <span style="color:#66d9ef">lazy</span> <span style="color:#66d9ef">var</span> navigationBar          = app.navigationBars.firstMatch
+    <span style="color:#66d9ef">lazy</span> <span style="color:#66d9ef">var</span> navigationBarButton    = navigationBar.buttons.firstMatch
+    <span style="color:#66d9ef">lazy</span> <span style="color:#66d9ef">var</span> navigationBarTitle     = navigationBar.otherElements.firstMatch
+
+    <span style="color:#66d9ef">init</span>(<span style="color:#66d9ef">_</span> app: XCUIApplication) {
+        <span style="color:#66d9ef">self</span>.app = app
+        setupSnapshot(app)
+    }
+
+    @discardableResult
+    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">start</span>(timeout: TimeInterval = Robot.defaultTimeout) -&gt; <span style="color:#66d9ef">Self</span> {
+        app.launch()
+        assert(app, [.exists], timeout: timeout)
+
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">self</span>
+    }
+
+    @discardableResult
+    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">tap</span>(<span style="color:#66d9ef">_</span> element: XCUIElement, timeout: TimeInterval = Robot.defaultTimeout) -&gt; <span style="color:#66d9ef">Self</span> {
+        assert(element, [.isHittable], timeout: timeout)
+        element.tap()
+
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">self</span>
+    }
+
+    @discardableResult
+    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">assert</span>(<span style="color:#66d9ef">_</span> element: XCUIElement, <span style="color:#66d9ef">_</span> predicates: [Predicate], timeout: TimeInterval = Robot.defaultTimeout) -&gt; <span style="color:#66d9ef">Self</span> {
+        <span style="color:#66d9ef">let</span> expectation = XCTNSPredicateExpectation(predicate: NSPredicate(format: predicates.map { $0.format }.joined(separator: <span style="color:#e6db74">&#34; AND &#34;</span>)), object: element)
+        <span style="color:#66d9ef">guard</span> XCTWaiter.wait(<span style="color:#66d9ef">for</span>: [expectation], timeout: timeout) == .completed <span style="color:#66d9ef">else</span> {
+            XCTFail(<span style="color:#e6db74">&#34;[</span><span style="color:#e6db74">\(</span><span style="color:#66d9ef">self</span><span style="color:#e6db74">)</span><span style="color:#e6db74">] Element </span><span style="color:#e6db74">\(</span>element.description<span style="color:#e6db74">)</span><span style="color:#e6db74"> did not fulfill expectation: </span><span style="color:#e6db74">\(</span>predicates.map { $0.format }<span style="color:#e6db74">)</span><span style="color:#e6db74">&#34;</span>)
+            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">self</span>
+        }
+
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">self</span>
+    }
+
+    @discardableResult
+    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">checkTitle</span>(contains title: String, timeout: TimeInterval = Robot.defaultTimeout) -&gt; <span style="color:#66d9ef">Self</span> {
+        assert(navigationBar, [.isHittable], timeout: timeout)
+        assert(navigationBarTitle, [.contains(title)], timeout: timeout)
+
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">self</span>
+    }
+
+    @discardableResult
+    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">takeScreenshot</span>(named name: String, timeout: TimeInterval = Robot.defaultTimeout) -&gt; <span style="color:#66d9ef">Self</span> {
+        snapshot(name, timeWaitingForIdle: timeout)
+
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">self</span>
+    }
+    
+    @discardableResult
+    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">back</span>(timeout: TimeInterval = Robot.defaultTimeout) -&gt; <span style="color:#66d9ef">Self</span> {
+        tap(navigationBarButton, timeout: timeout)
+
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">self</span>
+    }
+}
+</code></pre></div><p>Simple, right?<br>
+Oh, by the way, here is the Predicate enum I am using for making assertions, you’ll find it quite handy! 😎</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">enum</span> <span style="color:#a6e22e">Predicate</span> {
+    <span style="color:#66d9ef">case</span> contains(String), doesNotContain(String)
+    <span style="color:#66d9ef">case</span> exists, doesNotExist
+    <span style="color:#66d9ef">case</span> isHittable, isNotHittable
+
+    <span style="color:#66d9ef">var</span> format: String {
+        <span style="color:#66d9ef">switch</span> <span style="color:#66d9ef">self</span> {
+        <span style="color:#66d9ef">case</span> .contains(<span style="color:#66d9ef">let</span> label):
+            <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;label == &#39;</span><span style="color:#e6db74">\(</span>label<span style="color:#e6db74">)</span><span style="color:#e6db74">&#39;&#34;</span>
+        <span style="color:#66d9ef">case</span> .doesNotContain(<span style="color:#66d9ef">let</span> label):
+            <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;label != &#39;</span><span style="color:#e6db74">\(</span>label<span style="color:#e6db74">)</span><span style="color:#e6db74">&#39;&#34;</span>
+        <span style="color:#66d9ef">case</span> .exists:
+            <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;exists == true&#34;</span>
+        <span style="color:#66d9ef">case</span> .doesNotExist:
+            <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;exists == false&#34;</span>
+        <span style="color:#66d9ef">case</span> .isHittable:
+            <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;isHittable == true&#34;</span>
+        <span style="color:#66d9ef">case</span> .isNotHittable:
+            <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;isHittable == false&#34;</span>
+        }
+    }
+}
+</code></pre></div><p>Alright! Now our Base <strong>Robot</strong> class is ready, let’s inherit from it in the <em>StoryRobot</em> and see how it plays out! 🤖</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">StoryRobot</span>: Robot {
+
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">lazy</span> <span style="color:#66d9ef">var</span> stackView          = app.otherElements[<span style="color:#e6db74">&#34;StoryView.stackView&#34;</span>]
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">lazy</span> <span style="color:#66d9ef">var</span> multimediaImage    = stackView.images[<span style="color:#e6db74">&#34;StoryView.multimediaImageView&#34;</span>]
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">lazy</span> <span style="color:#66d9ef">var</span> titleLabel         = stackView.staticTexts[<span style="color:#e6db74">&#34;StoryView.titleLabel&#34;</span>]
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">lazy</span> <span style="color:#66d9ef">var</span> abstractLabel      = stackView.staticTexts[<span style="color:#e6db74">&#34;StoryView.abstractLabel&#34;</span>]
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">lazy</span> <span style="color:#66d9ef">var</span> bylineLabel        = stackView.staticTexts[<span style="color:#e6db74">&#34;StoryView.bylineLabel&#34;</span>]
+
+    @discardableResult
+    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">checkStoryImage</span>() -&gt; <span style="color:#66d9ef">Self</span> {
+        assert(multimediaImage, [.exists])
+
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">self</span>
+    }
+
+    @discardableResult
+    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">checkStoryTitle</span>(contains storyTitle: String) -&gt; <span style="color:#66d9ef">Self</span> {
+        assert(titleLabel, [.isHittable, .contains(storyTitle)])
+
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">self</span>
+    }
+
+    @discardableResult
+    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">checkStoryAbstract</span>(contains storyAbstract: String) -&gt; <span style="color:#66d9ef">Self</span> {
+        assert(abstractLabel, [.isHittable, .contains(storyAbstract)])
+
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">self</span>
+    }
+
+    @discardableResult
+    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">checkStoryByline</span>(contains storyByline: String) -&gt; <span style="color:#66d9ef">Self</span> {
+        assert(bylineLabel, [.isHittable, .contains(storyByline)])
+
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">self</span>
+    }
+}
+</code></pre></div><p>That’s it! We’ve just implemented the <em>How</em> of our UI Test! 🎊<br>
+What’s also really nice about <strong>Robots</strong>, is that they can cross call themselves without breaking the continuity of our UI Tests! 🤯</p>
+<p>For instance, let’s say we want to open Safari in the <em>StoryUITest</em>.<br>
+All we need to do is create a <em>SafariRobot</em> which will take care of UI Testing the browser and create a function inside the <em>StoryRobot</em> that will open Safari as well as return the <em>SafariRobot</em>! 😮</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">lazy</span> <span style="color:#66d9ef">var</span> urlButton = stackView.buttons[<span style="color:#e6db74">&#34;StoryView.urlButton&#34;</span>]
+
+@discardableResult
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">openSafari</span>() -&gt; SafariRobot {
+    tap(urlButton)
+
+    <span style="color:#66d9ef">return</span> SafariRobot(app)
+}
+</code></pre></div><p>And as you can see now, the continuity of our UI Test isn’t disturbed…</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">StoryUITest</span>: XCTestCase {
+    
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">lazy</span> <span style="color:#66d9ef">var</span> app = XCUIApplication()
+  
+    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">testStory</span>() {
+        StoryRobot(app)
+            .start()
+            .checkTitle(contains: <span style="color:#e6db74">&#34;U.S. - Politics&#34;</span>)
+            .checkStoryImage()
+            .checkStoryTitle(contains: <span style="color:#e6db74">&#34;A Trump Endorsement Can Decide a Race. Here’s How to Get One.&#34;</span>)
+            .checkStoryAbstract(contains: <span style="color:#e6db74">&#34;The president’s grip on G.O.P. primary voters is as strong as it has been since he seized the party’s nomination.&#34;</span>)
+            .checkStoryByline(contains: <span style="color:#e6db74">&#34;By JONATHAN MARTIN and MAGGIE HABERMAN&#34;</span>)
+            .takeScreenshot(named: <span style="color:#e6db74">&#34;Story&#34;</span>)
+            .openSafari()
+            .checkURL(contains: <span style="color:#e6db74">&#34;https://www.nytimes.com/2018/08/27/us/politics/trump-endorsements.html&#34;</span>)
+            .closeSafari()
+    }
+}
+</code></pre></div><p>Boom! 💥<br>
+We just implemented the Robot Pattern! 🎉<br>
+UI Testing is now easy, elegant and readable! 💪</p>
+<p>Worth a try? Did you regain faith in UI Testing? If so, follow me on <a href="https://twitter.com/jhandguy">Twitter</a>, I’ll be happy to answer any of your questions and you’ll be the first one to know when a new article comes out! 👌</p>
+<p>Want to read more about UI Testing?<br>
+Check out <a href="/posts/generating-accessibility-identifiers-ios/">UI Testing in iOS - Generating Accessibility Identifiers using Reflection</a>, as well as my 3 parts series:</p>
+<ol>
+<li><a href="/posts/mocking-the-network-ios/">Painless UI Testing in iOS (Part 1) - Mocking the Network</a></li>
+<li><a href="/posts/stubbing-the-navigation-ios/">Painless UI Testing in iOS (Part 2) - Stubbing the Navigation</a></li>
+<li><a href="/posts/disabling-animations-ios/">Painless UI Testing in iOS (Part 3) - Disabling Animations</a></li>
+</ol>
+<p>If you’d like to see a <strong>real-life example of an app doing extensive UI Testing</strong>, don’t hesitate to check out my <a href="https://github.com/jhandguy/SwiftKotlination">Github</a> repo! 📦</p>
+<p>Until next time, happy testing! 🤖</p>
+<p>Bye Bye! 👋</p>
+
+        </div>
+    </div>
+    <div class="container is-fullhd has-text-centered mt-6">
+        <div class="columns is-mobile">
+            <div class="column">
+                
+                <a class="button is-primary is-pulled-left" href="https://jhandguy.github.io/posts/generating-accessibility-identifiers-ios/"><strong>Previous</strong></a>
+                
+            </div>
+            <div class="column">
+                <a class="button is-dark" href="#top"><strong>Back to top</strong></a>
+            </div>
+            <div class="column">
+                
+                <a class="button is-primary is-pulled-right" href="https://jhandguy.github.io/posts/path-to-cicd-nirvana-ios/"><strong>Next</strong></a>
+                
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+<footer>
+    <div class="footer has-background-light">
+        <div class="content has-text-centered">
+            <p class="subtitle is-6">Powered by <a class="has-text-primary" href="https://gohugo.io/">Hugo</a></p>
+            <a href="https://bulma.io">
+                <img src="https://bulma.io/images/made-with-bulma.png" alt="Made with Bulma" width="128" height="24">
+            </a>
+        </div>
+    </div>
+</footer>
+</html>

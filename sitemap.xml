@@ -3,12 +3,59 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://jhandguy.github.io/about/</loc>
-    <lastmod>2021-06-12T00:00:00+00:00</lastmod>
+    <lastmod>2021-06-21T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://jhandguy.github.io/categories/</loc>
+    <loc>https://jhandguy.github.io/posts/path-to-cicd-nirvana-ios/</loc>
+    <lastmod>2019-09-12T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://jhandguy.github.io/tags/devops/</loc>
+    <lastmod>2019-09-12T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://jhandguy.github.io/tags/ios/</loc>
+    <lastmod>2019-09-12T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://jhandguy.github.io/</loc>
+    <lastmod>2019-09-12T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://jhandguy.github.io/posts/</loc>
+    <lastmod>2019-09-12T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://jhandguy.github.io/tags/</loc>
+    <lastmod>2019-09-12T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://jhandguy.github.io/tags/testing/</loc>
+    <lastmod>2019-05-03T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://jhandguy.github.io/posts/robot-pattern-ios/</loc>
+    <lastmod>2019-05-03T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://jhandguy.github.io/posts/generating-accessibility-identifiers-ios/</loc>
+    <lastmod>2019-04-18T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://jhandguy.github.io/posts/disabling-animations-ios/</loc>
+    <lastmod>2019-02-25T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://jhandguy.github.io/posts/stubbing-the-navigation-ios/</loc>
+    <lastmod>2019-02-18T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://jhandguy.github.io/posts/mocking-the-network-ios/</loc>
+    <lastmod>2019-01-11T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://jhandguy.github.io/tags/design-pattern/</loc>
+    <lastmod>2018-11-26T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://jhandguy.github.io/posts/factory-design-pattern-ios/</loc>
+    <lastmod>2018-11-26T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://jhandguy.github.io/posts/coordinator-design-pattern-ios/</loc>
+    <lastmod>2018-11-19T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://jhandguy.github.io/posts/presenter-design-pattern-ios/</loc>
+    <lastmod>2018-11-12T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://jhandguy.github.io/posts/observer-design-pattern-ios/</loc>
+    <lastmod>2018-11-06T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://jhandguy.github.io/categories/</loc>
   </url>
 </urlset>

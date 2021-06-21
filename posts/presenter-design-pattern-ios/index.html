@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Lightweight Design Patterns in iOS (Part 2) - Presenter</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.2/css/bulma.min.css">
+</head>
+
+<body id="top" class="has-background-white">
+<nav class="navbar is-dark">
+    <div class="navbar-brand">
+        <a class="navbar-item" href="/">
+            Home
+        </a>
+
+        <div class="navbar-item">
+            <a class="button is-primary" href="/about">
+                <strong>About me</strong>
+            </a>
+        </div>
+    </div>
+</nav>
+<section class="section">
+    <div class="container is-max-desktop">
+        <div class="content is-large">
+            <h1 class="title">Lightweight Design Patterns in iOS (Part 2) - Presenter</h1>
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#presenter-pattern">Presenter Pattern</a></li>
+    <li><a href="#the-practical-way">The practical way</a></li>
+    <li><a href="#the-presenter-way">The Presenter way</a></li>
+  </ul>
+</nav>
+        </div>
+    </div>
+    <div class="container is-max-desktop mt-6">
+        <div class="content is-medium has-text-justified-tablet">
+            <p><strong>Design Patterns</strong> are part of Mobile Development for a while now and a revolution towards <em>Quality Assurance</em> is on. Such patterns have become a standard among the community, yet implementing an <em>academic</em> one might come with a price — <em>complexity</em>.</p>
+<p>Because some <strong>Design Patterns</strong> solve very complex problems, they often result in a complicated implementation as well. So complex sometimes, that we tend to use heavy <strong>Third Party Frameworks</strong>, even for simple use cases.</p>
+<blockquote>
+<p>The time has come to combine quality and simplicity.</p>
+</blockquote>
+<p>🎬 Hi there, I’m Jean!</p>
+<p>Previously on the series <strong>Lightweight Design Patterns in iOS</strong>, we have covered the case of the <a href="/posts/observer-design-pattern-ios/">Observer Pattern</a> and how to make it feel like RxSwift! 😍<br>
+In this episode, we will take a quick look at the <strong>Presenter Pattern</strong>, the problems it solves as well as how to implement it in a simple and yet powerful manner! 📺</p>
+<h2 id="presenter-pattern">Presenter Pattern</h2>
+<hr>
+<p>A <strong>Presenter</strong> is simply an independent layer of an architecture, which can show a <strong>View</strong> from anywhere in the application. 🚀</p>
+<p>In iOS, this means an independent <em>class</em> or <em>struct</em> able to present a <em>ViewController</em> on its own. 👌</p>
+<h2 id="the-practical-way">The practical way</h2>
+<hr>
+<p>The practical way to present a ViewController is to have an extension on <em>UIViewController</em> to make use of the <strong>present(viewController:)</strong> method. 💯</p>
+<p>If we now look at an example, let’s say: present an <strong>Alert</strong> with an <strong>Error</strong> description, it would look pretty simple. 👍</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">UIViewController</span> {
+    
+    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">present</span>(error: Error, animated: Bool, completion: (() -&gt; Void)? = <span style="color:#66d9ef">nil</span>) {
+        <span style="color:#66d9ef">let</span> alertController = UIAlertController(
+            title: <span style="color:#e6db74">&#34;Error&#34;</span>,
+            message: error.localizedDescription,
+            preferredStyle: .alert
+        )
+        <span style="color:#66d9ef">let</span> alertAction = UIAlertAction(
+            title: <span style="color:#e6db74">&#34;Ok&#34;</span>,
+            style: .<span style="color:#66d9ef">default</span>
+        )
+        alertController.addAction(alertAction)
+
+        present(alertController, animated: animated, completion: completion)
+    }
+}
+</code></pre></div><p>Though it might seem elegant at first, it actually comes with a price: every single <em>ViewController</em> is now able to present an <strong>Alert</strong> with an <strong>Error</strong> description. 😲</p>
+<p>Do we really want that? Or would we rather delegate this logic to an other independent layer? 🤔</p>
+<p>You know where I’m going… 😉</p>
+<h2 id="the-presenter-way">The Presenter way</h2>
+<hr>
+<p>Using a <strong>Presenter</strong>, we implement a separate entity responsible for presenting a <strong>View</strong>. This means for us, a <em>struct</em>! 🚀</p>
+<p>In the example of presenting an <strong>Error</strong>, we would implement an <em>ErrorPresenter</em> struct with the actual error as property and the <strong>present(in viewController:)</strong> function. ✅</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">ErrorPresenter</span> {
+    <span style="color:#66d9ef">let</span> error: Error
+
+    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">present</span>(<span style="color:#66d9ef">in</span> viewController: UIViewController, animated: Bool, completion: (() -&gt; Void)? = <span style="color:#66d9ef">nil</span>) {
+        <span style="color:#66d9ef">let</span> alertController = UIAlertController(
+            title: <span style="color:#e6db74">&#34;Error&#34;</span>,
+            message: error.localizedDescription,
+            preferredStyle: .alert
+        )
+        <span style="color:#66d9ef">let</span> alertAction = UIAlertAction(
+            title: <span style="color:#e6db74">&#34;Ok&#34;</span>,
+            style: .<span style="color:#66d9ef">default</span>
+        )
+        alertController.addAction(alertAction)
+
+        viewController.present(alertController, animated: animated, completion: completion)
+    }
+}
+</code></pre></div><p>And that’s all, we now have a completely independent <strong>Presenter</strong>, that can be called from anywhere in our App! 👏</p>
+<p>Calling our <em>ErrorPresenter</em> is as simple as it is elegant! 😎</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">let</span> presenter = ErrorPresenter(error: NetworkError())
+presenter.present(<span style="color:#66d9ef">in</span>: <span style="color:#66d9ef">self</span>, animated: <span style="color:#66d9ef">true</span>)
+</code></pre></div><p>And boom! 💥<br>
+We just made a lightweight <strong>Presenter</strong>! 🎉</p>
+<p>Worth it? Did that help you see what problems the <strong>Presenter Pattern</strong> is trying to solve? How to make such a pattern lightweight?</p>
+<p>If so, follow me on <a href="https://twitter.com/jhandguy">Twitter</a>, I’ll be happy to answer any of your questions and you’ll be the first one to know when a new article comes out! 👌</p>
+<p>See you next week, for the Part 3 of my series <strong>Lightweight Design Patterns in iOS</strong>!</p>
+<p>Bye bye! 👋</p>
+
+        </div>
+    </div>
+    <div class="container is-fullhd has-text-centered mt-6">
+        <div class="columns is-mobile">
+            <div class="column">
+                
+                <a class="button is-primary is-pulled-left" href="https://jhandguy.github.io/posts/observer-design-pattern-ios/"><strong>Previous</strong></a>
+                
+            </div>
+            <div class="column">
+                <a class="button is-dark" href="#top"><strong>Back to top</strong></a>
+            </div>
+            <div class="column">
+                
+                <a class="button is-primary is-pulled-right" href="https://jhandguy.github.io/posts/coordinator-design-pattern-ios/"><strong>Next</strong></a>
+                
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+<footer>
+    <div class="footer has-background-light">
+        <div class="content has-text-centered">
+            <p class="subtitle is-6">Powered by <a class="has-text-primary" href="https://gohugo.io/">Hugo</a></p>
+            <a href="https://bulma.io">
+                <img src="https://bulma.io/images/made-with-bulma.png" alt="Made with Bulma" width="128" height="24">
+            </a>
+        </div>
+    </div>
+</footer>
+</html>

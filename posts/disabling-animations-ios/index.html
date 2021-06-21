@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Painless UI Testing in iOS (Part 3) - Disabling Animations</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.2/css/bulma.min.css">
+</head>
+
+<body id="top" class="has-background-white">
+<nav class="navbar is-dark">
+    <div class="navbar-brand">
+        <a class="navbar-item" href="/">
+            Home
+        </a>
+
+        <div class="navbar-item">
+            <a class="button is-primary" href="/about">
+                <strong>About me</strong>
+            </a>
+        </div>
+    </div>
+</nav>
+<section class="section">
+    <div class="container is-max-desktop">
+        <div class="content is-large">
+            <h1 class="title">Painless UI Testing in iOS (Part 3) - Disabling Animations</h1>
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#disabling-animations">Disabling Animations</a></li>
+  </ul>
+</nav>
+        </div>
+    </div>
+    <div class="container is-max-desktop mt-6">
+        <div class="content is-medium has-text-justified-tablet">
+            <p>Let’s be realistic, UI Testing is a pain. For everybody. And with everybody, I include both Android and iOS developers. The main reason for it is that we’ve all come to this point when one-tenth of the UI Tests fail, randomly, for no definite reason. Could be the CI Virtual Machine which was slower than usual, or a small latency in the emulator… Don’t get me started with execution time… We’ve all been through that.<br>
+Well, guess what!</p>
+<blockquote>
+<p>The time has come to make UI Testing great again.</p>
+</blockquote>
+<p>🎬 Hi there, I’m Jean!</p>
+<p>Previously on the series <strong>Painless UI Testing in iOS</strong>, we have walked through <a href="/posts/stubbing-the-navigation-ios/">Stubbing the Navigation</a> using <strong>Coordinators</strong>. 🚦<br>
+In this episode, we will take a closer look at <strong>Disabling Animations</strong>! 🎭</p>
+<h2 id="disabling-animations">Disabling Animations</h2>
+<hr>
+<blockquote>
+<p>Animations are a great tool for making the App’s UX feel great, but become a real burden when it comes to UI Testing. In Android, animations can be disabled on the simulator itself but on iOS, it has to be done in the App.</p>
+</blockquote>
+<p>This is not something we can neglect, especially when animations have delays and/or durations: it can slow down the UI tests execution time significantly and even introduce flakiness. 😱<br>
+But well, you should know by now that this problem won’t be unanswered! 🧐</p>
+<p>The same way we did with <a href="/posts/stubbing-the-navigation-ios/">Stubbing the Navigation</a>, let’s create an enum. 👍<br>
+In it, let’s also add a Bool computed property to toggle the animations. 👨‍🎨</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">Foundation</span>
+
+<span style="color:#66d9ef">enum</span> <span style="color:#a6e22e">AnimationStub</span>: Identifiable {
+    <span style="color:#66d9ef">case</span> enableAnimations, disableAnimations
+
+    <span style="color:#66d9ef">var</span> areAnimationsEnabled: Bool {
+        <span style="color:#66d9ef">switch</span> <span style="color:#66d9ef">self</span> {
+        <span style="color:#66d9ef">case</span> .enableAnimations:
+            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span>
+        <span style="color:#66d9ef">case</span> .disableAnimations:
+            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span>
+        }
+    }
+}
+</code></pre></div><p>Looking good! 😎<br>
+Now, once more, let’s make it <em>Codable</em> so we can inject it in the <em>ProcessInfo</em>! 💉</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">Foundation</span>
+
+<span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">AnimationStub</span>: Codable {
+
+    <span style="color:#66d9ef">enum</span> <span style="color:#a6e22e">CodingKeys</span>: String, CodingKey { <span style="color:#66d9ef">case</span> areAnimationsEnabled }
+
+    <span style="color:#66d9ef">init</span>(from decoder: Decoder) <span style="color:#66d9ef">throws</span> {
+        <span style="color:#66d9ef">let</span> values = <span style="color:#66d9ef">try</span> decoder.container(keyedBy: CodingKeys.<span style="color:#66d9ef">self</span>)
+
+        <span style="color:#66d9ef">if</span> <span style="color:#66d9ef">let</span> areAnimationsEnabled = <span style="color:#66d9ef">try</span>? values.decode(Bool.<span style="color:#66d9ef">self</span>, forKey: .areAnimationsEnabled) {
+            <span style="color:#66d9ef">self</span> = areAnimationsEnabled ? .enableAnimations : .disableAnimations
+            <span style="color:#66d9ef">return</span>
+        }
+
+        <span style="color:#66d9ef">self</span> = .disableAnimations
+    }
+    
+    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">encode</span>(to encoder: Encoder) <span style="color:#66d9ef">throws</span> {
+        <span style="color:#66d9ef">var</span> container = encoder.container(keyedBy: CodingKeys.<span style="color:#66d9ef">self</span>)
+
+        <span style="color:#66d9ef">switch</span> <span style="color:#66d9ef">self</span> {
+        <span style="color:#66d9ef">case</span> .enableAnimations:
+            <span style="color:#66d9ef">try</span> container.encode(<span style="color:#66d9ef">true</span>, forKey: .areAnimationsEnabled)
+        <span style="color:#66d9ef">case</span> .disableAnimations:
+            <span style="color:#66d9ef">try</span> container.encode(<span style="color:#66d9ef">false</span>, forKey: .areAnimationsEnabled)
+        }
+    }
+}
+</code></pre></div><p>Nothing new, all clear! ✅<br>
+In the <em>AppDelegate</em>, we can now decode the <em>AnimationStub</em> and toggle the animations with it. 👌</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">UIKit</span>
+
+<span style="color:#66d9ef">@UIApplicationMain</span>
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">AppDelegate</span>: UIResponder, UIApplicationDelegate {
+    ...
+
+    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">application</span>(<span style="color:#66d9ef">_</span> application: UIApplication, willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = <span style="color:#66d9ef">nil</span>) -&gt; Bool {
+        <span style="color:#66d9ef">if</span> <span style="color:#66d9ef">let</span> animationStub = ProcessInfo.processInfo.decode(AnimationStub.<span style="color:#66d9ef">self</span>) {
+            UIView.setAnimationsEnabled(animationStub.areAnimationsEnabled)
+        }
+        ...
+
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span>
+    }
+    ...
+}
+</code></pre></div><p>You didn’t expect it to be that easy did ya’?! 😜<br>
+Last but not least, let’s complete our <em>XCUIApplication</em> extension to include our <em>AnimationStub</em> in the launch environment and we are good to go! 🚀</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">XCTest</span>
+
+<span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">XCUIApplication</span> {
+
+    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">launch</span>(<span style="color:#66d9ef">_</span> coordinatorStub: CoordinatorStub, with sessionMock: URLSessionMock = URLSessionMock(), and animationStub: AnimationStub = .disableAnimations) {
+        launchEnvironment[CoordinatorStub.identifier] = coordinatorStub.json
+        launchEnvironment[URLSessionMock.identifier] = sessionMock.json
+        launchEnvironment[AnimationStub.identifier] = animationStub.json
+        launch()
+    }
+}
+</code></pre></div><p>That’s it! 🎉<br>
+Now, by default, animations will be disabled during UI Testing! 💪<br>
+No more random flakiness! 🍾</p>
+<p>But if for one UI test we suddenly decide to keep the animations enabled, we can simply add the case <strong>.enableAnimations</strong> in the launch function and we’re all set! 🙌</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">XCTest</span>
+
+<span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SomethingUITest</span>: XCTestCase {
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">lazy</span> <span style="color:#66d9ef">var</span> app = XCUIApplication()
+
+    <span style="color:#66d9ef">override</span> <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">setUp</span>() {
+        <span style="color:#66d9ef">super</span>.setUp()
+        ...
+    }
+
+    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">testOpenSomething</span>() {
+        <span style="color:#66d9ef">let</span> something = Something(stuff: <span style="color:#e6db74">&#34;Stuff&#34;</span>, ...)
+        <span style="color:#66d9ef">let</span> sessionMock = URLSessionMock(
+            responses: [
+                .fetchSomething: [
+                    Response(File(<span style="color:#e6db74">&#34;something_response&#34;</span>, .json)),
+                    Response(error: .invalidResponse)
+                ]
+            ]
+        )
+
+        app.launch(.openSomething(something), with: sessionMock, and: .enableAnimations)
+        ...
+    }
+    ...
+}
+</code></pre></div><p>Was it worth it? Did that help you overcome the problems of UI Testing, finishing with <strong>Disabling Animations</strong>? Are you now feeling more confident about writing UI Tests?</p>
+<p>If so, follow me on <a href="https://twitter.com/jhandguy">Twitter</a>, I’ll be happy to answer any of your questions and you’ll be the first one to know when a new article comes out! 👌</p>
+<p>If you’d like to see a <strong>real-life example of an app doing extensive UI Testing</strong>, don’t hesitate to check out my <a href="https://github.com/jhandguy/SwiftKotlination">Github</a> repo! 📦</p>
+<p>Bye Bye! 👋</p>
+
+        </div>
+    </div>
+    <div class="container is-fullhd has-text-centered mt-6">
+        <div class="columns is-mobile">
+            <div class="column">
+                
+                <a class="button is-primary is-pulled-left" href="https://jhandguy.github.io/posts/stubbing-the-navigation-ios/"><strong>Previous</strong></a>
+                
+            </div>
+            <div class="column">
+                <a class="button is-dark" href="#top"><strong>Back to top</strong></a>
+            </div>
+            <div class="column">
+                
+                <a class="button is-primary is-pulled-right" href="https://jhandguy.github.io/posts/generating-accessibility-identifiers-ios/"><strong>Next</strong></a>
+                
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+<footer>
+    <div class="footer has-background-light">
+        <div class="content has-text-centered">
+            <p class="subtitle is-6">Powered by <a class="has-text-primary" href="https://gohugo.io/">Hugo</a></p>
+            <a href="https://bulma.io">
+                <img src="https://bulma.io/images/made-with-bulma.png" alt="Made with Bulma" width="128" height="24">
+            </a>
+        </div>
+    </div>
+</footer>
+</html>
