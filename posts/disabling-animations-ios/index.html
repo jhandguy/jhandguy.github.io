@@ -51,7 +51,7 @@ In this episode, we will take a closer look at <strong>Disabling Animations</str
 But well, you should know by now that this problem won’t be unanswered! 🧐</p>
 <p>The same way we did with <a href="/posts/stubbing-the-navigation-ios/">Stubbing the Navigation</a>, let’s create an enum. 👍<br>
 In it, let’s also add a Bool computed property to toggle the animations. 👨‍🎨</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">Foundation</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">Foundation</span>
 
 <span style="color:#66d9ef">enum</span> <span style="color:#a6e22e">AnimationStub</span>: Identifiable {
     <span style="color:#66d9ef">case</span> enableAnimations, disableAnimations
@@ -67,7 +67,7 @@ In it, let’s also add a Bool computed property to toggle the animations. 👨�
 }
 </code></pre></div><p>Looking good! 😎<br>
 Now, once more, let’s make it <em>Codable</em> so we can inject it in the <em>ProcessInfo</em>! 💉</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">Foundation</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">Foundation</span>
 
 <span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">AnimationStub</span>: Codable {
 
@@ -97,7 +97,7 @@ Now, once more, let’s make it <em>Codable</em> so we can inject it in the <em>
 }
 </code></pre></div><p>Nothing new, all clear! ✅<br>
 In the <em>AppDelegate</em>, we can now decode the <em>AnimationStub</em> and toggle the animations with it. 👌</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">UIKit</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">UIKit</span>
 
 <span style="color:#66d9ef">@UIApplicationMain</span>
 <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">AppDelegate</span>: UIResponder, UIApplicationDelegate {
@@ -115,7 +115,7 @@ In the <em>AppDelegate</em>, we can now decode the <em>AnimationStub</em> and to
 }
 </code></pre></div><p>You didn’t expect it to be that easy did ya’?! 😜<br>
 Last but not least, let’s complete our <em>XCUIApplication</em> extension to include our <em>AnimationStub</em> in the launch environment and we are good to go! 🚀</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">XCTest</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">XCTest</span>
 
 <span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">XCUIApplication</span> {
 
@@ -130,7 +130,7 @@ Last but not least, let’s complete our <em>XCUIApplication</em> extension to i
 Now, by default, animations will be disabled during UI Testing! 💪<br>
 No more random flakiness! 🍾</p>
 <p>But if for one UI test we suddenly decide to keep the animations enabled, we can simply add the case <strong>.enableAnimations</strong> in the launch function and we’re all set! 🙌</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">XCTest</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">XCTest</span>
 
 <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SomethingUITest</span>: XCTestCase {
     <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">lazy</span> <span style="color:#66d9ef">var</span> app = XCUIApplication()

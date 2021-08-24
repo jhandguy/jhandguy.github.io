@@ -52,7 +52,7 @@ In this episode, we will take a quick look at the <strong>Presenter Pattern</str
 <hr>
 <p>The practical way to present a ViewController is to have an extension on <em>UIViewController</em> to make use of the <strong>present(viewController:)</strong> method. 💯</p>
 <p>If we now look at an example, let’s say: present an <strong>Alert</strong> with an <strong>Error</strong> description, it would look pretty simple. 👍</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">UIViewController</span> {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">UIViewController</span> {
     
     <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">present</span>(error: Error, animated: Bool, completion: (() -&gt; Void)? = <span style="color:#66d9ef">nil</span>) {
         <span style="color:#66d9ef">let</span> alertController = UIAlertController(
@@ -76,7 +76,7 @@ In this episode, we will take a quick look at the <strong>Presenter Pattern</str
 <hr>
 <p>Using a <strong>Presenter</strong>, we implement a separate entity responsible for presenting a <strong>View</strong>. This means for us, a <em>struct</em>! 🚀</p>
 <p>In the example of presenting an <strong>Error</strong>, we would implement an <em>ErrorPresenter</em> struct with the actual error as property and the <strong>present(in viewController:)</strong> function. ✅</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">ErrorPresenter</span> {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">ErrorPresenter</span> {
     <span style="color:#66d9ef">let</span> error: Error
 
     <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">present</span>(<span style="color:#66d9ef">in</span> viewController: UIViewController, animated: Bool, completion: (() -&gt; Void)? = <span style="color:#66d9ef">nil</span>) {
@@ -96,7 +96,7 @@ In this episode, we will take a quick look at the <strong>Presenter Pattern</str
 }
 </code></pre></div><p>And that’s all, we now have a completely independent <strong>Presenter</strong>, that can be called from anywhere in our App! 👏</p>
 <p>Calling our <em>ErrorPresenter</em> is as simple as it is elegant! 😎</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">let</span> presenter = ErrorPresenter(error: NetworkError())
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">let</span> presenter = ErrorPresenter(error: NetworkError())
 presenter.present(<span style="color:#66d9ef">in</span>: <span style="color:#66d9ef">self</span>, animated: <span style="color:#66d9ef">true</span>)
 </code></pre></div><p>And boom! 💥<br>
 We just made a lightweight <strong>Presenter</strong>! 🎉</p>

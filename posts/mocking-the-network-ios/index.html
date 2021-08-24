@@ -54,7 +54,7 @@ But first, we need to prepare our <em>Network</em> layer for this kind of mockin
 See my article <a href="/posts/observer-design-pattern-ios/">Lightweight Design Patterns in iOS (Part 1) - Observer</a> for more details on how I like to build my Network layer! 😃</p>
 <p>Alright, alright, I’m gonna explain it to you! 😜<br>
 But first, let’s create a protocol (<em>URLSessionProtocol</em>) abstracting Foundation’s <em>URLSession</em>. 👌</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">Foundation</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">Foundation</span>
 
 <span style="color:#66d9ef">protocol</span> <span style="color:#a6e22e">URLSessionProtocol</span> {
     <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">dataTask</span>(with request: URLRequest, completionHandler: @escaping (Data?, URLResponse?, Error?) -&gt; Void) -&gt; URLSessionDataTaskProtocol
@@ -67,7 +67,7 @@ But first, let’s create a protocol (<em>URLSessionProtocol</em>) abstracting F
 }
 </code></pre></div><p>Now, as you can see, we also need a protocol for the <em>URLSessionDataTask</em>, so we can also make a mock implementation of the data task! 😃<br>
 Right on, let’s write our <em>URLSessionDataTaskProtocol</em>! ✍️</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">Foundation</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">Foundation</span>
 
 <span style="color:#66d9ef">protocol</span> <span style="color:#a6e22e">URLSessionDataTaskProtocol</span> {
     <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">resume</span>()
@@ -78,7 +78,7 @@ Right on, let’s write our <em>URLSessionDataTaskProtocol</em>! ✍️</p>
 <span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">URLSessionDataTask</span>: URLSessionDataTaskProtocol {}
 </code></pre></div><p>OK! 👌 That’s all the abstraction we need, for now at least. 😉<br>
 At this time, we can already inject it in our NetworkManager and see how it plays out! 👍</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">NetworkManager</span> {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">NetworkManager</span> {
 
     <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">var</span> session: URLSessionProtocol
     ...
@@ -101,7 +101,7 @@ At this time, we can already inject it in our NetworkManager and see how it play
 All we did was abstract the session with a protocol to allow a different implementation of it! 🚀</p>
 <p>Before we get to the mocking part, we first need to define the way we are going to mock the responses. 📄<br>
 Let’s start with the <em>Response</em> struct! 👍</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">Foundation</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">Foundation</span>
 
 <span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Response</span>: Codable {
     <span style="color:#66d9ef">var</span> file: File?
@@ -116,7 +116,7 @@ Let’s start with the <em>Response</em> struct! 👍</p>
 }
 </code></pre></div><p>As defined above, a Response can take a File (JSON or image) an <em>Error</em> and a <em>URLSessionDataTaskMock</em>.</p>
 <p>Before going any further, let’s see what a File is actually about. 👀</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">Foundation</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">Foundation</span>
 
 <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">File</span>: Codable {
     <span style="color:#66d9ef">var</span> name: String
@@ -147,7 +147,7 @@ Let’s start with the <em>Response</em> struct! 👍</p>
 Now we have the mock <em>Responses</em> as well as the protocols ready, mocking is very easy. 😃<br>
 All we need is making our own implementation of <em>URLSessionProtocol</em> and <em>URLSessionDataTaskProtocol</em> for testing purposes! 💯</p>
 <p>But first, let’s define our <em>Request</em> enum! ✅</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">enum</span> <span style="color:#a6e22e">Request</span>: Hashable {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">enum</span> <span style="color:#a6e22e">Request</span>: Hashable {
    <span style="color:#66d9ef">case</span> fetchSomething
    
    <span style="color:#66d9ef">var</span> url: String {
@@ -173,7 +173,7 @@ All we need is making our own implementation of <em>URLSessionProtocol</em> and 
 }
 </code></pre></div><p>Now, because we are going to use the <em>Request</em> as <strong>key</strong> to our responses <strong>Dictionary</strong>, we are going to map it to an absolute URL. 🗺</p>
 <p>For this purpose, let’s first create an extension on <em>Parameters</em> for getting a <strong>String</strong> representation of a <strong>query</strong> out of it. 👌</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">Parameters</span> {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">Parameters</span> {
 
     <span style="color:#66d9ef">var</span> query: String? {
         <span style="color:#66d9ef">switch</span> <span style="color:#66d9ef">self</span> {
@@ -195,7 +195,7 @@ All we need is making our own implementation of <em>URLSessionProtocol</em> and 
     }
 }
 </code></pre></div><p>And now we’ll create an extension on <em>Request</em> to get a <strong>String</strong> representation of an <strong>absolute URL</strong> from it. 👍</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">Request</span> {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">Request</span> {
 
     <span style="color:#66d9ef">var</span> absoluteUrl: String {
         <span style="color:#66d9ef">guard</span> <span style="color:#66d9ef">let</span> query = parameters.query <span style="color:#66d9ef">else</span> {
@@ -209,7 +209,7 @@ All we need is making our own implementation of <em>URLSessionProtocol</em> and 
 Let’s get started with the <em>URLSessionMock</em> then! 💪<br>
 All it needs is a <strong>mutable Dictionary</strong> of <em>Requests</em> (<strong>keys</strong>) and <em>Responses</em> (<strong>values</strong>) as well as conforming to our <em>URLSessionProtocol</em>. 👌<br>
 The <em>Responses</em> <strong>Array</strong> inside the <strong>Dictionary</strong> will behave like a <strong>Queue</strong> (FIFO — First In First Out), meaning that they will be consumed just like a real network would! 😮 Simple! 🙌</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">Foundation</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">Foundation</span>
 
 <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">URLSessionMock</span>: Codable {
     <span style="color:#66d9ef">private</span>(<span style="color:#66d9ef">set</span>) <span style="color:#66d9ef">var</span> responses: [String: [Response]]
@@ -241,7 +241,7 @@ The <em>Responses</em> <strong>Array</strong> inside the <strong>Dictionary</str
 </code></pre></div><p>With this implementation, we have complete control over the requests being made. 👮<br>
 We can decide which <em>Response</em> to return depending on the <em>Request</em> and even stub on the data task! 🤯<br>
 Speaking of which, here is the mock implementation of the <em>URLSessionDataTaskProtocol</em>. 😉</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">URLSessionDataTaskMock</span>: Codable {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">URLSessionDataTaskMock</span>: Codable {
     <span style="color:#66d9ef">private</span>(<span style="color:#66d9ef">set</span>) <span style="color:#66d9ef">var</span> isResumed = <span style="color:#66d9ef">false</span>
 }
 
@@ -262,7 +262,7 @@ Speaking of which, here is the mock implementation of the <em>URLSessionDataTask
 Before writing our tests, let’s add some helper functions/variables! 👍</p>
 <p>To avoid making use of hardcoded strings, let’s create an <em>Identifiable</em> protocol which will provide an <em>identifier</em> to any class that conforms to it! 💪<br>
 That way, when injecting the <em>URLSessionMock</em> in the launch environment dictionary, we can use the <em>identifier</em> variable as the key. 🔑</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">Foundation</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">Foundation</span>
 
 <span style="color:#66d9ef">protocol</span> <span style="color:#a6e22e">Identifiable</span> {
     <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">var</span> identifier: String { <span style="color:#66d9ef">get</span> }
@@ -277,7 +277,7 @@ That way, when injecting the <em>URLSessionMock</em> in the launch environment d
 <span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">URLSessionMock</span>: Identifiable {}
 </code></pre></div><p>And finally, here are some small extension functions/variables for encoding/decoding our mock from the environment! 💯</p>
 <p>Let’s start with an extension on <em>ProcessInfo</em> to decode any <em>Identifiable</em>…</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">Foundation</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">Foundation</span>
 
 <span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">ProcessInfo</span> {
     
@@ -292,7 +292,7 @@ That way, when injecting the <em>URLSessionMock</em> in the launch environment d
     }
 }
 </code></pre></div><p>Then, make an extension on <em>Decodable</em> to decode from any <em>String</em>…</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">Foundation</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">Foundation</span>
 
 <span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">Decodable</span> {
     
@@ -305,7 +305,7 @@ That way, when injecting the <em>URLSessionMock</em> in the launch environment d
     }
 }
 </code></pre></div><p>Lastly, write an extension on <em>Encodable</em> to encode to either String or Data! ✅</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">Foundation</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">Foundation</span>
 
 <span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">Encodable</span> {
 
@@ -325,7 +325,7 @@ That way, when injecting the <em>URLSessionMock</em> in the launch environment d
 We are done with preparations! 🎉</p>
 <p>Now, we need to inject the <em>URLSessionMock</em> in the launch environment so it can be received in the <em>AppDelegate</em>! 💉<br>
 Let’s create a nice extension function on <em>XCUIApplication</em> to help us achieve that. 💪</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">XCTest</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">XCTest</span>
 
 <span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">XCUIApplication</span> {
 
@@ -336,7 +336,7 @@ Let’s create a nice extension function on <em>XCUIApplication</em> to help us 
 }
 </code></pre></div><p>And last but not least, the <em>AppDelegate</em> is now able to decode the <em>URLSessionMock</em> from the <em>ProcessInfo</em> and pass it to the <em>NetworkManager</em>! 👌<br>
 Yes, that’s all. 😎</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">UIKit</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">UIKit</span>
 
 <span style="color:#66d9ef">@UIApplicationMain</span>
 <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">AppDelegate</span>: UIResponder, UIApplicationDelegate {
@@ -351,7 +351,7 @@ Yes, that’s all. 😎</p>
 }
 </code></pre></div><p>All set! ✊<br>
 Now, look how simple and elegant UI testing is! 😮</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">XCTest</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">XCTest</span>
 
 <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SomethingUITest</span>: XCTestCase {
     <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">lazy</span> <span style="color:#66d9ef">var</span> app = XCUIApplication()

@@ -55,13 +55,13 @@ The <strong>Coordinator</strong> allows you to separate the <strong>Navigation l
 <hr>
 <p>We have an app, that displays a list of “things” and tapping on one of them opens a detail screen with more information concerning that item. Easy. 👍</p>
 <p>Our navigation is going to look very concise: we will first <strong>start</strong> with a list of things and later on eventually <strong>open something</strong>. This flow definition is nothing else than our <strong>CoordinatorProtocol</strong>! 👌</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">protocol</span> <span style="color:#a6e22e">CoordinatorProtocol</span>: <span style="color:#66d9ef">class</span> {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">protocol</span> <span style="color:#a6e22e">CoordinatorProtocol</span>: <span style="color:#66d9ef">class</span> {
     <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">start</span>()
     <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">open</span>(<span style="color:#66d9ef">_</span> something: Something)
 }
 </code></pre></div><p>Looking good! 😎<br>
 Let’s now implement the actual <strong>Coordinator</strong>!</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Coordinator</span> {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Coordinator</span> {
     <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">let</span> window: UIWindow
     <span style="color:#66d9ef">let</span> navigationController = UINavigationController()
     
@@ -73,7 +73,7 @@ Let’s now implement the actual <strong>Coordinator</strong>!</p>
 }
 </code></pre></div><p>As you can see, we need to inject a <em>UIWindow</em> in the <strong>init</strong> method, in order to make the <strong>navigationController</strong> the <em>rootViewController</em> of this window. 📱</p>
 <p>Now, implementing the <em>CoordinatorProtocol</em> will only consist of instantiating the <em>ViewControllers</em> with their dependencies injected and push them to the <em>NavigationController</em>! 💯</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">Coordinator</span>: CoordinatorProtocol {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">Coordinator</span>: CoordinatorProtocol {
     <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">start</span>() {
         <span style="color:#66d9ef">let</span> viewController = MainViewController()
         viewController.viewModel = MainViewModel()
@@ -90,7 +90,7 @@ Let’s now implement the actual <strong>Coordinator</strong>!</p>
 }
 </code></pre></div><p>And that’s it! Our flow is now implemented, and can be <strong>started/continued</strong> from anywhere in the App! 🎉</p>
 <p>Let’s start with the <em>AppDelegate</em>!</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">@UIApplicationMain</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">@UIApplicationMain</span>
 <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">AppDelegate</span>: UIResponder, UIApplicationDelegate {
     <span style="color:#66d9ef">var</span> coordinator: CoordinatorProtocol!
 
@@ -107,7 +107,7 @@ Let’s now implement the actual <strong>Coordinator</strong>!</p>
     }
 }
 </code></pre></div><p>Nice and simple! Now let’s look at the <em>MainViewController</em>!</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MainViewController</span>: UITableViewController {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MainViewController</span>: UITableViewController {
   <span style="color:#66d9ef">weak</span> <span style="color:#66d9ef">var</span> coordinator: CoordinatorProtocol?
   <span style="color:#66d9ef">var</span> viewModel: SomethingViewModel!
   
@@ -125,7 +125,7 @@ Let’s now implement the actual <strong>Coordinator</strong>!</p>
 <hr>
 <p>Unit testing the navigation has never been easier!<br>
 Before writing any test, let’s implement a <em>CoordinatorMock</em> first! 🐚</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CoordinatorMock</span>: CoordinatorProtocol {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CoordinatorMock</span>: CoordinatorProtocol {
     <span style="color:#66d9ef">private</span>(<span style="color:#66d9ef">set</span>) <span style="color:#66d9ef">var</span> isStarted = <span style="color:#66d9ef">false</span>
     <span style="color:#66d9ef">private</span>(<span style="color:#66d9ef">set</span>) <span style="color:#66d9ef">var</span> isSomethingOpened = <span style="color:#66d9ef">false</span>
 
@@ -140,7 +140,7 @@ Before writing any test, let’s implement a <em>CoordinatorMock</em> first! �
 </code></pre></div><p>As you can see, we are just implementing the <em>CoordinatorProtocol</em> and toggle the respective boolean properties whenever a method is called. 🚀<br>
 Simple right?! Well, look at how easy testing now is! 💪</p>
 <p>Let’s start with the <em>AppDelegate</em> and verify the <strong>start</strong> method is called!</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">AppDelegateTest</span>: XCTestCase {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">AppDelegateTest</span>: XCTestCase {
     <span style="color:#66d9ef">var</span> sut: AppDelegate!
 
     <span style="color:#66d9ef">override</span> <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">setUp</span>() {
@@ -159,7 +159,7 @@ Simple right?! Well, look at how easy testing now is! 💪</p>
 }
 </code></pre></div><p>Marvellous! 💄</p>
 <p>And now with the <em>MainViewController</em>, let’s make sure the <strong>open</strong> function is called!</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MainViewControllerTest</span>: XCTestCase {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MainViewControllerTest</span>: XCTestCase {
   <span style="color:#66d9ef">var</span> sut: MainViewController!
     
   <span style="color:#66d9ef">override</span> <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">setUp</span>() {

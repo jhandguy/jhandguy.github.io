@@ -44,7 +44,7 @@
 <h2 id="the-usual-way">The usual way</h2>
 <hr>
 <p>Usually, assigning an <strong>Accessibility Identifier</strong> to a View is rather straightforward…</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SomethingViewController</span>: UIViewController {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SomethingViewController</span>: UIViewController {
     
     <span style="color:#66d9ef">@IBOutlet</span> <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">weak</span> <span style="color:#66d9ef">var</span> titleLabel: UILabel!
     <span style="color:#66d9ef">@IBOutlet</span> <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">weak</span> <span style="color:#66d9ef">var</span> descriptionLabel: UILabel!
@@ -63,7 +63,7 @@ However, we can easily spot the problem here, <strong>it’s a hell of a boilerp
 <hr>
 <p>That’s right! Let’s use the awesome Swift’s reflection API: <strong>Mirror</strong>! 🔮<br>
 To make it generic and reusable across all <em>ViewControllers/Views</em>, let’s wrap it inside a protocol called <strong>Accessible</strong>! 👍</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">protocol</span> <span style="color:#a6e22e">Accessible</span> {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">protocol</span> <span style="color:#a6e22e">Accessible</span> {
     <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">generateAccessibilityIdentifiers</span>()
 }
 
@@ -88,7 +88,7 @@ To make it generic and reusable across all <em>ViewControllers/Views</em>, let�
 <p>The first step is to instantiate a <strong>Mirror</strong> reflecting the type conforming to <strong>Accessible</strong> (<em>self</em>). Then, we iterate through all children (<em>properties</em>) of <em>self</em> and, whenever a child is of type <em>View</em>, assign an <strong>Accessibility Identifier</strong> with the format: <code>&quot;ParentType.ChildProperty&quot;</code> ✅</p>
 <p>Simple! 👍<br>
 Now, going back to our initial implementation of the ViewController, things will suddenly get much smoother! 😎</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SomethingViewController</span>: UIViewController, Accessible {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SomethingViewController</span>: UIViewController, Accessible {
     
     <span style="color:#66d9ef">@IBOutlet</span> <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">weak</span> <span style="color:#66d9ef">var</span> titleLabel: UILabel!
     <span style="color:#66d9ef">@IBOutlet</span> <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">weak</span> <span style="color:#66d9ef">var</span> descriptionLabel: UILabel!

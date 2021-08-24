@@ -57,7 +57,7 @@ Let me introduce you…<br>
 <p>Alright, let’s get right to the point with a concrete example. 👌<br>
 We have an app, which <strong>displays a list of items</strong> and tapping on one would <strong>open</strong> a new screen giving more <strong>details about this item</strong>. Simple. 👍<br>
 So, let’s write our <em>Coordinator</em> then! ✍️</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">UIKit</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">UIKit</span>
 
 <span style="color:#66d9ef">protocol</span> <span style="color:#a6e22e">CoordinatorProtocol</span>: <span style="color:#66d9ef">class</span> {
     <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">start</span>()
@@ -91,7 +91,7 @@ So, let’s write our <em>Coordinator</em> then! ✍️</p>
 }
 </code></pre></div><p>No surprise, just a standard Coordinator like you know it already! 😃<br>
 Now, looking at our <em>AppDelegate</em>, instantiating and starting our <em>Coordinator</em> is also quite straightforward. 👌</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">UIKit</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">UIKit</span>
 
 <span style="color:#66d9ef">@UIApplicationMain</span>
 <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">AppDelegate</span>: UIResponder, UIApplicationDelegate {
@@ -119,7 +119,7 @@ And a very simple approach to that would be, to simply tell our <em>Coordinator<
 <p>Now how are we going to do that? 🤔<br>
 Well, as we did with <a href="/posts/mocking-the-network-ios/">Mocking the Network</a>, let’s pass that information through the launch environment and decide, at runtime in the <em>AppDelegate</em>, which method to call in our <em>Coordinator</em>! 😃<br>
 And all we need for that is an enum! 😆</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">Foundation</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">Foundation</span>
 
 <span style="color:#66d9ef">enum</span> <span style="color:#a6e22e">CoordinatorStub</span>: Identifiable {
     <span style="color:#66d9ef">case</span> start
@@ -127,7 +127,7 @@ And all we need for that is an enum! 😆</p>
 }
 </code></pre></div><p>That’s it, that’s our stub. 😮<br>
 Now, let’s make it <em>Codable</em> so we can inject it in the <em>ProcessInfo</em>! 💉</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">Foundation</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">Foundation</span>
 
 <span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">CoordinatorStub</span>: Codable {
 
@@ -157,7 +157,7 @@ Now, let’s make it <em>Codable</em> so we can inject it in the <em>ProcessInfo
 }
 </code></pre></div><p>Alright, we’re good to go! 🚶<br>
 Now, let’s improve our <em>XCUIApplication</em> extension to include the <em>CoordinatorStub</em> in the launch environment! 👍</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">XCTest</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">XCTest</span>
 
 <span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">XCUIApplication</span> {
 
@@ -168,7 +168,7 @@ Now, let’s improve our <em>XCUIApplication</em> extension to include the <em>C
     }
 }
 </code></pre></div><p>The last piece of the puzzle: decode the <em>CoordinatorStub</em> inside the <em>AppDelegate</em> and call the desired method in the <em>Coordinator</em>! 👌</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">UIKit</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">UIKit</span>
 
 <span style="color:#66d9ef">@UIApplicationMain</span>
 <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">AppDelegate</span>: UIResponder, UIApplicationDelegate {
@@ -201,7 +201,7 @@ Now, let’s improve our <em>XCUIApplication</em> extension to include the <em>C
 }
 </code></pre></div><p>Smooth! 😍<br>
 Now let’s take a closer look at our UI tests and see how it plays out! 👀</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">XCTest</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">XCTest</span>
 
 <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SomethingUITest</span>: XCTestCase {
     <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">lazy</span> <span style="color:#66d9ef">var</span> app = XCUIApplication()

@@ -46,7 +46,7 @@
 <h2 id="the-usual-way">The usual way</h2>
 <hr>
 <p>Usually, all UI Testing logic is bundled in one test function. Which inevitably leads to this…</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">uglyUITest</span>() {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">uglyUITest</span>() {
     ...
     app.launch()
     <span style="color:#66d9ef">let</span> title = app.navigationBars.firstMatch.otherElements.firstMatch
@@ -76,7 +76,7 @@ And to be fair, I’m not angry at you; this UI Test was fairly <strong>unreadab
 The idea Jake had for the Android community is to separate in a UI Test the <em>What</em> from the <em>How</em>.<br>
 And to achieve this, he introduced a new layer called: <strong>Robot</strong>.</p>
 <p>Transcribed to iOS (Swift), our UI Test now looks like this…</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">prettyUITest</span>() {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">prettyUITest</span>() {
     ...
     StoryRobot(app)
         .start()
@@ -93,7 +93,7 @@ Exactly, in the UI Test itself, we are now left only with the <em>What</em> and 
 <hr>
 <p>First and foremost, we are going to implement a base <em>Robot</em>.<br>
 This class will take care of setting up Fastlane’s Snapshot, launching the app and providing a nice panel of util functions, such as tapping on elements, making assertions and taking screenshots… 👌</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Robot</span> {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Robot</span> {
 
     <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">let</span> defaultTimeout: Double = <span style="color:#ae81ff">30</span>
 
@@ -159,7 +159,7 @@ This class will take care of setting up Fastlane’s Snapshot, launching the app
 }
 </code></pre></div><p>Simple, right?<br>
 Oh, by the way, here is the Predicate enum I am using for making assertions, you’ll find it quite handy! 😎</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">enum</span> <span style="color:#a6e22e">Predicate</span> {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">enum</span> <span style="color:#a6e22e">Predicate</span> {
     <span style="color:#66d9ef">case</span> contains(String), doesNotContain(String)
     <span style="color:#66d9ef">case</span> exists, doesNotExist
     <span style="color:#66d9ef">case</span> isHittable, isNotHittable
@@ -182,7 +182,7 @@ Oh, by the way, here is the Predicate enum I am using for making assertions, you
     }
 }
 </code></pre></div><p>Alright! Now our Base <strong>Robot</strong> class is ready, let’s inherit from it in the <em>StoryRobot</em> and see how it plays out! 🤖</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">StoryRobot</span>: Robot {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">StoryRobot</span>: Robot {
 
     <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">lazy</span> <span style="color:#66d9ef">var</span> stackView          = app.otherElements[<span style="color:#e6db74">&#34;StoryView.stackView&#34;</span>]
     <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">lazy</span> <span style="color:#66d9ef">var</span> multimediaImage    = stackView.images[<span style="color:#e6db74">&#34;StoryView.multimediaImageView&#34;</span>]
@@ -222,7 +222,7 @@ Oh, by the way, here is the Predicate enum I am using for making assertions, you
 What’s also really nice about <strong>Robots</strong>, is that they can cross call themselves without breaking the continuity of our UI Tests! 🤯</p>
 <p>For instance, let’s say we want to open Safari in the <em>StoryUITest</em>.<br>
 All we need to do is create a <em>SafariRobot</em> which will take care of UI Testing the browser and create a function inside the <em>StoryRobot</em> that will open Safari as well as return the <em>SafariRobot</em>! 😮</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">lazy</span> <span style="color:#66d9ef">var</span> urlButton = stackView.buttons[<span style="color:#e6db74">&#34;StoryView.urlButton&#34;</span>]
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">lazy</span> <span style="color:#66d9ef">var</span> urlButton = stackView.buttons[<span style="color:#e6db74">&#34;StoryView.urlButton&#34;</span>]
 
 @discardableResult
 <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">openSafari</span>() -&gt; SafariRobot {
@@ -231,7 +231,7 @@ All we need to do is create a <em>SafariRobot</em> which will take care of UI Te
     <span style="color:#66d9ef">return</span> SafariRobot(app)
 }
 </code></pre></div><p>And as you can see now, the continuity of our UI Test isn’t disturbed…</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">StoryUITest</span>: XCTestCase {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">StoryUITest</span>: XCTestCase {
     
     <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">lazy</span> <span style="color:#66d9ef">var</span> app = XCUIApplication()
   

@@ -57,16 +57,16 @@ But guess what: you can do it yourself, with no more than 💯 <strong>lines</st
 <h2 id="define-an-observable">Define an Observable</h2>
 <hr>
 <p>To start, let’s create a <em>Result</em> enum.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">enum</span> <span style="color:#a6e22e">Result</span>&lt;T&gt; {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">enum</span> <span style="color:#a6e22e">Result</span>&lt;T&gt; {
    <span style="color:#66d9ef">case</span> success(T)
    <span style="color:#66d9ef">case</span> failure(Error)
 }
 </code></pre></div><p>Then, let’s define the <em>Observer</em> type alias, which is no more than a <strong>closure</strong> taking a <em>Result</em> as parameter.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">typealias</span> Observer&lt;T&gt; = (Result&lt;T&gt;) -&gt; Void
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">typealias</span> Observer&lt;T&gt; = (Result&lt;T&gt;) -&gt; Void
 </code></pre></div><p>Simple so far, right? Moving on! 🏃‍</p>
 <p>The next element we need is the <em>Request</em> enum for the <em>NetworkManager</em>.<br>
 It needs to contain a <em>url</em>, a <em>method</em> as well as <em>parameters</em>. ✅</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">enum</span> <span style="color:#a6e22e">Request</span>: Hashable {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">enum</span> <span style="color:#a6e22e">Request</span>: Hashable {
    <span style="color:#66d9ef">case</span> fetchSomething
    
    <span style="color:#66d9ef">var</span> url: String {
@@ -94,20 +94,20 @@ It needs to contain a <em>url</em>, a <em>method</em> as well as <em>parameters<
 <p>But have you noticed? The enum <em>Request</em> is <em>Hashable</em>! 🤭<br>
 This means that a <em>Request</em> can be used as key to a Dictionary… 🤔<br>
 In this case, <strong>subscribe</strong> to a <em>Request</em> means that the <em>Observer(s)</em> will need to be grouped by <em>Request</em>. Which leads us to a Dictionary with <em>Requests</em> as <strong>keys</strong> and <em>Observers</em> as <strong>values</strong>: we are of course talking about the <strong>observables</strong>! 🤯</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">var</span> observables: [Request: [Observer&lt;Data&gt;]]
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">var</span> observables: [Request: [Observer&lt;Data&gt;]]
 </code></pre></div><p>Looking good huh?! 😎<br>
 “Only one thing missing”- you’ll tell me - “how do we subscribe to them?” 🤔</p>
 <h2 id="subscribe-to-a-request">Subscribe to a Request</h2>
 <hr>
 <p>Looking now at the <em>NetworkManager</em>, its protocol is quite synthetic:<br>
 <strong>observe</strong> a <em>Request</em> with an <em>Observer</em> or simply <strong>execute</strong> a <em>Request</em>. 👌</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">protocol</span> <span style="color:#a6e22e">NetworkManagerProtocol</span> {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">protocol</span> <span style="color:#a6e22e">NetworkManagerProtocol</span> {
    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">observe</span>(<span style="color:#66d9ef">_</span> request: Request, <span style="color:#66d9ef">_</span> observer: @escaping Observer&lt;Data&gt;)
    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">execute</span>(<span style="color:#66d9ef">_</span> request: Request)
 }
 </code></pre></div><p>Nice and simple, all we want, is <strong>observe</strong> a <em>Request</em>, with a given <em>Observer</em> and in case of a pull-to-refresh action, simply <strong>executes</strong> a <em>Request</em> to notify the <strong>subscribed</strong> <em>Observer(s)</em>! 🚀</p>
 <p>Alright, let’s implement it then! 💪</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">NetworkManager</span>: NetworkManagerProtocol {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">NetworkManager</span>: NetworkManagerProtocol {
    
    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">observe</span>(<span style="color:#66d9ef">_</span> request: Request, <span style="color:#66d9ef">_</span> observer: @escaping Observer&lt;Data&gt;) {
       <span style="color:#66d9ef">var</span> observers = observables[request] ?? []
@@ -127,14 +127,14 @@ In this case, <strong>subscribe</strong> to a <em>Request</em> means that the <e
 }
 </code></pre></div><p>And that’s it! We’re done! ✅<br>
 We now can <strong>decode</strong> Data to <em>Something</em> in a dedicated <em>Manager</em>! 👌</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">something</span>(<span style="color:#66d9ef">_</span> observer: @escaping Observer&lt;Something&gt;) {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">something</span>(<span style="color:#66d9ef">_</span> observer: @escaping Observer&lt;Something&gt;) {
    networkManager
       .observe(.fetchSomething) { result <span style="color:#66d9ef">in</span>
          ...
    }   
 }
 </code></pre></div><p>And use this <em>Manager</em> in the <em>ViewController</em> to update the view accordingly! 👍</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">override</span> <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">viewWillAppear</span>(<span style="color:#66d9ef">_</span> animated: Bool) {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">override</span> <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">viewWillAppear</span>(<span style="color:#66d9ef">_</span> animated: Bool) {
    <span style="color:#66d9ef">super</span>.viewWillAppear(animated)
   
    somethingManager
@@ -153,12 +153,12 @@ Let’s implement a <strong>DisposeBag</strong> ourselves then! 💪</p>
 <hr>
 <p>So, to dispose of an <em>Observer</em>, we first need to identify it, as so far it is simply stored in an array, remember? 🙂</p>
 <p>How about having a Dictionary instead with <strong>unique identifiers</strong> as keys?! 😯</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">var</span> observables: [Request: [UUID: Observer&lt;Data&gt;]]
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">var</span> observables: [Request: [UUID: Observer&lt;Data&gt;]]
 </code></pre></div><p>Nice!<br>
 Now, an <strong>observable</strong> consists of a <em>Request</em>, which is <strong>observed</strong> by one or several <em>Observer(s)</em>.<br>
 Each one of them, is uniquely <strong>identified</strong> with a <em>UUID</em>! 👏</p>
 <p>Awesome, let’s change the <em>NetworkManager</em> a little bit… 😕</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">NetworkManager</span>: NetworkManagerProtocol {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">NetworkManager</span>: NetworkManagerProtocol {
    
    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">observe</span>(<span style="color:#66d9ef">_</span> request: Request, <span style="color:#66d9ef">_</span> observer: @escaping Observer&lt;Data&gt;) {
       <span style="color:#66d9ef">let</span> uuid = UUID()
@@ -180,11 +180,11 @@ Each one of them, is uniquely <strong>identified</strong> with a <em>UUID</em>! 
 </code></pre></div><p>Not so bad finally, it looks almost the same! 😲<br>
 Alright, last piece of the puzzle, I promise! 😇</p>
 <p>We need to implement a Disposable, so we can <strong>dispose</strong> of an <em>Observer</em>. 🗑</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Disposable</span> {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Disposable</span> {
    <span style="color:#66d9ef">let</span> closure: () -&gt; Void
 }
 </code></pre></div><p>Now, let’s make the <em>DisposeBag</em>! 👜</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">DisposeBag</span> {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">DisposeBag</span> {
    <span style="color:#66d9ef">var</span> disposables: [Disposable] = []
   
    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">dispose</span>() {
@@ -193,7 +193,7 @@ Alright, last piece of the puzzle, I promise! 😇</p>
    }
 }
 </code></pre></div><p>Finally, let’s bind those two together! 💞</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">Disposable</span> {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">Disposable</span> {
    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">disposed</span>(by disposeBag: DisposeBag) {
       disposeBag.disposables.append(<span style="color:#66d9ef">self</span>)
    }
@@ -201,12 +201,12 @@ Alright, last piece of the puzzle, I promise! 😇</p>
 </code></pre></div><p>That was easy! 😎<br>
 Almost there, only one last small tweak in the <em>NetworkManager</em> and we’re finished! 🏁<br>
 Let’s now return the <em>Disposable</em> when <strong>observing</strong> a <em>Request</em>!</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">protocol</span> <span style="color:#a6e22e">NetworkManagerProtocol</span> {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">protocol</span> <span style="color:#a6e22e">NetworkManagerProtocol</span> {
    @discardableResult
    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">observe</span>(<span style="color:#66d9ef">_</span> request: Request, <span style="color:#66d9ef">_</span> observer: @escaping Observer&lt;Data&gt;) -&gt; Disposable
    ...
 }
-</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">NetworkManager</span>: NetworkManagerProtocol {
+</code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">NetworkManager</span>: NetworkManagerProtocol {
 
    @discardableResult
    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">observe</span>(<span style="color:#66d9ef">_</span> request: Request, <span style="color:#66d9ef">_</span> observer: @escaping Observer&lt;Data&gt;) {
@@ -225,7 +225,7 @@ Let’s now return the <em>Disposable</em> when <strong>observing</strong> a <em
 }
 </code></pre></div><p>And we’re finally done! 🙌</p>
 <p>From now on, <strong>disposing</strong> an <strong>observable</strong> from the <em>ViewController</em> is ridiculously simple! 😆</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">let</span> disposeBag = DisposeBag()
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">let</span> disposeBag = DisposeBag()
 
 <span style="color:#66d9ef">override</span> <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">viewWillAppear</span>(<span style="color:#66d9ef">_</span> animated: Bool) {
    <span style="color:#66d9ef">super</span>.viewWillAppear(animated)
