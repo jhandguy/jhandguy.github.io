@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Canary Deployment in Kubernetes (Part 1) — Simple Canary Deployment using Ingress NGINX</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+
+<body id="top" class="has-background-white">
+<nav class="navbar is-dark">
+    <div class="navbar-brand">
+        <a class="navbar-item" href="/">
+            Home
+        </a>
+
+        <div class="navbar-item">
+            <a class="button is-primary" href="/about">
+                <strong>About me</strong>
+            </a>
+        </div>
+    </div>
+</nav>
+<section class="section">
+    <div class="container is-max-desktop">
+        <div class="content is-large">
+            <h1 class="title">Canary Deployment in Kubernetes (Part 1) — Simple Canary Deployment using Ingress NGINX</h1>
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#requirements">Requirements</a></li>
+    <li><a href="#installing-nginx-ingress-controller">Installing NGINX Ingress Controller</a></li>
+    <li><a href="#configuring-ingress-canary-annotations">Configuring Ingress Canary Annotations</a></li>
+    <li><a href="#rolling-out-canary-deployments-incrementally">Rolling-out Canary Deployments Incrementally</a>
+      <ul>
+        <li><a href="#load-testing-with-k6">Load Testing with k6</a></li>
+      </ul>
+    </li>
+    <li><a href="#wrapping-up">Wrapping up</a></li>
+  </ul>
+</nav>
+        </div>
+    </div>
+    <div class="container is-max-desktop mt-6">
+        <div class="content is-medium has-text-justified-tablet">
+            <p>Deploying to production in Kubernetes can be quite stressful. Even after meaningful and reliable automated tests have successfully passed, there is still room for things to go wrong and lead to a nasty incident when pressing the final button.</p>
+<p>Thankfully, Kubernetes is made to be resilient to this kind of scenario, and rolling back is a no-brainer. But still, rolling back means that, at least for some time, <strong>all of the users</strong> were negatively impacted by the faulty change…</p>
+<p>What if we could smoke test our change in production <strong>before</strong> it actually hits real users? What if we could roll out a change incrementally to <strong>some users</strong> instead of all of them at once? What if we could detect a faulty deployment and roll it back automatically?<br>
+Well, that, my friend, is what Canary Deployment is all about!</p>
+<blockquote>
+<p>Minimizing the impact on real users while deploying a risky change to production.</p>
+</blockquote>
+<p>🎬 Hi there, I’m Jean!</p>
+<p>In this 3 parts series, we’re going to explore several ways to do Canary Deployment in Kubernetes, and the first one is…<br>
+🥁<br>
+… using <strong>Ingress NGINX</strong>! 🎊</p>
+<h2 id="requirements">Requirements</h2>
+<hr>
+<p>Before we start, make sure you have the following tools installed:</p>
+<ul>
+<li><a href="https://minikube.sigs.k8s.io/docs/start/">Minikube</a></li>
+<li><a href="https://kubernetes.io/docs/tasks/tools/">Kubectl</a></li>
+<li><a href="https://helm.sh/docs/intro/install/">Helm</a></li>
+<li><a href="https://k6.io/docs/getting-started/installation/">K6</a></li>
+</ul>
+<blockquote>
+<p><em>Note: for MacOS users or Linux users using Homebrew, simply run:</em><br>
+<code>brew install minikube kubectl helm k6</code></p>
+</blockquote>
+<p>All set? Let’s go! 🏁</p>
+<h2 id="installing-nginx-ingress-controller">Installing NGINX Ingress Controller</h2>
+<hr>
+<p><a href="https://github.com/kubernetes/ingress-nginx">NGINX Ingress Controller</a> is one of the <a href="https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/#additional-controllers">many available Kubernetes Ingress Controllers</a>, which acts as a load balancer and satisfies routing rules specified in <a href="https://kubernetes.io/docs/concepts/services-networking/ingress/#what-is-ingress">Ingress</a> resources, using the <a href="https://nginx.org/en/">NGINX reverse proxy</a>.</p>
+<blockquote>
+<p><strong>In a production Kubernetes cluster, it is recommended to install the NGINX Ingress Controller via its <a href="https://github.com/kubernetes/ingress-nginx/tree/main/charts/ingress-nginx">Helm chart</a>.</strong></p>
+</blockquote>
+<p>However, since we will be using <a href="https://minikube.sigs.k8s.io/docs/start/">Minikube</a> in this series, the dedicated <a href="https://kubernetes.io/docs/tasks/access-application-cluster/ingress-minikube/#enable-the-ingress-controller">ingress add-on</a> will suffice.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">minikube start --addons<span style="color:#f92672">=</span>ingress <span style="color:#66d9ef">$(if</span> <span style="color:#f92672">[</span> <span style="color:#66d9ef">$(</span>uname<span style="color:#66d9ef">)</span> !<span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Linux&#34;</span> <span style="color:#f92672">]</span>; <span style="color:#66d9ef">then</span> echo <span style="color:#e6db74">&#34;--vm=true&#34;</span>; <span style="color:#66d9ef">fi)</span>
+</code></pre></div><blockquote>
+<p><em>Note: If you’re on MacOS, ingress-nginx will not work using Minikube in Docker mode. Instead, use a VM (the above command already takes care of that for you).</em></p>
+</blockquote>
+<p>Now, if everything goes according to plan, you should be able to see the <strong>ingress-nginx-controller</strong> Deployment running in your freshly created Minikube cluster.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">➜ kubectl get deploy -n ingress-nginx
+NAME                       READY   UP-TO-DATE   AVAILABLE   AGE
+ingress-nginx-controller   1/1     <span style="color:#ae81ff">1</span>            <span style="color:#ae81ff">1</span>           4m35s
+</code></pre></div><h2 id="configuring-ingress-canary-annotations">Configuring Ingress Canary Annotations</h2>
+<hr>
+<p>Now that our NGINX Ingress Controller is up and running, let’s get into the thick of it, shall we? 🧐</p>
+<p>I don’t expect you to have a Helm chart with a demo app in handy, so <a href="https://github.com/jhandguy/canary-deployment">I built one</a> for you.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">git clone https://github.com/jhandguy/canary-deployment.git
+cd canary-deployment/ingress-nginx
+helm install . --name-template sample-app --create-namespace -n sample-app
+</code></pre></div><p>If everything goes fine, you should eventually see two Deployments with the READY state.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">➜ kubectl get deploy -n sample-app
+NAME                READY   UP-TO-DATE   AVAILABLE   AGE
+sample-app          1/1     <span style="color:#ae81ff">1</span>            <span style="color:#ae81ff">1</span>           100s
+sample-app-canary   1/1     <span style="color:#ae81ff">1</span>            <span style="color:#ae81ff">1</span>           100s
+</code></pre></div><p>Alright, let’s take a look at what’s under all this!</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">➜ ls -1 templates
+canary
+deployment.yaml
+ingress.yaml
+service.yaml
+serviceaccount.yaml
+
+➜ ls -1 templates/canary
+deployment.yaml
+ingress.yaml
+service.yaml
+</code></pre></div><p>As you can see, most of the resources have been duplicated, except for the <code>serviceaccount.yaml</code>:</p>
+<ul>
+<li>The <code>deployment.yaml</code> and the <code>canary/deployment.yaml</code> are strictly the same, apart from the name and the image tag.</li>
+<li>The <code>service.yaml</code> and the <code>canary/service.yaml</code> are also very much the same, except for the name and the label selector.</li>
+</ul>
+<p>This is actually for a simple reason: in the end, the stable and the canary deployments are meant to be very much alike, apart from the image built inside the container, exactly like for a <a href="https://www.redhat.com/en/topics/devops/what-is-blue-green-deployment">blue/green deployment</a>.</p>
+<p>Now, the <code>ingress.yaml</code> and the <code>canary/ingress.yaml</code> are similar, but not very much the same though: you’ll notice some extra <a href="https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/">annotations</a> in the <code>canary/ingress.yaml</code>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">---
+<span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">networking.k8s.io/v1</span>
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Ingress</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#ae81ff">...</span>
+  <span style="color:#f92672">annotations</span>:
+    <span style="color:#ae81ff">...</span>
+    <span style="color:#f92672">nginx.ingress.kubernetes.io/canary</span>: <span style="color:#e6db74">&#34;true&#34;</span>
+    <span style="color:#f92672">nginx.ingress.kubernetes.io/canary-weight</span>: <span style="color:#e6db74">&#34;{{ .Values.canary.weight }}&#34;</span>
+    <span style="color:#f92672">nginx.ingress.kubernetes.io/canary-by-header</span>: <span style="color:#e6db74">&#34;X-Canary&#34;</span>
+...
+</code></pre></div><blockquote>
+<p>This is where the magic happens! 🪄</p>
+</blockquote>
+<p>Let’s dive into each of these <a href="https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/">annotations</a> real quick:</p>
+<ul>
+<li><strong><a href="https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#canary">nginx.ingress.kubernetes.io/canary</a></strong><br>
+When set to <code>&quot;true&quot;</code>, this will let the Ingress Controller know that this is the Ingress routing traffic to the canary Deployment.</li>
+<li><strong><a href="https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#canary">nginx.ingress.kubernetes.io/canary-weight</a></strong><br>
+When given a value, this will tell the Ingress Controller how to split traffic between the stable and the canary Deployments.
+For instance, a weight of <code>50</code> would result in a 50/50 split.</li>
+<li><strong><a href="https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#canary">nginx.ingress.kubernetes.io/canary-by-header</a></strong><br>
+When given a key, this will allow us to force a request into hitting the canary or the stable deployment, no matter the <code>canary-weight</code>.
+By using the header value <code>always</code>, the request will always land in the canary Deployment, and when using the value <code>never</code>, the request will always land in the stable one.</li>
+</ul>
+<p>Right now, the <code>canary-weight</code> is <code>0</code> and the <code>canary-by-header</code> is <code>X-Canary</code>. This means that normal requests will never land in the canary Deployment unless a header <code>X-Canary: always</code> is passed to the request.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">➜ kubectl describe ingress sample-app-canary -n sample-app
+...
+Annotations:  ...
+              nginx.ingress.kubernetes.io/canary: true
+              nginx.ingress.kubernetes.io/canary-by-header: X-Canary
+              nginx.ingress.kubernetes.io/canary-weight: <span style="color:#ae81ff">0</span>
+...
+</code></pre></div><p>Let’s give it a try!</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">curl <span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span>/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span>
+</code></pre></div><p>As you can see, no matter how many times you run this command, the <code>pod</code> will always be the same. In fact, this is the <code>stable</code> pod.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">➜ curl <span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span>/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span>
+<span style="color:#f92672">{</span><span style="color:#e6db74">&#34;node&#34;</span>:<span style="color:#e6db74">&#34;minikube&#34;</span>,<span style="color:#e6db74">&#34;namespace&#34;</span>:<span style="color:#e6db74">&#34;sample-app&#34;</span>,<span style="color:#e6db74">&#34;pod&#34;</span>:<span style="color:#e6db74">&#34;sample-app-6bd9dc6d5d-jstn2&#34;</span>,<span style="color:#e6db74">&#34;deployment&#34;</span>:<span style="color:#e6db74">&#34;stable&#34;</span><span style="color:#f92672">}</span>
+
+➜ curl <span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span>/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span>
+<span style="color:#f92672">{</span><span style="color:#e6db74">&#34;node&#34;</span>:<span style="color:#e6db74">&#34;minikube&#34;</span>,<span style="color:#e6db74">&#34;namespace&#34;</span>:<span style="color:#e6db74">&#34;sample-app&#34;</span>,<span style="color:#e6db74">&#34;pod&#34;</span>:<span style="color:#e6db74">&#34;sample-app-6bd9dc6d5d-jstn2&#34;</span>,<span style="color:#e6db74">&#34;deployment&#34;</span>:<span style="color:#e6db74">&#34;stable&#34;</span><span style="color:#f92672">}</span>
+
+➜ curl <span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span>/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span>
+<span style="color:#f92672">{</span><span style="color:#e6db74">&#34;node&#34;</span>:<span style="color:#e6db74">&#34;minikube&#34;</span>,<span style="color:#e6db74">&#34;namespace&#34;</span>:<span style="color:#e6db74">&#34;sample-app&#34;</span>,<span style="color:#e6db74">&#34;pod&#34;</span>:<span style="color:#e6db74">&#34;sample-app-6bd9dc6d5d-jstn2&#34;</span>,<span style="color:#e6db74">&#34;deployment&#34;</span>:<span style="color:#e6db74">&#34;stable&#34;</span><span style="color:#f92672">}</span>
+</code></pre></div><p>This is due to the fact that the current <code>canary-weight</code> is <code>0</code> thus 100% of the traffic will normally go to the <code>stable</code> Deployment.</p>
+<p>Now let’s try with the <code>X-Canary: always</code> header!</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">curl <span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span>/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span> -H <span style="color:#e6db74">&#34;X-Canary: always&#34;</span>
+</code></pre></div><p>Aha! We are now consistently hitting the <code>canary</code> pod.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">➜ curl <span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span>/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span> -H <span style="color:#e6db74">&#34;X-Canary: always&#34;</span>
+<span style="color:#f92672">{</span><span style="color:#e6db74">&#34;node&#34;</span>:<span style="color:#e6db74">&#34;minikube&#34;</span>,<span style="color:#e6db74">&#34;namespace&#34;</span>:<span style="color:#e6db74">&#34;sample-app&#34;</span>,<span style="color:#e6db74">&#34;pod&#34;</span>:<span style="color:#e6db74">&#34;sample-app-canary-b559b9d75-gfvxp&#34;</span>,<span style="color:#e6db74">&#34;deployment&#34;</span>:<span style="color:#e6db74">&#34;canary&#34;</span><span style="color:#f92672">}</span>
+
+➜ curl <span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span>/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span> -H <span style="color:#e6db74">&#34;X-Canary: always&#34;</span>
+<span style="color:#f92672">{</span><span style="color:#e6db74">&#34;node&#34;</span>:<span style="color:#e6db74">&#34;minikube&#34;</span>,<span style="color:#e6db74">&#34;namespace&#34;</span>:<span style="color:#e6db74">&#34;sample-app&#34;</span>,<span style="color:#e6db74">&#34;pod&#34;</span>:<span style="color:#e6db74">&#34;sample-app-canary-b559b9d75-gfvxp&#34;</span>,<span style="color:#e6db74">&#34;deployment&#34;</span>:<span style="color:#e6db74">&#34;canary&#34;</span><span style="color:#f92672">}</span>
+
+➜ curl <span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span>/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span> -H <span style="color:#e6db74">&#34;X-Canary: always&#34;</span>
+<span style="color:#f92672">{</span><span style="color:#e6db74">&#34;node&#34;</span>:<span style="color:#e6db74">&#34;minikube&#34;</span>,<span style="color:#e6db74">&#34;namespace&#34;</span>:<span style="color:#e6db74">&#34;sample-app&#34;</span>,<span style="color:#e6db74">&#34;pod&#34;</span>:<span style="color:#e6db74">&#34;sample-app-canary-b559b9d75-gfvxp&#34;</span>,<span style="color:#e6db74">&#34;deployment&#34;</span>:<span style="color:#e6db74">&#34;canary&#34;</span><span style="color:#f92672">}</span>
+</code></pre></div><p>Did you pay attention to what we just did? 😉<br>
+This has a name: <strong>Smoke Testing</strong>! 🔥</p>
+<p>That’s right, we just smoke-tested a change, in production, while isolating it from the rest of the users as normal requests are routed to the <code>stable</code> Deployment thanks to the <code>canary-weight</code>. However, we bypassed that during Smoke Testing by utilizing the <code>canary-by-header</code> to force the request into hitting the <code>canary</code> Deployment.<br>
+Isn’t that awesome?! No more panic attacks when smoke tests fail on Canary, your users aren’t affected. 😌</p>
+<h2 id="rolling-out-canary-deployments-incrementally">Rolling-out Canary Deployments Incrementally</h2>
+<hr>
+<p>So we have solved one problem, yet one remains: How do we expose a change to our real users incrementally, to minimize the impact if something goes south?</p>
+<p>Well, you’ve probably guessed it, <code>canary-weight</code> to the rescue! 🚀</p>
+<p>We can simply slowly increase the <code>canary-weight</code> in order to let <strong>some</strong> users being routed to the <code>canary</code> Deployment. Let’s give it a try!</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">helm upgrade sample-app . -n sample-app --set canary.weight<span style="color:#f92672">=</span><span style="color:#ae81ff">50</span>
+</code></pre></div><p>Let’s verify that our <code>canary</code> Ingress now has a <code>canary-weight</code> of <code>50</code>!</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">➜ kubectl describe ingress sample-app-canary -n sample-app
+...
+Annotations:  ...
+              nginx.ingress.kubernetes.io/canary: true
+              nginx.ingress.kubernetes.io/canary-by-header: X-Canary
+              nginx.ingress.kubernetes.io/canary-weight: <span style="color:#ae81ff">50</span>
+...
+</code></pre></div><p>All good, let’s test it out!</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">curl <span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span>/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span>
+</code></pre></div><p>As you can see, traffic is now equally split between the <code>stable</code> and <code>canary</code> Deployments.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">➜ curl <span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span>/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span>
+<span style="color:#f92672">{</span><span style="color:#e6db74">&#34;node&#34;</span>:<span style="color:#e6db74">&#34;minikube&#34;</span>,<span style="color:#e6db74">&#34;namespace&#34;</span>:<span style="color:#e6db74">&#34;sample-app&#34;</span>,<span style="color:#e6db74">&#34;pod&#34;</span>:<span style="color:#e6db74">&#34;sample-app-6bd9dc6d5d-jstn2&#34;</span>,<span style="color:#e6db74">&#34;deployment&#34;</span>:<span style="color:#e6db74">&#34;stable&#34;</span><span style="color:#f92672">}</span>
+
+➜ curl <span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span>/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span>
+<span style="color:#f92672">{</span><span style="color:#e6db74">&#34;node&#34;</span>:<span style="color:#e6db74">&#34;minikube&#34;</span>,<span style="color:#e6db74">&#34;namespace&#34;</span>:<span style="color:#e6db74">&#34;sample-app&#34;</span>,<span style="color:#e6db74">&#34;pod&#34;</span>:<span style="color:#e6db74">&#34;sample-app-canary-5754f4bbc7-lvthj&#34;</span>,<span style="color:#e6db74">&#34;deployment&#34;</span>:<span style="color:#e6db74">&#34;canary&#34;</span><span style="color:#f92672">}</span>
+
+➜ curl <span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span>/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span>
+<span style="color:#f92672">{</span><span style="color:#e6db74">&#34;node&#34;</span>:<span style="color:#e6db74">&#34;minikube&#34;</span>,<span style="color:#e6db74">&#34;namespace&#34;</span>:<span style="color:#e6db74">&#34;sample-app&#34;</span>,<span style="color:#e6db74">&#34;pod&#34;</span>:<span style="color:#e6db74">&#34;sample-app-6bd9dc6d5d-jstn2&#34;</span>,<span style="color:#e6db74">&#34;deployment&#34;</span>:<span style="color:#e6db74">&#34;stable&#34;</span><span style="color:#f92672">}</span>
+
+➜ curl <span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span>/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span>
+<span style="color:#f92672">{</span><span style="color:#e6db74">&#34;node&#34;</span>:<span style="color:#e6db74">&#34;minikube&#34;</span>,<span style="color:#e6db74">&#34;namespace&#34;</span>:<span style="color:#e6db74">&#34;sample-app&#34;</span>,<span style="color:#e6db74">&#34;pod&#34;</span>:<span style="color:#e6db74">&#34;sample-app-canary-5754f4bbc7-lvthj&#34;</span>,<span style="color:#e6db74">&#34;deployment&#34;</span>:<span style="color:#e6db74">&#34;canary&#34;</span><span style="color:#f92672">}</span>
+</code></pre></div><h3 id="load-testing-with-k6">Load Testing with k6</h3>
+<hr>
+<p>Now we’ve made a few requests, let’s see how it behaves under load and whether or not it indeed guarantees about 50% traffic distribution!</p>
+<p>For Load Testing, I really recommend <a href="https://k6.io/docs/">k6</a> from the Grafana Labs team. It is a dead-simple yet super powerful tool with very extensive documentation.</p>
+<p>See for yourself!</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">cd ..
+env URL<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span> k6 run k6/script.js
+</code></pre></div><p>After about 1 minute, k6 should be done executing the load test and show you the results.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">          /<span style="color:#ae81ff">\ </span>     |‾‾| /‾‾/   /‾‾/
+     /<span style="color:#ae81ff">\ </span> /  <span style="color:#ae81ff">\ </span>    |  |/  /   /  /
+    /  <span style="color:#ae81ff">\/</span>    <span style="color:#ae81ff">\ </span>   |     <span style="color:#f92672">(</span>   /   ‾‾<span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>   /          <span style="color:#ae81ff">\ </span>  |  |<span style="color:#ae81ff">\ </span> <span style="color:#ae81ff">\ </span>|  <span style="color:#f92672">(</span>‾<span style="color:#f92672">)</span>  |
+  / __________ <span style="color:#ae81ff">\ </span> |__| <span style="color:#ae81ff">\_</span>_<span style="color:#ae81ff">\ \_</span>____/ .io
+
+  execution: local
+     script: k6/script.js
+     output: -
+
+  scenarios: <span style="color:#f92672">(</span>100.00%<span style="color:#f92672">)</span> <span style="color:#ae81ff">1</span> scenario, <span style="color:#ae81ff">20</span> max VUs, 1m30s max duration <span style="color:#f92672">(</span>incl. graceful stop<span style="color:#f92672">)</span>:
+           * default: Up to <span style="color:#ae81ff">20</span> looping VUs <span style="color:#66d9ef">for</span> 1m0s over <span style="color:#ae81ff">3</span> stages <span style="color:#f92672">(</span>gracefulRampDown: 30s, gracefulStop: 30s<span style="color:#f92672">)</span>
+
+running <span style="color:#f92672">(</span>1m00.1s<span style="color:#f92672">)</span>, 00/20 VUs, <span style="color:#ae81ff">818</span> complete and <span style="color:#ae81ff">0</span> interrupted iterations
+default ✓ <span style="color:#f92672">[======================================]</span> 00/20 VUs  1m0s
+
+     ✓ status code is <span style="color:#ae81ff">200</span>
+     ✓ node is minikube
+     ✓ namespace is sample-app
+     ✓ pod is sample-app-*
+     ✓ deployment is stable or canary
+
+   ✓ checks.........................: 100.00% ✓ <span style="color:#ae81ff">4090</span>      ✗ <span style="color:#ae81ff">0</span>
+     data_received..................: <span style="color:#ae81ff">203</span> kB  3.4 kB/s
+     data_sent......................: <span style="color:#ae81ff">94</span> kB   1.6 kB/s
+     http_req_blocked...............: avg<span style="color:#f92672">=</span>21.24µs min<span style="color:#f92672">=</span>3µs   med<span style="color:#f92672">=</span>4µs    max<span style="color:#f92672">=</span>944µs   p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>7µs    p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>8µs
+     http_req_connecting............: avg<span style="color:#f92672">=</span>14.23µs min<span style="color:#f92672">=</span>0s    med<span style="color:#f92672">=</span>0s     max<span style="color:#f92672">=</span>860µs   p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>0s     p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>0s
+   ✓ http_req_duration..............: avg<span style="color:#f92672">=</span>1.34ms  min<span style="color:#f92672">=</span>582µs med<span style="color:#f92672">=</span>1.17ms max<span style="color:#f92672">=</span>17.4ms  p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>1.77ms p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>2.19ms
+       <span style="color:#f92672">{</span> expected_response:true <span style="color:#f92672">}</span>...: avg<span style="color:#f92672">=</span>1.34ms  min<span style="color:#f92672">=</span>582µs med<span style="color:#f92672">=</span>1.17ms max<span style="color:#f92672">=</span>17.4ms  p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>1.77ms p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>2.19ms
+     http_req_failed................: 0.00%   ✓ <span style="color:#ae81ff">0</span>         ✗ <span style="color:#ae81ff">818</span>
+     http_req_rate..................: 50.00%  ✓ <span style="color:#ae81ff">818</span>       ✗ <span style="color:#ae81ff">818</span>
+     ✓ <span style="color:#f92672">{</span> deployment:canary <span style="color:#f92672">}</span>........: 52.07%  ✓ <span style="color:#ae81ff">426</span>       ✗ <span style="color:#ae81ff">392</span>
+     ✓ <span style="color:#f92672">{</span> deployment:stable <span style="color:#f92672">}</span>........: 47.92%  ✓ <span style="color:#ae81ff">392</span>       ✗ <span style="color:#ae81ff">426</span>
+     http_req_receiving.............: avg<span style="color:#f92672">=</span>51.01µs min<span style="color:#f92672">=</span>28µs  med<span style="color:#f92672">=</span>46µs   max<span style="color:#f92672">=</span>224µs   p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>69µs   p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>84µs
+     http_req_sending...............: avg<span style="color:#f92672">=</span>25.19µs min<span style="color:#f92672">=</span>13µs  med<span style="color:#f92672">=</span>22µs   max<span style="color:#f92672">=</span>431µs   p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>33µs   p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>40.14µs
+     http_req_tls_handshaking.......: avg<span style="color:#f92672">=</span>0s      min<span style="color:#f92672">=</span>0s    med<span style="color:#f92672">=</span>0s     max<span style="color:#f92672">=</span>0s      p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>0s     p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>0s
+     http_req_waiting...............: avg<span style="color:#f92672">=</span>1.26ms  min<span style="color:#f92672">=</span>536µs med<span style="color:#f92672">=</span>1.08ms max<span style="color:#f92672">=</span>17.34ms p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>1.68ms p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>2.09ms
+     http_reqs......................: <span style="color:#ae81ff">818</span>     13.603064/s
+     iteration_duration.............: avg<span style="color:#f92672">=</span>1s      min<span style="color:#f92672">=</span>1s    med<span style="color:#f92672">=</span>1s     max<span style="color:#f92672">=</span>1.01s   p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>1s     p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>1s
+     iterations.....................: <span style="color:#ae81ff">818</span>     13.603064/s
+     vus............................: <span style="color:#ae81ff">1</span>       min<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>       max<span style="color:#f92672">=</span><span style="color:#ae81ff">20</span>
+     vus_max........................: <span style="color:#ae81ff">20</span>      min<span style="color:#f92672">=</span><span style="color:#ae81ff">20</span>      max<span style="color:#f92672">=</span><span style="color:#ae81ff">20</span>
+</code></pre></div><p>That sounds about right!<br>
+Out of 818 requests, 426 (52%) were served by the <code>canary</code> Deployment while 392 (48%) were served by the <code>stable</code> one. Pretty good!</p>
+<h2 id="wrapping-up">Wrapping up</h2>
+<hr>
+<p>That’s it! You can now stop and delete your Minikube cluster.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">minikube stop <span style="color:#f92672">&amp;&amp;</span> minikube delete
+</code></pre></div><p>To summarize, using Ingress NGINX we were able to:</p>
+<ul>
+<li>Smoke test our change in complete isolation from the rest of the users;</li>
+<li>Incrementally expose our change to <strong>some</strong> users to minimize risk.</li>
+</ul>
+<p>Was it worth it? Did that help you understand how to implement Canary Deployment in Kubernetes using Ingress NGINX?</p>
+<p>If so, follow me on <a href="https://twitter.com/jhandguy">Twitter</a>, I’ll be happy to answer any of your questions and you’ll be the first one to know when a new article comes out! 👌</p>
+<p>See you next week, for Part 2 of my series <strong>Canary Deployment in Kubernetes</strong>!</p>
+<p>Bye-bye! 👋</p>
+
+        </div>
+    </div>
+    <div class="container is-fullhd has-text-centered mt-6">
+        <div class="columns is-mobile">
+            <div class="column">
+                
+                <a class="button is-primary is-pulled-left" href="https://jhandguy.github.io/posts/path-to-cicd-nirvana-ios/"><strong>Previous</strong></a>
+                
+            </div>
+            <div class="column">
+                <a class="button is-dark" href="#top"><strong>Back to top</strong></a>
+            </div>
+            <div class="column">
+                
+                <a class="button is-primary is-pulled-right" href="https://jhandguy.github.io/posts/automated-canary-deployment/"><strong>Next</strong></a>
+                
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+<footer>
+    <div class="footer has-background-light">
+        <div class="content has-text-centered">
+            <p class="subtitle is-6">Powered by <a class="has-text-primary" href="https://gohugo.io/">Hugo</a></p>
+            <a href="https://bulma.io">
+                <img src="https://bulma.io/images/made-with-bulma.png" alt="Made with Bulma" width="128" height="24">
+            </a>
+        </div>
+    </div>
+</footer>
+</html>

@@ -2,25 +2,40 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://jhandguy.github.io/tags/canary-deployment/</loc>
+    <lastmod>2022-02-02T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://jhandguy.github.io/posts/smart-canary-deployment/</loc>
+    <lastmod>2022-02-02T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://jhandguy.github.io/tags/devops/</loc>
+    <lastmod>2022-02-02T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://jhandguy.github.io/</loc>
+    <lastmod>2022-02-02T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://jhandguy.github.io/posts/</loc>
+    <lastmod>2022-02-02T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://jhandguy.github.io/tags/sre/</loc>
+    <lastmod>2022-02-02T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://jhandguy.github.io/tags/</loc>
+    <lastmod>2022-02-02T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://jhandguy.github.io/posts/automated-canary-deployment/</loc>
+    <lastmod>2022-01-25T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://jhandguy.github.io/posts/simple-canary-deployment/</loc>
+    <lastmod>2022-01-18T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://jhandguy.github.io/about/</loc>
     <lastmod>2021-06-21T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://jhandguy.github.io/posts/path-to-cicd-nirvana-ios/</loc>
     <lastmod>2019-09-12T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://jhandguy.github.io/tags/devops/</loc>
-    <lastmod>2019-09-12T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://jhandguy.github.io/tags/ios/</loc>
-    <lastmod>2019-09-12T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://jhandguy.github.io/</loc>
-    <lastmod>2019-09-12T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://jhandguy.github.io/posts/</loc>
-    <lastmod>2019-09-12T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://jhandguy.github.io/tags/</loc>
     <lastmod>2019-09-12T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://jhandguy.github.io/tags/testing/</loc>

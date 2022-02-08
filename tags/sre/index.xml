@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>DevOps on jhandguy</title>
-    <link>https://jhandguy.github.io/tags/devops/</link>
-    <description>Recent content in DevOps on jhandguy</description>
+    <title>SRE on jhandguy</title>
+    <link>https://jhandguy.github.io/tags/sre/</link>
+    <description>Recent content in SRE on jhandguy</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 02 Feb 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://jhandguy.github.io/tags/devops/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 02 Feb 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://jhandguy.github.io/tags/sre/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Canary Deployment in Kubernetes (Part 3) — Smart Canary Deployment using Argo Rollouts and Prometheus</title>
       <link>https://jhandguy.github.io/posts/smart-canary-deployment/</link>
@@ -35,15 +35,6 @@ Thankfully, Kubernetes is made to be resilient to this kind of scenario, and rol
       <guid>https://jhandguy.github.io/posts/simple-canary-deployment/</guid>
       <description>Deploying to production in Kubernetes can be quite stressful. Even after meaningful and reliable automated tests have successfully passed, there is still room for things to go wrong and lead to a nasty incident when pressing the final button.
 Thankfully, Kubernetes is made to be resilient to this kind of scenario, and rolling back is a no-brainer. But still, rolling back means that, at least for some time, all of the users were negatively impacted by the faulty change…</description>
-    </item>
-    
-    <item>
-      <title>A Path to CI / CD Nirvana in iOS</title>
-      <link>https://jhandguy.github.io/posts/path-to-cicd-nirvana-ios/</link>
-      <pubDate>Thu, 12 Sep 2019 00:00:00 +0000</pubDate>
-      
-      <guid>https://jhandguy.github.io/posts/path-to-cicd-nirvana-ios/</guid>
-      <description>For many companies, testing and releasing are still very blurry processes, which don’t seem to work as they should. Testing is mostly manual, slow and error-prone. Releasing is usually also manual and slow, making its frequency hard to maintain on a sprint-basis. Continuous Integration (CI) and Continuous Deployment (CD) are all about automating both testing and releasing, making it possible for a team to release every week or two. At EGYM, we have achieved just that and I am going to tell you all about it!</description>
     </item>
     
   </channel>
