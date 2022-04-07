@@ -47,24 +47,24 @@
 <h2 id="the-usual-way">The usual way</h2>
 <hr>
 <p>Usually, all UI Testing logic is bundled in one test function. Which inevitably leads to this…</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">uglyUITest</span>() {
-    ...
-    app.launch()
-    <span style="color:#66d9ef">let</span> title = app.navigationBars.firstMatch.otherElements.firstMatch
-    XCTAssert(title.isHittable)
-    XCTAssertEqual(title.label, <span style="color:#e6db74">&#34;U.S. - Politics&#34;</span>)
-    <span style="color:#66d9ef">let</span> stackView = app.otherElements[<span style="color:#e6db74">&#34;StoryView.stackView&#34;</span>]
-    <span style="color:#66d9ef">let</span> multimediaImage = stackView.images[<span style="color:#e6db74">&#34;StoryView.multimediaImageView&#34;</span>]
-    XCTAssert(multimediaImage.isHittable)
-    <span style="color:#66d9ef">let</span> titleLabel = stackView.staticTexts[<span style="color:#e6db74">&#34;StoryView.titleLabel&#34;</span>]
-    XCTAssertEqual(titleLabel.label, <span style="color:#e6db74">&#34;A Trump Endorsement Can Decide a Race. Here’s How to Get One.&#34;</span>)
-    <span style="color:#66d9ef">let</span> abstractLabel = stackView.staticTexts[<span style="color:#e6db74">&#34;StoryView.abstractLabel&#34;</span>]
-    XCTAssertEqual(abstractLabel.label, <span style="color:#e6db74">&#34;The president’s grip on G.O.P. primary voters is as strong as it has been since he seized the party’s nomination.&#34;</span>)
-    <span style="color:#66d9ef">let</span> bylineLabel = stackView.staticTexts[<span style="color:#e6db74">&#34;StoryView.bylineLabel&#34;</span>]
-    XCTAssertEqual(bylineLabel.label, <span style="color:#e6db74">&#34;By JONATHAN MARTIN and MAGGIE HABERMAN&#34;</span>)
-    snapshot(<span style="color:#e6db74">&#34;Story&#34;</span>)
-}
-</code></pre></div><p>I am sure you didn’t even finish reading that you already jumped to this line.<br>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">uglyUITest</span>() {
+</span></span><span style="display:flex;"><span>    ...
+</span></span><span style="display:flex;"><span>    app.launch()
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> title = app.navigationBars.firstMatch.otherElements.firstMatch
+</span></span><span style="display:flex;"><span>    XCTAssert(title.isHittable)
+</span></span><span style="display:flex;"><span>    XCTAssertEqual(title.label, <span style="color:#e6db74">&#34;U.S. - Politics&#34;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> stackView = app.otherElements[<span style="color:#e6db74">&#34;StoryView.stackView&#34;</span>]
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> multimediaImage = stackView.images[<span style="color:#e6db74">&#34;StoryView.multimediaImageView&#34;</span>]
+</span></span><span style="display:flex;"><span>    XCTAssert(multimediaImage.isHittable)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> titleLabel = stackView.staticTexts[<span style="color:#e6db74">&#34;StoryView.titleLabel&#34;</span>]
+</span></span><span style="display:flex;"><span>    XCTAssertEqual(titleLabel.label, <span style="color:#e6db74">&#34;A Trump Endorsement Can Decide a Race. Here’s How to Get One.&#34;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> abstractLabel = stackView.staticTexts[<span style="color:#e6db74">&#34;StoryView.abstractLabel&#34;</span>]
+</span></span><span style="display:flex;"><span>    XCTAssertEqual(abstractLabel.label, <span style="color:#e6db74">&#34;The president’s grip on G.O.P. primary voters is as strong as it has been since he seized the party’s nomination.&#34;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> bylineLabel = stackView.staticTexts[<span style="color:#e6db74">&#34;StoryView.bylineLabel&#34;</span>]
+</span></span><span style="display:flex;"><span>    XCTAssertEqual(bylineLabel.label, <span style="color:#e6db74">&#34;By JONATHAN MARTIN and MAGGIE HABERMAN&#34;</span>)
+</span></span><span style="display:flex;"><span>    snapshot(<span style="color:#e6db74">&#34;Story&#34;</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>I am sure you didn’t even finish reading that you already jumped to this line.<br>
 And to be fair, I’m not angry at you; this UI Test was fairly <strong>unreadable</strong>! 😵</p>
 <p>And the main reason for that is:</p>
 <blockquote>
@@ -77,180 +77,180 @@ And to be fair, I’m not angry at you; this UI Test was fairly <strong>unreadab
 The idea Jake had for the Android community is to separate in a UI Test the <em>What</em> from the <em>How</em>.<br>
 And to achieve this, he introduced a new layer called: <strong>Robot</strong>.</p>
 <p>Transcribed to iOS (Swift), our UI Test now looks like this…</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">prettyUITest</span>() {
-    ...
-    StoryRobot(app)
-        .start()
-        .checkTitle(contains: <span style="color:#e6db74">&#34;U.S. - Politics&#34;</span>)
-        .checkStoryImage()
-        .checkStoryTitle(contains: <span style="color:#e6db74">&#34;A Trump Endorsement Can Decide a Race. Here’s How to Get One.&#34;</span>)
-        .checkStoryAbstract(contains: <span style="color:#e6db74">&#34;The president’s grip on G.O.P. primary voters is as strong as it has been since he seized the party’s nomination.&#34;</span>)
-        .checkStoryByline(contains: <span style="color:#e6db74">&#34;By JONATHAN MARTIN and MAGGIE HABERMAN&#34;</span>)
-        .takeScreenshot(named: <span style="color:#e6db74">&#34;Story&#34;</span>)
-}
-</code></pre></div><p>How about that, didn’t it feel right to read the whole function this time? 😍<br>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">prettyUITest</span>() {
+</span></span><span style="display:flex;"><span>    ...
+</span></span><span style="display:flex;"><span>    StoryRobot(app)
+</span></span><span style="display:flex;"><span>        .start()
+</span></span><span style="display:flex;"><span>        .checkTitle(contains: <span style="color:#e6db74">&#34;U.S. - Politics&#34;</span>)
+</span></span><span style="display:flex;"><span>        .checkStoryImage()
+</span></span><span style="display:flex;"><span>        .checkStoryTitle(contains: <span style="color:#e6db74">&#34;A Trump Endorsement Can Decide a Race. Here’s How to Get One.&#34;</span>)
+</span></span><span style="display:flex;"><span>        .checkStoryAbstract(contains: <span style="color:#e6db74">&#34;The president’s grip on G.O.P. primary voters is as strong as it has been since he seized the party’s nomination.&#34;</span>)
+</span></span><span style="display:flex;"><span>        .checkStoryByline(contains: <span style="color:#e6db74">&#34;By JONATHAN MARTIN and MAGGIE HABERMAN&#34;</span>)
+</span></span><span style="display:flex;"><span>        .takeScreenshot(named: <span style="color:#e6db74">&#34;Story&#34;</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>How about that, didn’t it feel right to read the whole function this time? 😍<br>
 Exactly, in the UI Test itself, we are now left only with the <em>What</em> and the <em>How</em> is delegated to the <strong>Robot</strong>. Meaning: anybody can read and understand it! 👍</p>
 <h2 id="the-robot-in-action">The Robot in action!</h2>
 <hr>
 <p>First and foremost, we are going to implement a base <em>Robot</em>.<br>
 This class will take care of setting up Fastlane’s Snapshot, launching the app and providing a nice panel of util functions, such as tapping on elements, making assertions and taking screenshots… 👌</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Robot</span> {
-
-    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">let</span> defaultTimeout: Double = <span style="color:#ae81ff">30</span>
-
-    <span style="color:#66d9ef">var</span> app: XCUIApplication
-
-    <span style="color:#66d9ef">lazy</span> <span style="color:#66d9ef">var</span> navigationBar          = app.navigationBars.firstMatch
-    <span style="color:#66d9ef">lazy</span> <span style="color:#66d9ef">var</span> navigationBarButton    = navigationBar.buttons.firstMatch
-    <span style="color:#66d9ef">lazy</span> <span style="color:#66d9ef">var</span> navigationBarTitle     = navigationBar.otherElements.firstMatch
-
-    <span style="color:#66d9ef">init</span>(<span style="color:#66d9ef">_</span> app: XCUIApplication) {
-        <span style="color:#66d9ef">self</span>.app = app
-        setupSnapshot(app)
-    }
-
-    @discardableResult
-    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">start</span>(timeout: TimeInterval = Robot.defaultTimeout) -&gt; <span style="color:#66d9ef">Self</span> {
-        app.launch()
-        assert(app, [.exists], timeout: timeout)
-
-        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">self</span>
-    }
-
-    @discardableResult
-    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">tap</span>(<span style="color:#66d9ef">_</span> element: XCUIElement, timeout: TimeInterval = Robot.defaultTimeout) -&gt; <span style="color:#66d9ef">Self</span> {
-        assert(element, [.isHittable], timeout: timeout)
-        element.tap()
-
-        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">self</span>
-    }
-
-    @discardableResult
-    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">assert</span>(<span style="color:#66d9ef">_</span> element: XCUIElement, <span style="color:#66d9ef">_</span> predicates: [Predicate], timeout: TimeInterval = Robot.defaultTimeout) -&gt; <span style="color:#66d9ef">Self</span> {
-        <span style="color:#66d9ef">let</span> expectation = XCTNSPredicateExpectation(predicate: NSPredicate(format: predicates.map { $0.format }.joined(separator: <span style="color:#e6db74">&#34; AND &#34;</span>)), object: element)
-        <span style="color:#66d9ef">guard</span> XCTWaiter.wait(<span style="color:#66d9ef">for</span>: [expectation], timeout: timeout) == .completed <span style="color:#66d9ef">else</span> {
-            XCTFail(<span style="color:#e6db74">&#34;[</span><span style="color:#e6db74">\(</span><span style="color:#66d9ef">self</span><span style="color:#e6db74">)</span><span style="color:#e6db74">] Element </span><span style="color:#e6db74">\(</span>element.description<span style="color:#e6db74">)</span><span style="color:#e6db74"> did not fulfill expectation: </span><span style="color:#e6db74">\(</span>predicates.map { $0.format }<span style="color:#e6db74">)</span><span style="color:#e6db74">&#34;</span>)
-            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">self</span>
-        }
-
-        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">self</span>
-    }
-
-    @discardableResult
-    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">checkTitle</span>(contains title: String, timeout: TimeInterval = Robot.defaultTimeout) -&gt; <span style="color:#66d9ef">Self</span> {
-        assert(navigationBar, [.isHittable], timeout: timeout)
-        assert(navigationBarTitle, [.contains(title)], timeout: timeout)
-
-        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">self</span>
-    }
-
-    @discardableResult
-    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">takeScreenshot</span>(named name: String, timeout: TimeInterval = Robot.defaultTimeout) -&gt; <span style="color:#66d9ef">Self</span> {
-        snapshot(name, timeWaitingForIdle: timeout)
-
-        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">self</span>
-    }
-    
-    @discardableResult
-    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">back</span>(timeout: TimeInterval = Robot.defaultTimeout) -&gt; <span style="color:#66d9ef">Self</span> {
-        tap(navigationBarButton, timeout: timeout)
-
-        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">self</span>
-    }
-}
-</code></pre></div><p>Simple, right?<br>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Robot</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">let</span> defaultTimeout: Double = <span style="color:#ae81ff">30</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> app: XCUIApplication
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">lazy</span> <span style="color:#66d9ef">var</span> navigationBar          = app.navigationBars.firstMatch
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">lazy</span> <span style="color:#66d9ef">var</span> navigationBarButton    = navigationBar.buttons.firstMatch
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">lazy</span> <span style="color:#66d9ef">var</span> navigationBarTitle     = navigationBar.otherElements.firstMatch
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">init</span>(<span style="color:#66d9ef">_</span> app: XCUIApplication) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">self</span>.app = app
+</span></span><span style="display:flex;"><span>        setupSnapshot(app)
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    @discardableResult
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">start</span>(timeout: TimeInterval = Robot.defaultTimeout) -&gt; <span style="color:#66d9ef">Self</span> {
+</span></span><span style="display:flex;"><span>        app.launch()
+</span></span><span style="display:flex;"><span>        assert(app, [.exists], timeout: timeout)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">self</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    @discardableResult
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">tap</span>(<span style="color:#66d9ef">_</span> element: XCUIElement, timeout: TimeInterval = Robot.defaultTimeout) -&gt; <span style="color:#66d9ef">Self</span> {
+</span></span><span style="display:flex;"><span>        assert(element, [.isHittable], timeout: timeout)
+</span></span><span style="display:flex;"><span>        element.tap()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">self</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    @discardableResult
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">assert</span>(<span style="color:#66d9ef">_</span> element: XCUIElement, <span style="color:#66d9ef">_</span> predicates: [Predicate], timeout: TimeInterval = Robot.defaultTimeout) -&gt; <span style="color:#66d9ef">Self</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">let</span> expectation = XCTNSPredicateExpectation(predicate: NSPredicate(format: predicates.map { $0.format }.joined(separator: <span style="color:#e6db74">&#34; AND &#34;</span>)), object: element)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">guard</span> XCTWaiter.wait(<span style="color:#66d9ef">for</span>: [expectation], timeout: timeout) == .completed <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>            XCTFail(<span style="color:#e6db74">&#34;[</span><span style="color:#e6db74">\(</span><span style="color:#66d9ef">self</span><span style="color:#e6db74">)</span><span style="color:#e6db74">] Element </span><span style="color:#e6db74">\(</span>element.description<span style="color:#e6db74">)</span><span style="color:#e6db74"> did not fulfill expectation: </span><span style="color:#e6db74">\(</span>predicates.map { $0.format }<span style="color:#e6db74">)</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">self</span>
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">self</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    @discardableResult
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">checkTitle</span>(contains title: String, timeout: TimeInterval = Robot.defaultTimeout) -&gt; <span style="color:#66d9ef">Self</span> {
+</span></span><span style="display:flex;"><span>        assert(navigationBar, [.isHittable], timeout: timeout)
+</span></span><span style="display:flex;"><span>        assert(navigationBarTitle, [.contains(title)], timeout: timeout)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">self</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    @discardableResult
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">takeScreenshot</span>(named name: String, timeout: TimeInterval = Robot.defaultTimeout) -&gt; <span style="color:#66d9ef">Self</span> {
+</span></span><span style="display:flex;"><span>        snapshot(name, timeWaitingForIdle: timeout)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">self</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    @discardableResult
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">back</span>(timeout: TimeInterval = Robot.defaultTimeout) -&gt; <span style="color:#66d9ef">Self</span> {
+</span></span><span style="display:flex;"><span>        tap(navigationBarButton, timeout: timeout)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">self</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Simple, right?<br>
 Oh, by the way, here is the Predicate enum I am using for making assertions, you’ll find it quite handy! 😎</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">enum</span> <span style="color:#a6e22e">Predicate</span> {
-    <span style="color:#66d9ef">case</span> contains(String), doesNotContain(String)
-    <span style="color:#66d9ef">case</span> exists, doesNotExist
-    <span style="color:#66d9ef">case</span> isHittable, isNotHittable
-
-    <span style="color:#66d9ef">var</span> format: String {
-        <span style="color:#66d9ef">switch</span> <span style="color:#66d9ef">self</span> {
-        <span style="color:#66d9ef">case</span> .contains(<span style="color:#66d9ef">let</span> label):
-            <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;label == &#39;</span><span style="color:#e6db74">\(</span>label<span style="color:#e6db74">)</span><span style="color:#e6db74">&#39;&#34;</span>
-        <span style="color:#66d9ef">case</span> .doesNotContain(<span style="color:#66d9ef">let</span> label):
-            <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;label != &#39;</span><span style="color:#e6db74">\(</span>label<span style="color:#e6db74">)</span><span style="color:#e6db74">&#39;&#34;</span>
-        <span style="color:#66d9ef">case</span> .exists:
-            <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;exists == true&#34;</span>
-        <span style="color:#66d9ef">case</span> .doesNotExist:
-            <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;exists == false&#34;</span>
-        <span style="color:#66d9ef">case</span> .isHittable:
-            <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;isHittable == true&#34;</span>
-        <span style="color:#66d9ef">case</span> .isNotHittable:
-            <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;isHittable == false&#34;</span>
-        }
-    }
-}
-</code></pre></div><p>Alright! Now our Base <strong>Robot</strong> class is ready, let’s inherit from it in the <em>StoryRobot</em> and see how it plays out! 🤖</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">StoryRobot</span>: Robot {
-
-    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">lazy</span> <span style="color:#66d9ef">var</span> stackView          = app.otherElements[<span style="color:#e6db74">&#34;StoryView.stackView&#34;</span>]
-    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">lazy</span> <span style="color:#66d9ef">var</span> multimediaImage    = stackView.images[<span style="color:#e6db74">&#34;StoryView.multimediaImageView&#34;</span>]
-    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">lazy</span> <span style="color:#66d9ef">var</span> titleLabel         = stackView.staticTexts[<span style="color:#e6db74">&#34;StoryView.titleLabel&#34;</span>]
-    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">lazy</span> <span style="color:#66d9ef">var</span> abstractLabel      = stackView.staticTexts[<span style="color:#e6db74">&#34;StoryView.abstractLabel&#34;</span>]
-    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">lazy</span> <span style="color:#66d9ef">var</span> bylineLabel        = stackView.staticTexts[<span style="color:#e6db74">&#34;StoryView.bylineLabel&#34;</span>]
-
-    @discardableResult
-    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">checkStoryImage</span>() -&gt; <span style="color:#66d9ef">Self</span> {
-        assert(multimediaImage, [.exists])
-
-        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">self</span>
-    }
-
-    @discardableResult
-    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">checkStoryTitle</span>(contains storyTitle: String) -&gt; <span style="color:#66d9ef">Self</span> {
-        assert(titleLabel, [.isHittable, .contains(storyTitle)])
-
-        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">self</span>
-    }
-
-    @discardableResult
-    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">checkStoryAbstract</span>(contains storyAbstract: String) -&gt; <span style="color:#66d9ef">Self</span> {
-        assert(abstractLabel, [.isHittable, .contains(storyAbstract)])
-
-        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">self</span>
-    }
-
-    @discardableResult
-    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">checkStoryByline</span>(contains storyByline: String) -&gt; <span style="color:#66d9ef">Self</span> {
-        assert(bylineLabel, [.isHittable, .contains(storyByline)])
-
-        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">self</span>
-    }
-}
-</code></pre></div><p>That’s it! We’ve just implemented the <em>How</em> of our UI Test! 🎊<br>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">enum</span> <span style="color:#a6e22e">Predicate</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">case</span> contains(String), doesNotContain(String)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">case</span> exists, doesNotExist
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">case</span> isHittable, isNotHittable
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> format: String {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">switch</span> <span style="color:#66d9ef">self</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">case</span> .contains(<span style="color:#66d9ef">let</span> label):
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;label == &#39;</span><span style="color:#e6db74">\(</span>label<span style="color:#e6db74">)</span><span style="color:#e6db74">&#39;&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">case</span> .doesNotContain(<span style="color:#66d9ef">let</span> label):
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;label != &#39;</span><span style="color:#e6db74">\(</span>label<span style="color:#e6db74">)</span><span style="color:#e6db74">&#39;&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">case</span> .exists:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;exists == true&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">case</span> .doesNotExist:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;exists == false&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">case</span> .isHittable:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;isHittable == true&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">case</span> .isNotHittable:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;isHittable == false&#34;</span>
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Alright! Now our Base <strong>Robot</strong> class is ready, let’s inherit from it in the <em>StoryRobot</em> and see how it plays out! 🤖</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">StoryRobot</span>: Robot {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">lazy</span> <span style="color:#66d9ef">var</span> stackView          = app.otherElements[<span style="color:#e6db74">&#34;StoryView.stackView&#34;</span>]
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">lazy</span> <span style="color:#66d9ef">var</span> multimediaImage    = stackView.images[<span style="color:#e6db74">&#34;StoryView.multimediaImageView&#34;</span>]
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">lazy</span> <span style="color:#66d9ef">var</span> titleLabel         = stackView.staticTexts[<span style="color:#e6db74">&#34;StoryView.titleLabel&#34;</span>]
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">lazy</span> <span style="color:#66d9ef">var</span> abstractLabel      = stackView.staticTexts[<span style="color:#e6db74">&#34;StoryView.abstractLabel&#34;</span>]
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">lazy</span> <span style="color:#66d9ef">var</span> bylineLabel        = stackView.staticTexts[<span style="color:#e6db74">&#34;StoryView.bylineLabel&#34;</span>]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    @discardableResult
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">checkStoryImage</span>() -&gt; <span style="color:#66d9ef">Self</span> {
+</span></span><span style="display:flex;"><span>        assert(multimediaImage, [.exists])
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">self</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    @discardableResult
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">checkStoryTitle</span>(contains storyTitle: String) -&gt; <span style="color:#66d9ef">Self</span> {
+</span></span><span style="display:flex;"><span>        assert(titleLabel, [.isHittable, .contains(storyTitle)])
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">self</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    @discardableResult
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">checkStoryAbstract</span>(contains storyAbstract: String) -&gt; <span style="color:#66d9ef">Self</span> {
+</span></span><span style="display:flex;"><span>        assert(abstractLabel, [.isHittable, .contains(storyAbstract)])
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">self</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    @discardableResult
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">checkStoryByline</span>(contains storyByline: String) -&gt; <span style="color:#66d9ef">Self</span> {
+</span></span><span style="display:flex;"><span>        assert(bylineLabel, [.isHittable, .contains(storyByline)])
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">self</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>That’s it! We’ve just implemented the <em>How</em> of our UI Test! 🎊<br>
 What’s also really nice about <strong>Robots</strong>, is that they can cross call themselves without breaking the continuity of our UI Tests! 🤯</p>
 <p>For instance, let’s say we want to open Safari in the <em>StoryUITest</em>.<br>
 All we need to do is create a <em>SafariRobot</em> which will take care of UI Testing the browser and create a function inside the <em>StoryRobot</em> that will open Safari as well as return the <em>SafariRobot</em>! 😮</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">lazy</span> <span style="color:#66d9ef">var</span> urlButton = stackView.buttons[<span style="color:#e6db74">&#34;StoryView.urlButton&#34;</span>]
-
-@discardableResult
-<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">openSafari</span>() -&gt; SafariRobot {
-    tap(urlButton)
-
-    <span style="color:#66d9ef">return</span> SafariRobot(app)
-}
-</code></pre></div><p>And as you can see now, the continuity of our UI Test isn’t disturbed…</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">StoryUITest</span>: XCTestCase {
-    
-    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">lazy</span> <span style="color:#66d9ef">var</span> app = XCUIApplication()
-  
-    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">testStory</span>() {
-        StoryRobot(app)
-            .start()
-            .checkTitle(contains: <span style="color:#e6db74">&#34;U.S. - Politics&#34;</span>)
-            .checkStoryImage()
-            .checkStoryTitle(contains: <span style="color:#e6db74">&#34;A Trump Endorsement Can Decide a Race. Here’s How to Get One.&#34;</span>)
-            .checkStoryAbstract(contains: <span style="color:#e6db74">&#34;The president’s grip on G.O.P. primary voters is as strong as it has been since he seized the party’s nomination.&#34;</span>)
-            .checkStoryByline(contains: <span style="color:#e6db74">&#34;By JONATHAN MARTIN and MAGGIE HABERMAN&#34;</span>)
-            .takeScreenshot(named: <span style="color:#e6db74">&#34;Story&#34;</span>)
-            .openSafari()
-            .checkURL(contains: <span style="color:#e6db74">&#34;https://www.nytimes.com/2018/08/27/us/politics/trump-endorsements.html&#34;</span>)
-            .closeSafari()
-    }
-}
-</code></pre></div><p>Boom! 💥<br>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">lazy</span> <span style="color:#66d9ef">var</span> urlButton = stackView.buttons[<span style="color:#e6db74">&#34;StoryView.urlButton&#34;</span>]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>@discardableResult
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">openSafari</span>() -&gt; SafariRobot {
+</span></span><span style="display:flex;"><span>    tap(urlButton)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> SafariRobot(app)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>And as you can see now, the continuity of our UI Test isn’t disturbed…</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">StoryUITest</span>: XCTestCase {
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">lazy</span> <span style="color:#66d9ef">var</span> app = XCUIApplication()
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">testStory</span>() {
+</span></span><span style="display:flex;"><span>        StoryRobot(app)
+</span></span><span style="display:flex;"><span>            .start()
+</span></span><span style="display:flex;"><span>            .checkTitle(contains: <span style="color:#e6db74">&#34;U.S. - Politics&#34;</span>)
+</span></span><span style="display:flex;"><span>            .checkStoryImage()
+</span></span><span style="display:flex;"><span>            .checkStoryTitle(contains: <span style="color:#e6db74">&#34;A Trump Endorsement Can Decide a Race. Here’s How to Get One.&#34;</span>)
+</span></span><span style="display:flex;"><span>            .checkStoryAbstract(contains: <span style="color:#e6db74">&#34;The president’s grip on G.O.P. primary voters is as strong as it has been since he seized the party’s nomination.&#34;</span>)
+</span></span><span style="display:flex;"><span>            .checkStoryByline(contains: <span style="color:#e6db74">&#34;By JONATHAN MARTIN and MAGGIE HABERMAN&#34;</span>)
+</span></span><span style="display:flex;"><span>            .takeScreenshot(named: <span style="color:#e6db74">&#34;Story&#34;</span>)
+</span></span><span style="display:flex;"><span>            .openSafari()
+</span></span><span style="display:flex;"><span>            .checkURL(contains: <span style="color:#e6db74">&#34;https://www.nytimes.com/2018/08/27/us/politics/trump-endorsements.html&#34;</span>)
+</span></span><span style="display:flex;"><span>            .closeSafari()
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Boom! 💥<br>
 We just implemented the Robot Pattern! 🎉<br>
 UI Testing is now easy, elegant and readable! 💪</p>
 <p>Worth a try? Did you regain faith in UI Testing? If so, follow me on <a href="https://twitter.com/jhandguy">Twitter</a>, I’ll be happy to answer any of your questions and you’ll be the first one to know when a new article comes out! 👌</p>

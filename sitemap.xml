@@ -3,24 +3,27 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://jhandguy.github.io/tags/canary-deployment/</loc>
-    <lastmod>2022-02-02T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://jhandguy.github.io/posts/smart-canary-deployment/</loc>
-    <lastmod>2022-02-02T00:00:00+00:00</lastmod>
+    <lastmod>2022-03-10T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://jhandguy.github.io/tags/devops/</loc>
-    <lastmod>2022-02-02T00:00:00+00:00</lastmod>
+    <lastmod>2022-03-10T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://jhandguy.github.io/posts/incremental-mobile-force-update/</loc>
+    <lastmod>2022-03-10T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://jhandguy.github.io/</loc>
-    <lastmod>2022-02-02T00:00:00+00:00</lastmod>
+    <lastmod>2022-03-10T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://jhandguy.github.io/posts/</loc>
-    <lastmod>2022-02-02T00:00:00+00:00</lastmod>
+    <lastmod>2022-03-10T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://jhandguy.github.io/tags/sre/</loc>
-    <lastmod>2022-02-02T00:00:00+00:00</lastmod>
+    <lastmod>2022-03-10T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://jhandguy.github.io/tags/</loc>
+    <lastmod>2022-03-10T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://jhandguy.github.io/posts/smart-canary-deployment/</loc>
     <lastmod>2022-02-02T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://jhandguy.github.io/posts/automated-canary-deployment/</loc>

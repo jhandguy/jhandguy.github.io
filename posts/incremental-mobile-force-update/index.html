@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Incremental Mobile Force Update using Ingress NGINX and Firebase Remote Config</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+
+<body id="top" class="has-background-white">
+<nav class="navbar is-dark">
+    <div class="navbar-brand">
+        <a class="navbar-item" href="/">
+            Home
+        </a>
+
+        <div class="navbar-item">
+            <a class="button is-primary" href="/about">
+                <strong>About me</strong>
+            </a>
+        </div>
+    </div>
+</nav>
+<section class="section">
+    <div class="container is-max-desktop">
+        <div class="content is-large">
+            <h1 class="title">Incremental Mobile Force Update using Ingress NGINX and Firebase Remote Config</h1>
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#smart-traffic-routing-with-firebase-remote-config">Smart Traffic Routing with Firebase Remote Config</a></li>
+    <li><a href="#incrementally-rolling-out-mobile-releases">Incrementally Rolling Out Mobile Releases</a></li>
+    <li><a href="#wrapping-up">Wrapping up</a></li>
+  </ul>
+</nav>
+        </div>
+    </div>
+    <div class="container is-max-desktop mt-6">
+        <div class="content is-medium has-text-justified-tablet">
+            <p>Mobile <a href="https://betterprogramming.pub/force-update-your-apps-74de57523650">force updates</a> occur when old versions of an app are no longer compatible with the APIs they consume.
+Until the app is updated to the required version, the UI blocks further usage.
+This is usually materialized as a system popup that will redirect users to the respective Store and disappear only once they have updated to the latest version.
+This is often considered bad practice as it deteriorates the UX of an app drastically, yet there are situations (mostly breaking API changes) when it is unavoidable.</p>
+<p>Such updates are quite risky, as once an app is updated in the stores, there is no going back unless the previous version of the app is released again under a different version number.
+Web applications do not face such risks as they are easily rolled back. Also, just like for backend APIs, a web app can incrementally roll out such changes using a canary deployment.</p>
+<blockquote>
+<p><em>If you haven’t already, go read <a href="/posts/simple-canary-deployment/">Canary Deployment in Kubernetes (Part 1) — Simple Canary Deployment using Ingress NGINX</a> and learn how to implement a Simple Canary Deployment using Ingress NGINX!</em></p>
+</blockquote>
+<p>However, this doesn’t mean that there are no solutions. In fact, it is possible to leverage backend canary deployments in order to incrementally roll out a mobile force update.
+Ingress NGINX, for instance, only provides traffic splitting based on <code>canary-weight</code> but it also features traffic routing based on <code>canary-by-header</code> which can be used for this purpose.</p>
+<blockquote>
+<p>What if we could route user traffic based on the version of the app they are using?</p>
+</blockquote>
+<p>🎬 Hi there, I’m Jean!</p>
+<p>In this article, we’re going to learn how to leverage a simple <strong>canary deployment</strong> using <strong>Ingress NGINX</strong> and <strong>Firebase Remote Config</strong> to safely conduct an incremental <strong>mobile force update</strong>! 💪</p>
+<h2 id="smart-traffic-routing-with-firebase-remote-config">Smart Traffic Routing with Firebase Remote Config</h2>
+<hr>
+<p><a href="https://firebase.google.com/docs/remote-config">Firebase Remote Config</a> is a powerful Cloud service from Google that enables frontend applications to store their configuration properties in Google’s Cloud and access them remotely via a dedicated Firebase SDK (available in <a href="https://github.com/firebase/firebase-ios-sdk">iOS</a>, <a href="https://github.com/firebase/firebase-android-sdk">Android</a>, <a href="https://github.com/firebase/firebase-cpp-sdk">C++</a>, and <a href="https://github.com/firebase/firebase-js-sdk">Javascript</a>).</p>
+<p>While editing those configuration properties would normally require a frontend release, with Firebase Remote Config, developers can simply change the properties values in Firebase’s UI and the frontend will update itself automatically on the fly.</p>
+<p>The most powerful feature of Firebase Remote Config though is that configuration properties can have <strong>dynamic values</strong>, based on app data (or even user data from <a href="https://firebase.google.com/docs/analytics">Google Analytics</a>). 🤯</p>
+<p>For instance, say we must make a non-backward-compatible change to our Backend API, this means all our mobile apps must conduct a <a href="https://betterprogramming.pub/force-update-your-apps-74de57523650">force update</a>. Thus, if users are using version <strong>v1</strong>, they will be prompted to update their app to version <strong>v2</strong> so that they can keep on consuming the Backend API.
+But what if this non-backward-compatible change is a faulty one? How do we revert such a change? Well, in fact, we can’t: once a user has updated their mobile app, there is no going back. So how do we solve this then?</p>
+<p>Well, to solve the force update problem, we could theoretically define a Remote Config called <code>UseCanary</code> and give it a <strong>dynamic value</strong> based on the app version.</p>
+<p>Specifically:</p>
+<ul>
+<li>If AppVersion &lt; 2.0.0, UseCanary = <code>never</code>;</li>
+<li>If AppVersion ≥ 2.0.0, UseCanary = <code>always</code>.</li>
+</ul>
+<p>Then, when the app fetches its Remote Config, it can add to its requests the famous <code>X-Canary</code> header we talked about in <a href="/posts/simple-canary-deployment/">Simple Canary Deployment using Ingress NGINX</a> (remember? 😉) like so: <code>X-Canary: &lt;UseCanary&gt;</code>.</p>
+<p>This will result in:</p>
+<ul>
+<li>If AppVersion &lt; 2.0.0, request header = <code>X-Canary: never</code>;</li>
+<li>If AppVersion ≥ 2.0.0, request header = <code>X-Canary: always</code>.</li>
+</ul>
+<p>In Firebase Remote Config, this is called a <strong>condition</strong>. A condition is a logical block allowing Remote Config properties (called parameters) to have <strong>dynamic values</strong> based on various app or user data, such as the app version.</p>
+<p><img src="/images/incremental-mobile-force-update/1.png" alt="Firebase Remote Config"></p>
+<p>Then, creating a dynamic parameter simply boils down to specifying its name, condition(s), and associated values.</p>
+<p><img src="/images/incremental-mobile-force-update/2.png" alt="Firebase Remote Config"></p>
+<p>Now we made sure that only users using the <strong>v2</strong> version of the app get routed to the canary deployment, we can roll out our non-backward-compatible change to canary and start doing some smoke tests, in complete isolation from the rest of the userbase!</p>
+<h2 id="incrementally-rolling-out-mobile-releases">Incrementally Rolling Out Mobile Releases</h2>
+<hr>
+<p>Once ready to go live, the mobile engineering team can start incrementally rolling out their new <strong>v2</strong> version of the app in the stores:</p>
+<ul>
+<li>In iOS, using the <a href="https://help.apple.com/app-store-connect/#/dev3d65fcee1">Phased Release</a> feature of the App Store ;</li>
+<li>In Android, using the <a href="https://support.google.com/googleplay/android-developer/answer/6346149?hl=en">Staged Rollout</a> feature of the Play Store.</li>
+</ul>
+<p>As users update their app, traffic to the canary deployment will start coming in and if things suddenly go south, the Phased Release or Staged Rollout can be easily paused, until a fix is deployed to the canary deployment.</p>
+<p><img src="/images/incremental-mobile-force-update/3.png" alt="Incremental Force Update Rollout"></p>
+<p>Once the rollout of the non-backward-compatible change in canary is considered successful, the mobile engineering team can proceed with the actual force update and the stable deployment will soon stop receiving traffic altogether.
+This means that all users have now migrated to the <strong>v2</strong> version of the app, the canary rollout is therefore complete and can be rolled over to the stable deployment!</p>
+<h2 id="wrapping-up">Wrapping up</h2>
+<hr>
+<p>To summarize, using Ingress NGINX in tandem with Firebase Remote Config, we were able to:</p>
+<ul>
+<li>Route user traffic to a canary deployment based on the version of the app they are using;</li>
+<li>Incrementally rollout a non-backward-compatible change to minimize risk before conducting a force update.</li>
+</ul>
+<p>Was it worth it? Did that help you understand how to incrementally conduct a mobile force update using Ingress NGINX and Firebase Remote Config?</p>
+<p>If so, follow me on <a href="https://twitter.com/jhandguy">Twitter</a>, I’ll be happy to answer any of your questions and you’ll be the first one to know when a new article comes out! 👌</p>
+<p>Bye-bye! 👋</p>
+
+        </div>
+    </div>
+    <div class="container is-fullhd has-text-centered mt-6">
+        <div class="columns is-mobile">
+            <div class="column">
+                
+                <a class="button is-primary is-pulled-left" href="https://jhandguy.github.io/posts/smart-canary-deployment/"><strong>Previous</strong></a>
+                
+            </div>
+            <div class="column">
+                <a class="button is-dark" href="#top"><strong>Back to top</strong></a>
+            </div>
+            <div class="column">
+                
+                <a class="button is-primary is-pulled-right" disabled><strong>Next</strong></a>
+                
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+<footer>
+    <div class="footer has-background-light">
+        <div class="content has-text-centered">
+            <p class="subtitle is-6">Powered by <a class="has-text-primary" href="https://gohugo.io/">Hugo</a></p>
+            <a href="https://bulma.io">
+                <img src="https://bulma.io/images/made-with-bulma.png" alt="Made with Bulma" width="128" height="24">
+            </a>
+        </div>
+    </div>
+</footer>
+</html>

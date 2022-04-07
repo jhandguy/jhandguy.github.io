@@ -89,26 +89,26 @@ Well, that, my friend, is what Canary Deployment is all about!</p>
 <p><strong>In a production Kubernetes cluster, it is recommended to install the NGINX Ingress Controller via its <a href="https://github.com/kubernetes/ingress-nginx/tree/main/charts/ingress-nginx">Helm chart</a>.</strong></p>
 </blockquote>
 <p>However, since we will be using <a href="https://minikube.sigs.k8s.io/docs/start/">Minikube</a> in this series, the dedicated <a href="https://kubernetes.io/docs/tasks/access-application-cluster/ingress-minikube/#enable-the-ingress-controller">ingress add-on</a> will suffice.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">minikube start --kubernetes-version<span style="color:#f92672">=</span>1.21.8 --addons<span style="color:#f92672">=</span>ingress <span style="color:#66d9ef">$(if</span> <span style="color:#f92672">[</span> <span style="color:#66d9ef">$(</span>uname<span style="color:#66d9ef">)</span> !<span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Linux&#34;</span> <span style="color:#f92672">]</span>; <span style="color:#66d9ef">then</span> echo <span style="color:#e6db74">&#34;--vm=true&#34;</span>; <span style="color:#66d9ef">fi)</span>
-</code></pre></div><blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>minikube start --kubernetes-version<span style="color:#f92672">=</span>1.21.8 --addons<span style="color:#f92672">=</span>ingress <span style="color:#66d9ef">$(if</span> <span style="color:#f92672">[</span> <span style="color:#66d9ef">$(</span>uname<span style="color:#66d9ef">)</span> !<span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Linux&#34;</span> <span style="color:#f92672">]</span>; <span style="color:#66d9ef">then</span> echo <span style="color:#e6db74">&#34;--vm=true&#34;</span>; <span style="color:#66d9ef">fi)</span>
+</span></span></code></pre></div><blockquote>
 <p><em>Note: Argo Rollouts is still expecting the extensions/v1beta1 API version of the Ingress resource while it is no longer available in Kubernetes since v1.22.<br>
 <a href="https://github.com/argoproj/argo-rollouts/issues/1507">The issue</a> has already been fixed but hasn’t been released yet, this is why we need to restrict the kubernetes version to 1.21 for now.</em></p>
 </blockquote>
 <p>Now, if everything goes according to plan, you should be able to see the <strong>ingress-nginx-controller</strong> Deployment running in your freshly created Minikube cluster.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">➜ kubectl get deploy -n ingress-nginx
-NAME                       READY   UP-TO-DATE   AVAILABLE   AGE
-ingress-nginx-controller   1/1     <span style="color:#ae81ff">1</span>            <span style="color:#ae81ff">1</span>           4m35s
-</code></pre></div><h3 id="installing-argo-rollouts">Installing Argo Rollouts</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get deploy -n ingress-nginx
+</span></span><span style="display:flex;"><span>NAME                       READY   UP-TO-DATE   AVAILABLE   AGE
+</span></span><span style="display:flex;"><span>ingress-nginx-controller   1/1     <span style="color:#ae81ff">1</span>            <span style="color:#ae81ff">1</span>           4m35s
+</span></span></code></pre></div><h3 id="installing-argo-rollouts">Installing Argo Rollouts</h3>
 <hr>
 <p>Argo Rollouts can be installed via its <a href="https://github.com/argoproj/argo-helm/tree/master/charts/argo-rollouts">Helm chart</a>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">helm repo add argo https://argoproj.github.io/argo-helm
-helm install argo/argo-rollouts --name-template argo-rollouts --create-namespace -n argo-rollouts --set dashboard.enabled<span style="color:#f92672">=</span>true --wait
-</code></pre></div><p>If all goes well, you should see two newly spawned Deployments with the READY state.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">➜ kubectl get deploy -n argo-rollouts
-NAME                      READY   UP-TO-DATE   AVAILABLE   AGE
-argo-rollouts             1/1     <span style="color:#ae81ff">1</span>            <span style="color:#ae81ff">1</span>           13m
-argo-rollouts-dashboard   1/1     <span style="color:#ae81ff">1</span>            <span style="color:#ae81ff">1</span>           13m
-</code></pre></div><h2 id="configuring-rollout-resources">Configuring Rollout Resources</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>helm repo add argo https://argoproj.github.io/argo-helm
+</span></span><span style="display:flex;"><span>helm install argo/argo-rollouts --name-template argo-rollouts --create-namespace -n argo-rollouts --set dashboard.enabled<span style="color:#f92672">=</span>true --wait
+</span></span></code></pre></div><p>If all goes well, you should see two newly spawned Deployments with the READY state.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get deploy -n argo-rollouts
+</span></span><span style="display:flex;"><span>NAME                      READY   UP-TO-DATE   AVAILABLE   AGE
+</span></span><span style="display:flex;"><span>argo-rollouts             1/1     <span style="color:#ae81ff">1</span>            <span style="color:#ae81ff">1</span>           13m
+</span></span><span style="display:flex;"><span>argo-rollouts-dashboard   1/1     <span style="color:#ae81ff">1</span>            <span style="color:#ae81ff">1</span>           13m
+</span></span></code></pre></div><h2 id="configuring-rollout-resources">Configuring Rollout Resources</h2>
 <hr>
 <p>One of the limitations of using Ingress NGINX alone is that it requires the duplication of quite a few Kubernetes resources. If you remember in <a href="/posts/simple-canary-deployment/">Part 1</a>, the <strong>Deployment</strong>, <strong>Service</strong>, and <strong>Ingress</strong> resources were almost identically cloned.<br>
 With Argo Rollouts, the duplication of Kubernetes resources is reduced to only one: the <strong>Service</strong> resource.</p>
@@ -116,64 +116,64 @@ With Argo Rollouts, the duplication of Kubernetes resources is reduced to only o
 Argo Rollouts created its own <a href="https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/">Custom Resource</a> to remediate that problem: the <strong><a href="https://argoproj.github.io/argo-rollouts/features/specification/">Rollout</a></strong> resource.</p>
 <p>Alrighty then! Let’s get to it! 🧐</p>
 <p>I don’t expect you to have a Helm chart with a demo app in handy, so <a href="https://github.com/jhandguy/canary-deployment">I built one</a> for you.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">git clone https://github.com/jhandguy/canary-deployment.git
-cd canary-deployment/argo-rollouts
-helm install . --name-template sample-app --create-namespace -n sample-app
-</code></pre></div><p>If everything goes fine, you should eventually see one Rollout with the READY state.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">➜ kubectl get rollout sample-app -n sample-app
-NAME         DESIRED   CURRENT   UP-TO-DATE   AVAILABLE
-sample-app   <span style="color:#ae81ff">1</span>         <span style="color:#ae81ff">1</span>         <span style="color:#ae81ff">1</span>            <span style="color:#ae81ff">1</span>
-</code></pre></div><p>Alright, let’s take a look at what’s under all this!</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">➜ ls -1 templates
-analysistemplate.yaml
-canary
-ingress.yaml
-rollout.yaml
-service.yaml
-serviceaccount.yaml
-servicemonitor.yaml
-
-➜ ls -1 templates/canary
-service.yaml
-</code></pre></div><blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>git clone https://github.com/jhandguy/canary-deployment.git
+</span></span><span style="display:flex;"><span>cd canary-deployment/argo-rollouts
+</span></span><span style="display:flex;"><span>helm install . --name-template sample-app --create-namespace -n sample-app
+</span></span></code></pre></div><p>If everything goes fine, you should eventually see one Rollout with the READY state.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get rollout sample-app -n sample-app
+</span></span><span style="display:flex;"><span>NAME         DESIRED   CURRENT   UP-TO-DATE   AVAILABLE
+</span></span><span style="display:flex;"><span>sample-app   <span style="color:#ae81ff">1</span>         <span style="color:#ae81ff">1</span>         <span style="color:#ae81ff">1</span>            <span style="color:#ae81ff">1</span>
+</span></span></code></pre></div><p>Alright, let’s take a look at what’s under all this!</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ ls -1 templates
+</span></span><span style="display:flex;"><span>analysistemplate.yaml
+</span></span><span style="display:flex;"><span>canary
+</span></span><span style="display:flex;"><span>ingress.yaml
+</span></span><span style="display:flex;"><span>rollout.yaml
+</span></span><span style="display:flex;"><span>service.yaml
+</span></span><span style="display:flex;"><span>serviceaccount.yaml
+</span></span><span style="display:flex;"><span>servicemonitor.yaml
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>➜ ls -1 templates/canary
+</span></span><span style="display:flex;"><span>service.yaml
+</span></span></code></pre></div><blockquote>
 <p><em>Note: ignore the <code>analysistemplate.yaml</code> and the <code>servicemonitor.yaml</code> for now and focus on the rest of the resources.</em></p>
 </blockquote>
 <p>As you can see, there is only one resource that has been duplicated in the <code>canary</code> folder: the <code>service.yaml</code>.</p>
 <p>Now you might wonder, where did the <strong>Deployment</strong> resource go?! 🤔</p>
 <p>In Argo Rollouts, the <strong>Deployment</strong> resource has been replaced with the <strong><a href="https://argoproj.github.io/argo-rollouts/features/specification/">Rollout</a></strong> resource. It is pretty much the same though, except it contains some extra specifications.</p>
 <p>In fact, if you compare the <code>deployment.yaml</code> from <a href="/posts/simple-canary-deployment/">Part 1</a> with the <code>rollout.yaml</code>, you will find that they are very similar, except for the <code>strategy</code> spec which is very unique to the <strong>Rollout</strong> resource.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">---
-<span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">argoproj.io/v1alpha1</span>
-<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Rollout</span>
-...
-<span style="color:#f92672">spec</span>:
-  <span style="color:#ae81ff">...</span>
-  <span style="color:#f92672">strategy</span>:
-    <span style="color:#f92672">canary</span>:
-      <span style="color:#f92672">canaryService</span>: {{ <span style="color:#ae81ff">.Release.Name }}-canary</span>
-      <span style="color:#f92672">stableService</span>: {{ <span style="color:#ae81ff">.Release.Name }}</span>
-      <span style="color:#f92672">canaryMetadata</span>:
-        <span style="color:#f92672">labels</span>:
-          <span style="color:#f92672">deployment</span>: <span style="color:#ae81ff">canary</span>
-      <span style="color:#f92672">stableMetadata</span>:
-        <span style="color:#f92672">labels</span>:
-          <span style="color:#f92672">deployment</span>: <span style="color:#ae81ff">stable</span>
-      <span style="color:#f92672">trafficRouting</span>:
-        <span style="color:#f92672">nginx</span>:
-          <span style="color:#f92672">stableIngress</span>: {{ <span style="color:#ae81ff">.Release.Name }}</span>
-          <span style="color:#f92672">additionalIngressAnnotations</span>:
-            <span style="color:#f92672">canary-by-header</span>: <span style="color:#ae81ff">X-Canary</span>
-      <span style="color:#f92672">steps</span>:
-        - <span style="color:#f92672">setWeight</span>: <span style="color:#ae81ff">25</span>
-        - <span style="color:#f92672">pause</span>: {}
-        - <span style="color:#f92672">setWeight</span>: <span style="color:#ae81ff">50</span>
-        - <span style="color:#f92672">pause</span>:
-            <span style="color:#f92672">duration</span>: <span style="color:#ae81ff">5m</span>
-        - <span style="color:#f92672">setWeight</span>: <span style="color:#ae81ff">75</span>
-        - <span style="color:#f92672">pause</span>:
-            <span style="color:#f92672">duration</span>: <span style="color:#ae81ff">5m</span>
-  <span style="color:#ae81ff">...</span>
-</code></pre></div><p>Now, let’s break down what is happening here:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">argoproj.io/v1alpha1</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Rollout</span>
+</span></span><span style="display:flex;"><span>...
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#ae81ff">...</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">strategy</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">canary</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">canaryService</span>: {{ <span style="color:#ae81ff">.Release.Name }}-canary</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">stableService</span>: {{ <span style="color:#ae81ff">.Release.Name }}</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">canaryMetadata</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">labels</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">deployment</span>: <span style="color:#ae81ff">canary</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">stableMetadata</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">labels</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">deployment</span>: <span style="color:#ae81ff">stable</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">trafficRouting</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">nginx</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">stableIngress</span>: {{ <span style="color:#ae81ff">.Release.Name }}</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">additionalIngressAnnotations</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">canary-by-header</span>: <span style="color:#ae81ff">X-Canary</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">steps</span>:
+</span></span><span style="display:flex;"><span>        - <span style="color:#f92672">setWeight</span>: <span style="color:#ae81ff">25</span>
+</span></span><span style="display:flex;"><span>        - <span style="color:#f92672">pause</span>: {}
+</span></span><span style="display:flex;"><span>        - <span style="color:#f92672">setWeight</span>: <span style="color:#ae81ff">50</span>
+</span></span><span style="display:flex;"><span>        - <span style="color:#f92672">pause</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">duration</span>: <span style="color:#ae81ff">5m</span>
+</span></span><span style="display:flex;"><span>        - <span style="color:#f92672">setWeight</span>: <span style="color:#ae81ff">75</span>
+</span></span><span style="display:flex;"><span>        - <span style="color:#f92672">pause</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">duration</span>: <span style="color:#ae81ff">5m</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#ae81ff">...</span>
+</span></span></code></pre></div><p>Now, let’s break down what is happening here:</p>
 <ul>
 <li>Argo Rollouts Controller needs to know which Service is the <code>canaryService</code> and which is the <code>stableService</code> so it can update them to select their corresponding pods on the fly;</li>
 <li>In order for us to know which pods are being selected by which service, we can specify a label or annotation to be attached to the Pods metadata via <code>canaryMetadata</code> and <code>stableMetadata</code>;</li>
@@ -190,124 +190,124 @@ service.yaml
 <hr>
 <p>Awesome! Now that our Rollout is up and we understand how it works under the hood, let’s take it for a spin! 🚗</p>
 <p>But first, let’s have a look at the dashboard!</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl argo rollouts dashboard -n argo-rollouts &amp;
-</code></pre></div><p>If you now head to <a href="http://localhost:3100/rollout/sample-app">http://localhost:3100/rollout/sample-app</a>, you should see a shiny dashboard showing the state of the <code>sample-app</code> Rollout.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>kubectl argo rollouts dashboard -n argo-rollouts &amp;
+</span></span></code></pre></div><p>If you now head to <a href="http://localhost:3100/rollout/sample-app">http://localhost:3100/rollout/sample-app</a>, you should see a shiny dashboard showing the state of the <code>sample-app</code> Rollout.</p>
 <p><img src="/images/automated-canary-deployment/1.png" alt="Argo Rollouts Dashboard"></p>
 <p>Cool! So far, we can observe only one <strong>revision</strong> labeled as <code>stable</code>, serving 100% of the traffic.</p>
 <p>Now, let’s set a new image for the container and see what happens!</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl argo rollouts set image sample-app sample-app<span style="color:#f92672">=</span>ghcr.io/jhandguy/canary-deployment/sample-app:latest -n sample-app
-</code></pre></div><p><img src="/images/automated-canary-deployment/2.png" alt="Argo Rollouts Dashboard"></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>kubectl argo rollouts set image sample-app sample-app<span style="color:#f92672">=</span>ghcr.io/jhandguy/canary-deployment/sample-app:latest -n sample-app
+</span></span></code></pre></div><p><img src="/images/automated-canary-deployment/2.png" alt="Argo Rollouts Dashboard"></p>
 <p>Aha! A new <strong>revision</strong> has been created and was labeled as <code>canary</code>. The weight for the canary Ingress has been set to 25% and the <strong>Rollout</strong> has now entered the <em>Paused</em> state.</p>
 <p>Let’s verify this real quick!</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">➜ kubectl get ingress -n sample-app
-NAME                           CLASS    HOSTS        ADDRESS     ...   
-sample-app                     &lt;none&gt;   sample.app   localhost   ...  
-sample-app-sample-app-canary   &lt;none&gt;   sample.app   localhost   ...
-
-➜ kubectl describe ingress sample-app-sample-app-canary -n sample-app
-...
-Annotations:  kubernetes.io/ingress.class: nginx
-              nginx.ingress.kubernetes.io/canary: true
-              nginx.ingress.kubernetes.io/canary-by-header: X-Canary
-              nginx.ingress.kubernetes.io/canary-weight: <span style="color:#ae81ff">25</span>
-...
-</code></pre></div><p>Indeed! An extra Ingress resource was automatically created, and given a <code>canary-weight</code> of 25.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get ingress -n sample-app
+</span></span><span style="display:flex;"><span>NAME                           CLASS    HOSTS        ADDRESS     ...   
+</span></span><span style="display:flex;"><span>sample-app                     &lt;none&gt;   sample.app   localhost   ...  
+</span></span><span style="display:flex;"><span>sample-app-sample-app-canary   &lt;none&gt;   sample.app   localhost   ...
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>➜ kubectl describe ingress sample-app-sample-app-canary -n sample-app
+</span></span><span style="display:flex;"><span>...
+</span></span><span style="display:flex;"><span>Annotations:  kubernetes.io/ingress.class: nginx
+</span></span><span style="display:flex;"><span>              nginx.ingress.kubernetes.io/canary: true
+</span></span><span style="display:flex;"><span>              nginx.ingress.kubernetes.io/canary-by-header: X-Canary
+</span></span><span style="display:flex;"><span>              nginx.ingress.kubernetes.io/canary-weight: <span style="color:#ae81ff">25</span>
+</span></span><span style="display:flex;"><span>...
+</span></span></code></pre></div><p>Indeed! An extra Ingress resource was automatically created, and given a <code>canary-weight</code> of 25.</p>
 <p>Let’s see if it works!</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">curl <span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span>/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span>
-</code></pre></div><p>As you can see, out of 4 requests, one came back from the <code>canary</code> pod.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">➜ curl <span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span>/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span>
-<span style="color:#f92672">{</span><span style="color:#e6db74">&#34;node&#34;</span>:<span style="color:#e6db74">&#34;minikube&#34;</span>,<span style="color:#e6db74">&#34;namespace&#34;</span>:<span style="color:#e6db74">&#34;sample-app&#34;</span>,<span style="color:#e6db74">&#34;pod&#34;</span>:<span style="color:#e6db74">&#34;sample-app-6bf6dfdbb4-xmqdw&#34;</span>,<span style="color:#e6db74">&#34;deployment&#34;</span>:<span style="color:#e6db74">&#34;stable&#34;</span><span style="color:#f92672">}</span>
-
-➜ curl <span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span>/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span>
-<span style="color:#f92672">{</span><span style="color:#e6db74">&#34;node&#34;</span>:<span style="color:#e6db74">&#34;minikube&#34;</span>,<span style="color:#e6db74">&#34;namespace&#34;</span>:<span style="color:#e6db74">&#34;sample-app&#34;</span>,<span style="color:#e6db74">&#34;pod&#34;</span>:<span style="color:#e6db74">&#34;sample-app-6bf6dfdbb4-xmqdw&#34;</span>,<span style="color:#e6db74">&#34;deployment&#34;</span>:<span style="color:#e6db74">&#34;stable&#34;</span><span style="color:#f92672">}</span>
-
-➜ curl <span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span>/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span>
-<span style="color:#f92672">{</span><span style="color:#e6db74">&#34;node&#34;</span>:<span style="color:#e6db74">&#34;minikube&#34;</span>,<span style="color:#e6db74">&#34;namespace&#34;</span>:<span style="color:#e6db74">&#34;sample-app&#34;</span>,<span style="color:#e6db74">&#34;pod&#34;</span>:<span style="color:#e6db74">&#34;sample-app-6bf6dfdbb4-xmqdw&#34;</span>,<span style="color:#e6db74">&#34;deployment&#34;</span>:<span style="color:#e6db74">&#34;stable&#34;</span><span style="color:#f92672">}</span>
-
-➜ curl <span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span>/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span>
-<span style="color:#f92672">{</span><span style="color:#e6db74">&#34;node&#34;</span>:<span style="color:#e6db74">&#34;minikube&#34;</span>,<span style="color:#e6db74">&#34;namespace&#34;</span>:<span style="color:#e6db74">&#34;sample-app&#34;</span>,<span style="color:#e6db74">&#34;pod&#34;</span>:<span style="color:#e6db74">&#34;sample-app-5c9fc8b7d4-wdrck&#34;</span>,<span style="color:#e6db74">&#34;deployment&#34;</span>:<span style="color:#e6db74">&#34;canary&#34;</span><span style="color:#f92672">}</span>
-</code></pre></div><p>And, the same way as in <a href="/posts/simple-canary-deployment/">Part 1</a>, we can easily <strong>Smoke Test</strong> our change in isolation by leveraging the Ingress <code>canary-by-header</code> annotation.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">curl <span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span>/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span> -H <span style="color:#e6db74">&#34;X-Canary: always&#34;</span>
-</code></pre></div><p>Aha! We are now consistently hitting the <code>canary</code> pod.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">➜ curl <span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span>/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span> -H <span style="color:#e6db74">&#34;X-Canary: always&#34;</span>
-<span style="color:#f92672">{</span><span style="color:#e6db74">&#34;node&#34;</span>:<span style="color:#e6db74">&#34;minikube&#34;</span>,<span style="color:#e6db74">&#34;namespace&#34;</span>:<span style="color:#e6db74">&#34;sample-app&#34;</span>,<span style="color:#e6db74">&#34;pod&#34;</span>:<span style="color:#e6db74">&#34;sample-app-5c9fc8b7d4-wdrck&#34;</span>,<span style="color:#e6db74">&#34;deployment&#34;</span>:<span style="color:#e6db74">&#34;canary&#34;</span><span style="color:#f92672">}</span>
-
-➜ curl <span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span>/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span> -H <span style="color:#e6db74">&#34;X-Canary: always&#34;</span>
-<span style="color:#f92672">{</span><span style="color:#e6db74">&#34;node&#34;</span>:<span style="color:#e6db74">&#34;minikube&#34;</span>,<span style="color:#e6db74">&#34;namespace&#34;</span>:<span style="color:#e6db74">&#34;sample-app&#34;</span>,<span style="color:#e6db74">&#34;pod&#34;</span>:<span style="color:#e6db74">&#34;sample-app-5c9fc8b7d4-wdrck&#34;</span>,<span style="color:#e6db74">&#34;deployment&#34;</span>:<span style="color:#e6db74">&#34;canary&#34;</span><span style="color:#f92672">}</span>
-
-➜ curl <span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span>/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span> -H <span style="color:#e6db74">&#34;X-Canary: always&#34;</span>
-<span style="color:#f92672">{</span><span style="color:#e6db74">&#34;node&#34;</span>:<span style="color:#e6db74">&#34;minikube&#34;</span>,<span style="color:#e6db74">&#34;namespace&#34;</span>:<span style="color:#e6db74">&#34;sample-app&#34;</span>,<span style="color:#e6db74">&#34;pod&#34;</span>:<span style="color:#e6db74">&#34;sample-app-5c9fc8b7d4-wdrck&#34;</span>,<span style="color:#e6db74">&#34;deployment&#34;</span>:<span style="color:#e6db74">&#34;canary&#34;</span><span style="color:#f92672">}</span>
-</code></pre></div><h3 id="load-testing-with-k6">Load Testing with k6</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>curl <span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span>/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span>
+</span></span></code></pre></div><p>As you can see, out of 4 requests, one came back from the <code>canary</code> pod.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ curl <span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span>/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">{</span><span style="color:#e6db74">&#34;node&#34;</span>:<span style="color:#e6db74">&#34;minikube&#34;</span>,<span style="color:#e6db74">&#34;namespace&#34;</span>:<span style="color:#e6db74">&#34;sample-app&#34;</span>,<span style="color:#e6db74">&#34;pod&#34;</span>:<span style="color:#e6db74">&#34;sample-app-6bf6dfdbb4-xmqdw&#34;</span>,<span style="color:#e6db74">&#34;deployment&#34;</span>:<span style="color:#e6db74">&#34;stable&#34;</span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>➜ curl <span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span>/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">{</span><span style="color:#e6db74">&#34;node&#34;</span>:<span style="color:#e6db74">&#34;minikube&#34;</span>,<span style="color:#e6db74">&#34;namespace&#34;</span>:<span style="color:#e6db74">&#34;sample-app&#34;</span>,<span style="color:#e6db74">&#34;pod&#34;</span>:<span style="color:#e6db74">&#34;sample-app-6bf6dfdbb4-xmqdw&#34;</span>,<span style="color:#e6db74">&#34;deployment&#34;</span>:<span style="color:#e6db74">&#34;stable&#34;</span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>➜ curl <span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span>/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">{</span><span style="color:#e6db74">&#34;node&#34;</span>:<span style="color:#e6db74">&#34;minikube&#34;</span>,<span style="color:#e6db74">&#34;namespace&#34;</span>:<span style="color:#e6db74">&#34;sample-app&#34;</span>,<span style="color:#e6db74">&#34;pod&#34;</span>:<span style="color:#e6db74">&#34;sample-app-6bf6dfdbb4-xmqdw&#34;</span>,<span style="color:#e6db74">&#34;deployment&#34;</span>:<span style="color:#e6db74">&#34;stable&#34;</span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>➜ curl <span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span>/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">{</span><span style="color:#e6db74">&#34;node&#34;</span>:<span style="color:#e6db74">&#34;minikube&#34;</span>,<span style="color:#e6db74">&#34;namespace&#34;</span>:<span style="color:#e6db74">&#34;sample-app&#34;</span>,<span style="color:#e6db74">&#34;pod&#34;</span>:<span style="color:#e6db74">&#34;sample-app-5c9fc8b7d4-wdrck&#34;</span>,<span style="color:#e6db74">&#34;deployment&#34;</span>:<span style="color:#e6db74">&#34;canary&#34;</span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>And, the same way as in <a href="/posts/simple-canary-deployment/">Part 1</a>, we can easily <strong>Smoke Test</strong> our change in isolation by leveraging the Ingress <code>canary-by-header</code> annotation.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>curl <span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span>/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span> -H <span style="color:#e6db74">&#34;X-Canary: always&#34;</span>
+</span></span></code></pre></div><p>Aha! We are now consistently hitting the <code>canary</code> pod.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ curl <span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span>/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span> -H <span style="color:#e6db74">&#34;X-Canary: always&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">{</span><span style="color:#e6db74">&#34;node&#34;</span>:<span style="color:#e6db74">&#34;minikube&#34;</span>,<span style="color:#e6db74">&#34;namespace&#34;</span>:<span style="color:#e6db74">&#34;sample-app&#34;</span>,<span style="color:#e6db74">&#34;pod&#34;</span>:<span style="color:#e6db74">&#34;sample-app-5c9fc8b7d4-wdrck&#34;</span>,<span style="color:#e6db74">&#34;deployment&#34;</span>:<span style="color:#e6db74">&#34;canary&#34;</span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>➜ curl <span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span>/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span> -H <span style="color:#e6db74">&#34;X-Canary: always&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">{</span><span style="color:#e6db74">&#34;node&#34;</span>:<span style="color:#e6db74">&#34;minikube&#34;</span>,<span style="color:#e6db74">&#34;namespace&#34;</span>:<span style="color:#e6db74">&#34;sample-app&#34;</span>,<span style="color:#e6db74">&#34;pod&#34;</span>:<span style="color:#e6db74">&#34;sample-app-5c9fc8b7d4-wdrck&#34;</span>,<span style="color:#e6db74">&#34;deployment&#34;</span>:<span style="color:#e6db74">&#34;canary&#34;</span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>➜ curl <span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span>/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span> -H <span style="color:#e6db74">&#34;X-Canary: always&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">{</span><span style="color:#e6db74">&#34;node&#34;</span>:<span style="color:#e6db74">&#34;minikube&#34;</span>,<span style="color:#e6db74">&#34;namespace&#34;</span>:<span style="color:#e6db74">&#34;sample-app&#34;</span>,<span style="color:#e6db74">&#34;pod&#34;</span>:<span style="color:#e6db74">&#34;sample-app-5c9fc8b7d4-wdrck&#34;</span>,<span style="color:#e6db74">&#34;deployment&#34;</span>:<span style="color:#e6db74">&#34;canary&#34;</span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><h3 id="load-testing-with-k6">Load Testing with k6</h3>
 <hr>
 <p>Now we’ve made a few requests, let’s see how it behaves under load and whether or not it indeed guarantees a rough 25/75 traffic split!</p>
 <p>For Load Testing, I really recommend <a href="https://k6.io/docs/">k6</a> from the Grafana Labs team. It is a dead-simple yet super powerful tool with very extensive documentation.</p>
 <p>See for yourself!</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">cd ..
-env URL<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span> k6 run k6/script.js
-</code></pre></div><p>After about 1 minute, k6 should be done executing the load test and show you the results.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">          /<span style="color:#ae81ff">\ </span>     |‾‾| /‾‾/   /‾‾/
-     /<span style="color:#ae81ff">\ </span> /  <span style="color:#ae81ff">\ </span>    |  |/  /   /  /
-    /  <span style="color:#ae81ff">\/</span>    <span style="color:#ae81ff">\ </span>   |     <span style="color:#f92672">(</span>   /   ‾‾<span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>   /          <span style="color:#ae81ff">\ </span>  |  |<span style="color:#ae81ff">\ </span> <span style="color:#ae81ff">\ </span>|  <span style="color:#f92672">(</span>‾<span style="color:#f92672">)</span>  |
-  / __________ <span style="color:#ae81ff">\ </span> |__| <span style="color:#ae81ff">\_</span>_<span style="color:#ae81ff">\ \_</span>____/ .io
-
-  execution: local
-     script: k6/script.js
-     output: -
-
-  scenarios: <span style="color:#f92672">(</span>100.00%<span style="color:#f92672">)</span> <span style="color:#ae81ff">1</span> scenario, <span style="color:#ae81ff">20</span> max VUs, 1m30s max duration <span style="color:#f92672">(</span>incl. graceful stop<span style="color:#f92672">)</span>:
-           * default: Up to <span style="color:#ae81ff">20</span> looping VUs <span style="color:#66d9ef">for</span> 1m0s over <span style="color:#ae81ff">3</span> stages <span style="color:#f92672">(</span>gracefulRampDown: 30s, gracefulStop: 30s<span style="color:#f92672">)</span>
-
-running <span style="color:#f92672">(</span>1m00.1s<span style="color:#f92672">)</span>, 00/20 VUs, <span style="color:#ae81ff">818</span> complete and <span style="color:#ae81ff">0</span> interrupted iterations
-default ✓ <span style="color:#f92672">[======================================]</span> 00/20 VUs  1m0s
-     
-     ✓ status code is <span style="color:#ae81ff">200</span>
-     ✓ node is minikube
-     ✓ namespace is sample-app
-     ✓ pod is sample-app-*
-     ✓ deployment is stable or canary
-     
-   ✓ checks.........................: 100.00% ✓ <span style="color:#ae81ff">4090</span>     ✗ <span style="color:#ae81ff">0</span>
-     data_received..................: <span style="color:#ae81ff">200</span> kB  3.3 kB/s
-     data_sent......................: <span style="color:#ae81ff">94</span> kB   1.6 kB/s
-     http_req_blocked...............: avg<span style="color:#f92672">=</span>18.74µs min<span style="color:#f92672">=</span>3µs   med<span style="color:#f92672">=</span>5µs    max<span style="color:#f92672">=</span>768µs p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>7µs    p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>8µs
-     http_req_connecting............: avg<span style="color:#f92672">=</span>12.16µs min<span style="color:#f92672">=</span>0s    med<span style="color:#f92672">=</span>0s     max<span style="color:#f92672">=</span>667µs p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>0s     p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>0s
-   ✓ http_req_duration..............: avg<span style="color:#f92672">=</span>1.33ms  min<span style="color:#f92672">=</span>656µs med<span style="color:#f92672">=</span>1.21ms max<span style="color:#f92672">=</span>9.7ms p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>1.68ms p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>1.97ms
-       <span style="color:#f92672">{</span> expected_response:true <span style="color:#f92672">}</span>...: avg<span style="color:#f92672">=</span>1.33ms  min<span style="color:#f92672">=</span>656µs med<span style="color:#f92672">=</span>1.21ms max<span style="color:#f92672">=</span>9.7ms p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>1.68ms p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>1.97ms
-     http_req_failed................: 0.00%   ✓ <span style="color:#ae81ff">0</span>        ✗ <span style="color:#ae81ff">818</span>
-     http_req_rate..................: 50.00%  ✓ <span style="color:#ae81ff">818</span>      ✗ <span style="color:#ae81ff">818</span>
-     ✓ <span style="color:#f92672">{</span> deployment:canary <span style="color:#f92672">}</span>........: 26.16%  ✓ <span style="color:#ae81ff">214</span>      ✗ <span style="color:#ae81ff">604</span>
-     ✓ <span style="color:#f92672">{</span> deployment:stable <span style="color:#f92672">}</span>........: 73.83%  ✓ <span style="color:#ae81ff">604</span>      ✗ <span style="color:#ae81ff">214</span>
-     http_req_receiving.............: avg<span style="color:#f92672">=</span>51.04µs min<span style="color:#f92672">=</span>29µs  med<span style="color:#f92672">=</span>48µs   max<span style="color:#f92672">=</span>293µs p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>65µs   p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>77µs
-     http_req_sending...............: avg<span style="color:#f92672">=</span>25.88µs min<span style="color:#f92672">=</span>13µs  med<span style="color:#f92672">=</span>23µs   max<span style="color:#f92672">=</span>92µs  p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>33µs   p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>41µs
-     http_req_tls_handshaking.......: avg<span style="color:#f92672">=</span>0s      min<span style="color:#f92672">=</span>0s    med<span style="color:#f92672">=</span>0s     max<span style="color:#f92672">=</span>0s    p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>0s     p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>0s
-     http_req_waiting...............: avg<span style="color:#f92672">=</span>1.25ms  min<span style="color:#f92672">=</span>609µs med<span style="color:#f92672">=</span>1.13ms max<span style="color:#f92672">=</span>9.6ms p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>1.6ms  p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>1.88ms
-     http_reqs......................: <span style="color:#ae81ff">818</span>     13.60393/s
-     iteration_duration.............: avg<span style="color:#f92672">=</span>1s      min<span style="color:#f92672">=</span>1s    med<span style="color:#f92672">=</span>1s     max<span style="color:#f92672">=</span>1.01s p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>1s     p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>1s
-     iterations.....................: <span style="color:#ae81ff">818</span>     13.60393/s
-     vus............................: <span style="color:#ae81ff">1</span>       min<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>      max<span style="color:#f92672">=</span><span style="color:#ae81ff">20</span>
-     vus_max........................: <span style="color:#ae81ff">20</span>      min<span style="color:#f92672">=</span><span style="color:#ae81ff">20</span>     max<span style="color:#f92672">=</span><span style="color:#ae81ff">20</span>
-</code></pre></div><p>That sounds about right!<br>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>cd ..
+</span></span><span style="display:flex;"><span>env URL<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span> k6 run k6/script.js
+</span></span></code></pre></div><p>After about 1 minute, k6 should be done executing the load test and show you the results.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>          /<span style="color:#ae81ff">\ </span>     |‾‾| /‾‾/   /‾‾/
+</span></span><span style="display:flex;"><span>     /<span style="color:#ae81ff">\ </span> /  <span style="color:#ae81ff">\ </span>    |  |/  /   /  /
+</span></span><span style="display:flex;"><span>    /  <span style="color:#ae81ff">\/</span>    <span style="color:#ae81ff">\ </span>   |     <span style="color:#f92672">(</span>   /   ‾‾<span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>   /          <span style="color:#ae81ff">\ </span>  |  |<span style="color:#ae81ff">\ </span> <span style="color:#ae81ff">\ </span>|  <span style="color:#f92672">(</span>‾<span style="color:#f92672">)</span>  |
+</span></span><span style="display:flex;"><span>  / __________ <span style="color:#ae81ff">\ </span> |__| <span style="color:#ae81ff">\_</span>_<span style="color:#ae81ff">\ \_</span>____/ .io
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  execution: local
+</span></span><span style="display:flex;"><span>     script: k6/script.js
+</span></span><span style="display:flex;"><span>     output: -
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  scenarios: <span style="color:#f92672">(</span>100.00%<span style="color:#f92672">)</span> <span style="color:#ae81ff">1</span> scenario, <span style="color:#ae81ff">20</span> max VUs, 1m30s max duration <span style="color:#f92672">(</span>incl. graceful stop<span style="color:#f92672">)</span>:
+</span></span><span style="display:flex;"><span>           * default: Up to <span style="color:#ae81ff">20</span> looping VUs <span style="color:#66d9ef">for</span> 1m0s over <span style="color:#ae81ff">3</span> stages <span style="color:#f92672">(</span>gracefulRampDown: 30s, gracefulStop: 30s<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>running <span style="color:#f92672">(</span>1m00.1s<span style="color:#f92672">)</span>, 00/20 VUs, <span style="color:#ae81ff">818</span> complete and <span style="color:#ae81ff">0</span> interrupted iterations
+</span></span><span style="display:flex;"><span>default ✓ <span style="color:#f92672">[======================================]</span> 00/20 VUs  1m0s
+</span></span><span style="display:flex;"><span>     
+</span></span><span style="display:flex;"><span>     ✓ status code is <span style="color:#ae81ff">200</span>
+</span></span><span style="display:flex;"><span>     ✓ node is minikube
+</span></span><span style="display:flex;"><span>     ✓ namespace is sample-app
+</span></span><span style="display:flex;"><span>     ✓ pod is sample-app-*
+</span></span><span style="display:flex;"><span>     ✓ deployment is stable or canary
+</span></span><span style="display:flex;"><span>     
+</span></span><span style="display:flex;"><span>   ✓ checks.........................: 100.00% ✓ <span style="color:#ae81ff">4090</span>     ✗ <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>     data_received..................: <span style="color:#ae81ff">200</span> kB  3.3 kB/s
+</span></span><span style="display:flex;"><span>     data_sent......................: <span style="color:#ae81ff">94</span> kB   1.6 kB/s
+</span></span><span style="display:flex;"><span>     http_req_blocked...............: avg<span style="color:#f92672">=</span>18.74µs min<span style="color:#f92672">=</span>3µs   med<span style="color:#f92672">=</span>5µs    max<span style="color:#f92672">=</span>768µs p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>7µs    p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>8µs
+</span></span><span style="display:flex;"><span>     http_req_connecting............: avg<span style="color:#f92672">=</span>12.16µs min<span style="color:#f92672">=</span>0s    med<span style="color:#f92672">=</span>0s     max<span style="color:#f92672">=</span>667µs p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>0s     p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>0s
+</span></span><span style="display:flex;"><span>   ✓ http_req_duration..............: avg<span style="color:#f92672">=</span>1.33ms  min<span style="color:#f92672">=</span>656µs med<span style="color:#f92672">=</span>1.21ms max<span style="color:#f92672">=</span>9.7ms p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>1.68ms p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>1.97ms
+</span></span><span style="display:flex;"><span>       <span style="color:#f92672">{</span> expected_response:true <span style="color:#f92672">}</span>...: avg<span style="color:#f92672">=</span>1.33ms  min<span style="color:#f92672">=</span>656µs med<span style="color:#f92672">=</span>1.21ms max<span style="color:#f92672">=</span>9.7ms p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>1.68ms p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>1.97ms
+</span></span><span style="display:flex;"><span>     http_req_failed................: 0.00%   ✓ <span style="color:#ae81ff">0</span>        ✗ <span style="color:#ae81ff">818</span>
+</span></span><span style="display:flex;"><span>     http_req_rate..................: 50.00%  ✓ <span style="color:#ae81ff">818</span>      ✗ <span style="color:#ae81ff">818</span>
+</span></span><span style="display:flex;"><span>     ✓ <span style="color:#f92672">{</span> deployment:canary <span style="color:#f92672">}</span>........: 26.16%  ✓ <span style="color:#ae81ff">214</span>      ✗ <span style="color:#ae81ff">604</span>
+</span></span><span style="display:flex;"><span>     ✓ <span style="color:#f92672">{</span> deployment:stable <span style="color:#f92672">}</span>........: 73.83%  ✓ <span style="color:#ae81ff">604</span>      ✗ <span style="color:#ae81ff">214</span>
+</span></span><span style="display:flex;"><span>     http_req_receiving.............: avg<span style="color:#f92672">=</span>51.04µs min<span style="color:#f92672">=</span>29µs  med<span style="color:#f92672">=</span>48µs   max<span style="color:#f92672">=</span>293µs p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>65µs   p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>77µs
+</span></span><span style="display:flex;"><span>     http_req_sending...............: avg<span style="color:#f92672">=</span>25.88µs min<span style="color:#f92672">=</span>13µs  med<span style="color:#f92672">=</span>23µs   max<span style="color:#f92672">=</span>92µs  p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>33µs   p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>41µs
+</span></span><span style="display:flex;"><span>     http_req_tls_handshaking.......: avg<span style="color:#f92672">=</span>0s      min<span style="color:#f92672">=</span>0s    med<span style="color:#f92672">=</span>0s     max<span style="color:#f92672">=</span>0s    p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>0s     p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>0s
+</span></span><span style="display:flex;"><span>     http_req_waiting...............: avg<span style="color:#f92672">=</span>1.25ms  min<span style="color:#f92672">=</span>609µs med<span style="color:#f92672">=</span>1.13ms max<span style="color:#f92672">=</span>9.6ms p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>1.6ms  p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>1.88ms
+</span></span><span style="display:flex;"><span>     http_reqs......................: <span style="color:#ae81ff">818</span>     13.60393/s
+</span></span><span style="display:flex;"><span>     iteration_duration.............: avg<span style="color:#f92672">=</span>1s      min<span style="color:#f92672">=</span>1s    med<span style="color:#f92672">=</span>1s     max<span style="color:#f92672">=</span>1.01s p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>1s     p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>1s
+</span></span><span style="display:flex;"><span>     iterations.....................: <span style="color:#ae81ff">818</span>     13.60393/s
+</span></span><span style="display:flex;"><span>     vus............................: <span style="color:#ae81ff">1</span>       min<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>      max<span style="color:#f92672">=</span><span style="color:#ae81ff">20</span>
+</span></span><span style="display:flex;"><span>     vus_max........................: <span style="color:#ae81ff">20</span>      min<span style="color:#f92672">=</span><span style="color:#ae81ff">20</span>     max<span style="color:#f92672">=</span><span style="color:#ae81ff">20</span>
+</span></span></code></pre></div><p>That sounds about right!<br>
 Out of 818 requests, 214 (26%) were served by the <code>canary</code> Deployment while 604 (74%) were served by the <code>stable</code> one. Pretty good!</p>
 <h3 id="promoting-rollouts">Promoting Rollouts</h3>
 <hr>
 <p>Once feeling confident enough to proceed to the next <code>step</code>, we can now <strong>promote</strong> our Rollout, either from the dashboard via the <em>PROMOTE</em> button, or via the Kubectl Plugin.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl argo rollouts promote sample-app -n sample-app
-</code></pre></div><p><img src="/images/automated-canary-deployment/3.png" alt="Argo Rollouts Dashboard"></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>kubectl argo rollouts promote sample-app -n sample-app
+</span></span></code></pre></div><p><img src="/images/automated-canary-deployment/3.png" alt="Argo Rollouts Dashboard"></p>
 <blockquote>
 <p><em>Note: while the rollout is ongoing, keep firing some curl requests or run the k6 Load Test script again to observe the change in traffic distribution!</em></p>
 </blockquote>
 <p>And if feeling so confident that we want to skip all the Rollout <code>steps</code> and get straight to 100% canary traffic, then we can <strong>fully promote</strong> the Rollout, also either from the dashboard via the <em>PROMOTE-FULL</em> button, or from the command line.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl argo rollouts promote sample-app -n sample-app --full
-</code></pre></div><p>But if on the contrary, we found an issue while in the middle of rolling out a change, then we can easily <strong>abort</strong> the Rollout and return to 100% stable traffic, either from the dashboard via the <em>ABORT</em> button, or from the CLI.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl argo rollouts abort sample-app -n sample-app
-</code></pre></div><p>Finally, once the Rollout is complete and if something were to go wrong, just like one would do with a standard Deployment, we can easily <strong>undo</strong> a Rollout and roll it back to the previous revision, also either from the dashboard via the <em>ROLLBACK</em> button, or via Kubectl.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl argo rollouts undo sample-app -n sample-app
-</code></pre></div><h2 id="wrapping-up">Wrapping up</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>kubectl argo rollouts promote sample-app -n sample-app --full
+</span></span></code></pre></div><p>But if on the contrary, we found an issue while in the middle of rolling out a change, then we can easily <strong>abort</strong> the Rollout and return to 100% stable traffic, either from the dashboard via the <em>ABORT</em> button, or from the CLI.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>kubectl argo rollouts abort sample-app -n sample-app
+</span></span></code></pre></div><p>Finally, once the Rollout is complete and if something were to go wrong, just like one would do with a standard Deployment, we can easily <strong>undo</strong> a Rollout and roll it back to the previous revision, also either from the dashboard via the <em>ROLLBACK</em> button, or via Kubectl.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>kubectl argo rollouts undo sample-app -n sample-app
+</span></span></code></pre></div><h2 id="wrapping-up">Wrapping up</h2>
 <hr>
 <p>That’s it! You can now stop and delete your Minikube cluster.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">minikube stop <span style="color:#f92672">&amp;&amp;</span> minikube delete
-</code></pre></div><p>To summarize, using Argo Rollouts we were able to:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>minikube stop <span style="color:#f92672">&amp;&amp;</span> minikube delete
+</span></span></code></pre></div><p>To summarize, using Argo Rollouts we were able to:</p>
 <ul>
 <li>Improve our Canary Deployment setup, by leveraging the Rollout custom resource, without which duplicated Deployment and Ingress resources would have to be created;</li>
 <li>Automate the Traffic Routing increments via Rollout <code>steps</code>, which would otherwise have to be done manually by editing the canary Ingress annotation directly.</li>

@@ -45,65 +45,65 @@
 <h2 id="the-usual-way">The usual way</h2>
 <hr>
 <p>Usually, assigning an <strong>Accessibility Identifier</strong> to a View is rather straightforward…</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SomethingViewController</span>: UIViewController {
-    
-    <span style="color:#66d9ef">@IBOutlet</span> <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">weak</span> <span style="color:#66d9ef">var</span> titleLabel: UILabel!
-    <span style="color:#66d9ef">@IBOutlet</span> <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">weak</span> <span style="color:#66d9ef">var</span> descriptionLabel: UILabel!
-    <span style="color:#66d9ef">@IBOutlet</span> <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">weak</span> <span style="color:#66d9ef">var</span> doneButton: UIButton!
-    
-    <span style="color:#66d9ef">override</span> <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">viewDidLoad</span>() {
-        titleLabel.accessibilityIdentifier          = <span style="color:#e6db74">&#34;SomethingViewController.titleLabel&#34;</span>
-        descriptionLabel.accessibilityIdentifier    = <span style="color:#e6db74">&#34;SomethingViewController.descriptionLabel&#34;</span>
-        doneButton.accessibilityIdentifier          = <span style="color:#e6db74">&#34;SomethingViewController.doneButton&#34;</span>
-    }
-}
-</code></pre></div><p>Simple! 👌<br>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SomethingViewController</span>: UIViewController {
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">@IBOutlet</span> <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">weak</span> <span style="color:#66d9ef">var</span> titleLabel: UILabel!
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">@IBOutlet</span> <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">weak</span> <span style="color:#66d9ef">var</span> descriptionLabel: UILabel!
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">@IBOutlet</span> <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">weak</span> <span style="color:#66d9ef">var</span> doneButton: UIButton!
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">override</span> <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">viewDidLoad</span>() {
+</span></span><span style="display:flex;"><span>        titleLabel.accessibilityIdentifier          = <span style="color:#e6db74">&#34;SomethingViewController.titleLabel&#34;</span>
+</span></span><span style="display:flex;"><span>        descriptionLabel.accessibilityIdentifier    = <span style="color:#e6db74">&#34;SomethingViewController.descriptionLabel&#34;</span>
+</span></span><span style="display:flex;"><span>        doneButton.accessibilityIdentifier          = <span style="color:#e6db74">&#34;SomethingViewController.doneButton&#34;</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Simple! 👌<br>
 However, we can easily spot the problem here, <strong>it’s a hell of a boilerplate</strong>! 😫</p>
 <p>Now here’s the thing, what if we could iterate through all the <em>Views</em> of a <em>ViewController</em> and assign to each one of them an <strong>Accessibility Identifier</strong> consisting of the name of the <em>ViewController</em> (<strong>prefix</strong>) and the name of the <em>View</em> (<strong>suffix</strong>)? 🤔</p>
 <h2 id="mirror-mirror">Mirror, mirror…</h2>
 <hr>
 <p>That’s right! Let’s use the awesome Swift’s reflection API: <strong>Mirror</strong>! 🔮<br>
 To make it generic and reusable across all <em>ViewControllers/Views</em>, let’s wrap it inside a protocol called <strong>Accessible</strong>! 👍</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">protocol</span> <span style="color:#a6e22e">Accessible</span> {
-    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">generateAccessibilityIdentifiers</span>()
-}
-
-<span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">Accessible</span> {
-
-    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">generateAccessibilityIdentifiers</span>() {
-        <span style="color:#75715e">#if</span> <span style="color:#75715e">DEBUG</span>
-        <span style="color:#66d9ef">let</span> mirror = Mirror(reflecting: <span style="color:#66d9ef">self</span>)
-
-        <span style="color:#66d9ef">for</span> child <span style="color:#66d9ef">in</span> mirror.children {
-            <span style="color:#66d9ef">if</span>
-                <span style="color:#66d9ef">let</span> view = child.value <span style="color:#66d9ef">as</span>? UIView,
-                <span style="color:#66d9ef">let</span> identifier = child.label?.replacingOccurrences(of: <span style="color:#e6db74">&#34;.storage&#34;</span>, with: <span style="color:#e6db74">&#34;&#34;</span>) {
-
-                view.accessibilityIdentifier = <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">\(</span>type<span style="color:#e6db74">(</span>of: <span style="color:#66d9ef">self</span><span style="color:#e6db74">))</span><span style="color:#e6db74">.</span><span style="color:#e6db74">\(</span>identifier<span style="color:#e6db74">)</span><span style="color:#e6db74">&#34;</span>
-            }
-        }
-        <span style="color:#75715e">#endif</span>
-    }
-}
-</code></pre></div><p>Now, let’s take a look at the above implementation. 🧐</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">protocol</span> <span style="color:#a6e22e">Accessible</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">generateAccessibilityIdentifiers</span>()
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">Accessible</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">generateAccessibilityIdentifiers</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">#if</span> <span style="color:#75715e">DEBUG</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">let</span> mirror = Mirror(reflecting: <span style="color:#66d9ef">self</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> child <span style="color:#66d9ef">in</span> mirror.children {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">let</span> view = child.value <span style="color:#66d9ef">as</span>? UIView,
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">let</span> identifier = child.label?.replacingOccurrences(of: <span style="color:#e6db74">&#34;.storage&#34;</span>, with: <span style="color:#e6db74">&#34;&#34;</span>) {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>                view.accessibilityIdentifier = <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">\(</span>type<span style="color:#e6db74">(</span>of: <span style="color:#66d9ef">self</span><span style="color:#e6db74">))</span><span style="color:#e6db74">.</span><span style="color:#e6db74">\(</span>identifier<span style="color:#e6db74">)</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">#endif</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Now, let’s take a look at the above implementation. 🧐</p>
 <p>The first step is to instantiate a <strong>Mirror</strong> reflecting the type conforming to <strong>Accessible</strong> (<em>self</em>). Then, we iterate through all children (<em>properties</em>) of <em>self</em> and, whenever a child is of type <em>View</em>, assign an <strong>Accessibility Identifier</strong> with the format: <code>&quot;ParentType.ChildProperty&quot;</code> ✅</p>
 <p>Simple! 👍<br>
 Now, going back to our initial implementation of the ViewController, things will suddenly get much smoother! 😎</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SomethingViewController</span>: UIViewController, Accessible {
-    
-    <span style="color:#66d9ef">@IBOutlet</span> <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">weak</span> <span style="color:#66d9ef">var</span> titleLabel: UILabel!
-    <span style="color:#66d9ef">@IBOutlet</span> <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">weak</span> <span style="color:#66d9ef">var</span> descriptionLabel: UILabel!
-    <span style="color:#66d9ef">@IBOutlet</span> <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">weak</span> <span style="color:#66d9ef">var</span> doneButton: UIButton!
-    
-    <span style="color:#66d9ef">override</span> <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">viewDidLoad</span>() {
-        generateAccessibilityIdentifiers()
-    }
-}
-</code></pre></div><p>That’s all! 🤯<br>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SomethingViewController</span>: UIViewController, Accessible {
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">@IBOutlet</span> <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">weak</span> <span style="color:#66d9ef">var</span> titleLabel: UILabel!
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">@IBOutlet</span> <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">weak</span> <span style="color:#66d9ef">var</span> descriptionLabel: UILabel!
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">@IBOutlet</span> <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">weak</span> <span style="color:#66d9ef">var</span> doneButton: UIButton!
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">override</span> <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">viewDidLoad</span>() {
+</span></span><span style="display:flex;"><span>        generateAccessibilityIdentifiers()
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>That’s all! 🤯<br>
 Now, executing the command print app during UI Testing will output the following:</p>
-<pre tabindex="0"><code>StaticText, identifier: 'SomethingViewController.titleLabel'
-StaticText, identifier: 'SomethingViewController.descriptionLabel'
-Button, identifier: 'SomethingViewController.doneButton'
+<pre tabindex="0"><code>StaticText, identifier: &#39;SomethingViewController.titleLabel&#39;
+StaticText, identifier: &#39;SomethingViewController.descriptionLabel&#39;
+Button, identifier: &#39;SomethingViewController.doneButton&#39;
 </code></pre><p>Boom! 💥<br>
 We just generated Accessibility Identifiers using Swift Reflection! 🎉<br>
 No more manual assigning, no more unnecessary boilerplate! 💪</p>

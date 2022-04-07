@@ -53,53 +53,53 @@ In this episode, we will take a quick look at the <strong>Presenter Pattern</str
 <hr>
 <p>The practical way to present a ViewController is to have an extension on <em>UIViewController</em> to make use of the <strong>present(viewController:)</strong> method. 💯</p>
 <p>If we now look at an example, let’s say: present an <strong>Alert</strong> with an <strong>Error</strong> description, it would look pretty simple. 👍</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">UIViewController</span> {
-    
-    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">present</span>(error: Error, animated: Bool, completion: (() -&gt; Void)? = <span style="color:#66d9ef">nil</span>) {
-        <span style="color:#66d9ef">let</span> alertController = UIAlertController(
-            title: <span style="color:#e6db74">&#34;Error&#34;</span>,
-            message: error.localizedDescription,
-            preferredStyle: .alert
-        )
-        <span style="color:#66d9ef">let</span> alertAction = UIAlertAction(
-            title: <span style="color:#e6db74">&#34;Ok&#34;</span>,
-            style: .<span style="color:#66d9ef">default</span>
-        )
-        alertController.addAction(alertAction)
-
-        present(alertController, animated: animated, completion: completion)
-    }
-}
-</code></pre></div><p>Though it might seem elegant at first, it actually comes with a price: every single <em>ViewController</em> is now able to present an <strong>Alert</strong> with an <strong>Error</strong> description. 😲</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">UIViewController</span> {
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">present</span>(error: Error, animated: Bool, completion: (() -&gt; Void)? = <span style="color:#66d9ef">nil</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">let</span> alertController = UIAlertController(
+</span></span><span style="display:flex;"><span>            title: <span style="color:#e6db74">&#34;Error&#34;</span>,
+</span></span><span style="display:flex;"><span>            message: error.localizedDescription,
+</span></span><span style="display:flex;"><span>            preferredStyle: .alert
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">let</span> alertAction = UIAlertAction(
+</span></span><span style="display:flex;"><span>            title: <span style="color:#e6db74">&#34;Ok&#34;</span>,
+</span></span><span style="display:flex;"><span>            style: .<span style="color:#66d9ef">default</span>
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>        alertController.addAction(alertAction)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        present(alertController, animated: animated, completion: completion)
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Though it might seem elegant at first, it actually comes with a price: every single <em>ViewController</em> is now able to present an <strong>Alert</strong> with an <strong>Error</strong> description. 😲</p>
 <p>Do we really want that? Or would we rather delegate this logic to an other independent layer? 🤔</p>
 <p>You know where I’m going… 😉</p>
 <h2 id="the-presenter-way">The Presenter way</h2>
 <hr>
 <p>Using a <strong>Presenter</strong>, we implement a separate entity responsible for presenting a <strong>View</strong>. This means for us, a <em>struct</em>! 🚀</p>
 <p>In the example of presenting an <strong>Error</strong>, we would implement an <em>ErrorPresenter</em> struct with the actual error as property and the <strong>present(in viewController:)</strong> function. ✅</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">ErrorPresenter</span> {
-    <span style="color:#66d9ef">let</span> error: Error
-
-    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">present</span>(<span style="color:#66d9ef">in</span> viewController: UIViewController, animated: Bool, completion: (() -&gt; Void)? = <span style="color:#66d9ef">nil</span>) {
-        <span style="color:#66d9ef">let</span> alertController = UIAlertController(
-            title: <span style="color:#e6db74">&#34;Error&#34;</span>,
-            message: error.localizedDescription,
-            preferredStyle: .alert
-        )
-        <span style="color:#66d9ef">let</span> alertAction = UIAlertAction(
-            title: <span style="color:#e6db74">&#34;Ok&#34;</span>,
-            style: .<span style="color:#66d9ef">default</span>
-        )
-        alertController.addAction(alertAction)
-
-        viewController.present(alertController, animated: animated, completion: completion)
-    }
-}
-</code></pre></div><p>And that’s all, we now have a completely independent <strong>Presenter</strong>, that can be called from anywhere in our App! 👏</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">ErrorPresenter</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> error: Error
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">present</span>(<span style="color:#66d9ef">in</span> viewController: UIViewController, animated: Bool, completion: (() -&gt; Void)? = <span style="color:#66d9ef">nil</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">let</span> alertController = UIAlertController(
+</span></span><span style="display:flex;"><span>            title: <span style="color:#e6db74">&#34;Error&#34;</span>,
+</span></span><span style="display:flex;"><span>            message: error.localizedDescription,
+</span></span><span style="display:flex;"><span>            preferredStyle: .alert
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">let</span> alertAction = UIAlertAction(
+</span></span><span style="display:flex;"><span>            title: <span style="color:#e6db74">&#34;Ok&#34;</span>,
+</span></span><span style="display:flex;"><span>            style: .<span style="color:#66d9ef">default</span>
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>        alertController.addAction(alertAction)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        viewController.present(alertController, animated: animated, completion: completion)
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>And that’s all, we now have a completely independent <strong>Presenter</strong>, that can be called from anywhere in our App! 👏</p>
 <p>Calling our <em>ErrorPresenter</em> is as simple as it is elegant! 😎</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">let</span> presenter = ErrorPresenter(error: NetworkError())
-presenter.present(<span style="color:#66d9ef">in</span>: <span style="color:#66d9ef">self</span>, animated: <span style="color:#66d9ef">true</span>)
-</code></pre></div><p>And boom! 💥<br>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">let</span> presenter = ErrorPresenter(error: NetworkError())
+</span></span><span style="display:flex;"><span>presenter.present(<span style="color:#66d9ef">in</span>: <span style="color:#66d9ef">self</span>, animated: <span style="color:#66d9ef">true</span>)
+</span></span></code></pre></div><p>And boom! 💥<br>
 We just made a lightweight <strong>Presenter</strong>! 🎉</p>
 <p>Worth it? Did that help you see what problems the <strong>Presenter Pattern</strong> is trying to solve? How to make such a pattern lightweight?</p>
 <p>If so, follow me on <a href="https://twitter.com/jhandguy">Twitter</a>, I’ll be happy to answer any of your questions and you’ll be the first one to know when a new article comes out! 👌</p>

@@ -58,190 +58,190 @@ Let me introduce you…<br>
 <p>Alright, let’s get right to the point with a concrete example. 👌<br>
 We have an app, which <strong>displays a list of items</strong> and tapping on one would <strong>open</strong> a new screen giving more <strong>details about this item</strong>. Simple. 👍<br>
 So, let’s write our <em>Coordinator</em> then! ✍️</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">UIKit</span>
-
-<span style="color:#66d9ef">protocol</span> <span style="color:#a6e22e">CoordinatorProtocol</span>: <span style="color:#66d9ef">class</span> {
-    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">start</span>()
-    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">open</span>(<span style="color:#66d9ef">_</span> something: Something)
-    ...
-}
-
-<span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Coordinator</span> {
-    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">let</span> window: UIWindow
-    ...
-    <span style="color:#66d9ef">let</span> navigationController = UINavigationController()
-
-    <span style="color:#66d9ef">init</span>(window: UIWindow, ...) {
-        <span style="color:#66d9ef">self</span>.window = window
-        <span style="color:#66d9ef">self</span>.window.rootViewController = navigationController
-        <span style="color:#66d9ef">self</span>.window.makeKeyAndVisible()
-        ...
-    }
-    ...
-}
-
-<span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">Coordinator</span>: CoordinatorProtocol {
-    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">start</span>() {
-        ...
-    }
-
-    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">open</span>(<span style="color:#66d9ef">_</span> something: Something) {
-        ...
-    }
-    ...
-}
-</code></pre></div><p>No surprise, just a standard Coordinator like you know it already! 😃<br>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">UIKit</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">protocol</span> <span style="color:#a6e22e">CoordinatorProtocol</span>: <span style="color:#66d9ef">class</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">start</span>()
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">open</span>(<span style="color:#66d9ef">_</span> something: Something)
+</span></span><span style="display:flex;"><span>    ...
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Coordinator</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">let</span> window: UIWindow
+</span></span><span style="display:flex;"><span>    ...
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> navigationController = UINavigationController()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">init</span>(window: UIWindow, ...) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">self</span>.window = window
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">self</span>.window.rootViewController = navigationController
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">self</span>.window.makeKeyAndVisible()
+</span></span><span style="display:flex;"><span>        ...
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    ...
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">Coordinator</span>: CoordinatorProtocol {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">start</span>() {
+</span></span><span style="display:flex;"><span>        ...
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">open</span>(<span style="color:#66d9ef">_</span> something: Something) {
+</span></span><span style="display:flex;"><span>        ...
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    ...
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>No surprise, just a standard Coordinator like you know it already! 😃<br>
 Now, looking at our <em>AppDelegate</em>, instantiating and starting our <em>Coordinator</em> is also quite straightforward. 👌</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">UIKit</span>
-
-<span style="color:#66d9ef">@UIApplicationMain</span>
-<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">AppDelegate</span>: UIResponder, UIApplicationDelegate {
-    
-    <span style="color:#66d9ef">var</span> coordinator: CoordinatorProtocol!
-
-    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">application</span>(<span style="color:#66d9ef">_</span> application: UIApplication, willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = <span style="color:#66d9ef">nil</span>) -&gt; Bool {
-        ...
-        <span style="color:#66d9ef">let</span> window = UIWindow(frame: UIScreen.main.bounds)
-        coordinator = Coordinator(window: window, ...)
-
-        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span>
-    }
-
-    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">application</span>(<span style="color:#66d9ef">_</span> application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -&gt; Bool {
-        coordinator.start()
-
-        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span>
-    }
-}
-</code></pre></div><p>Again, nothing new, all clear! ✅<br>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">UIKit</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">@UIApplicationMain</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">AppDelegate</span>: UIResponder, UIApplicationDelegate {
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> coordinator: CoordinatorProtocol!
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">application</span>(<span style="color:#66d9ef">_</span> application: UIApplication, willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = <span style="color:#66d9ef">nil</span>) -&gt; Bool {
+</span></span><span style="display:flex;"><span>        ...
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">let</span> window = UIWindow(frame: UIScreen.main.bounds)
+</span></span><span style="display:flex;"><span>        coordinator = Coordinator(window: window, ...)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">application</span>(<span style="color:#66d9ef">_</span> application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -&gt; Bool {
+</span></span><span style="display:flex;"><span>        coordinator.start()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Again, nothing new, all clear! ✅<br>
 Now thinking once more about our problem with UI Testing, it becomes very clear that our course of action must happen in the <em>AppDelegate</em>. 👍<br>
 What we are trying to achieve here, is being able to jump on the Detail screen directly, without needing to manually tap on a cell in the first screen. 🤯<br>
 And a very simple approach to that would be, to simply tell our <em>Coordinator</em> to directly open the desired item! 💡</p>
 <p>Now how are we going to do that? 🤔<br>
 Well, as we did with <a href="/posts/mocking-the-network-ios/">Mocking the Network</a>, let’s pass that information through the launch environment and decide, at runtime in the <em>AppDelegate</em>, which method to call in our <em>Coordinator</em>! 😃<br>
 And all we need for that is an enum! 😆</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">Foundation</span>
-
-<span style="color:#66d9ef">enum</span> <span style="color:#a6e22e">CoordinatorStub</span>: Identifiable {
-    <span style="color:#66d9ef">case</span> start
-    <span style="color:#66d9ef">case</span> openSomething(Something)
-}
-</code></pre></div><p>That’s it, that’s our stub. 😮<br>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">Foundation</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">enum</span> <span style="color:#a6e22e">CoordinatorStub</span>: Identifiable {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">case</span> start
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">case</span> openSomething(Something)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>That’s it, that’s our stub. 😮<br>
 Now, let’s make it <em>Codable</em> so we can inject it in the <em>ProcessInfo</em>! 💉</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">Foundation</span>
-
-<span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">CoordinatorStub</span>: Codable {
-
-    <span style="color:#66d9ef">enum</span> <span style="color:#a6e22e">CodingKeys</span>: String, CodingKey { <span style="color:#66d9ef">case</span> something }
-
-    <span style="color:#66d9ef">init</span>(from decoder: Decoder) <span style="color:#66d9ef">throws</span> {
-        <span style="color:#66d9ef">let</span> values = <span style="color:#66d9ef">try</span> decoder.container(keyedBy: CodingKeys.<span style="color:#66d9ef">self</span>)
-
-        <span style="color:#66d9ef">if</span> <span style="color:#66d9ef">let</span> something = <span style="color:#66d9ef">try</span>? values.decode(Something.<span style="color:#66d9ef">self</span>, forKey: .something) {
-            <span style="color:#66d9ef">self</span> = .openSomething(something)
-            <span style="color:#66d9ef">return</span>
-        }
-
-        <span style="color:#66d9ef">self</span> = .start
-    }
-    
-    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">encode</span>(to encoder: Encoder) <span style="color:#66d9ef">throws</span> {
-        <span style="color:#66d9ef">var</span> container = encoder.container(keyedBy: CodingKeys.<span style="color:#66d9ef">self</span>)
-
-        <span style="color:#66d9ef">switch</span> <span style="color:#66d9ef">self</span> {
-        <span style="color:#66d9ef">case</span> .start:
-            <span style="color:#66d9ef">break</span>
-        <span style="color:#66d9ef">case</span> .openSomething(<span style="color:#66d9ef">let</span> something):
-            <span style="color:#66d9ef">try</span> container.encode(something, forKey: .something)
-        }
-    }
-}
-</code></pre></div><p>Alright, we’re good to go! 🚶<br>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">Foundation</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">CoordinatorStub</span>: Codable {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">enum</span> <span style="color:#a6e22e">CodingKeys</span>: String, CodingKey { <span style="color:#66d9ef">case</span> something }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">init</span>(from decoder: Decoder) <span style="color:#66d9ef">throws</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">let</span> values = <span style="color:#66d9ef">try</span> decoder.container(keyedBy: CodingKeys.<span style="color:#66d9ef">self</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> <span style="color:#66d9ef">let</span> something = <span style="color:#66d9ef">try</span>? values.decode(Something.<span style="color:#66d9ef">self</span>, forKey: .something) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">self</span> = .openSomething(something)
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span>
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">self</span> = .start
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">encode</span>(to encoder: Encoder) <span style="color:#66d9ef">throws</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">var</span> container = encoder.container(keyedBy: CodingKeys.<span style="color:#66d9ef">self</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">switch</span> <span style="color:#66d9ef">self</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">case</span> .start:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">break</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">case</span> .openSomething(<span style="color:#66d9ef">let</span> something):
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">try</span> container.encode(something, forKey: .something)
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Alright, we’re good to go! 🚶<br>
 Now, let’s improve our <em>XCUIApplication</em> extension to include the <em>CoordinatorStub</em> in the launch environment! 👍</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">XCTest</span>
-
-<span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">XCUIApplication</span> {
-
-    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">launch</span>(<span style="color:#66d9ef">_</span> coordinatorStub: CoordinatorStub, with sessionMock: URLSessionMock = URLSessionMock()) {
-        launchEnvironment[CoordinatorStub.identifier] = coordinatorStub.json
-        launchEnvironment[URLSessionMock.identifier] = sessionMock.json
-        launch()
-    }
-}
-</code></pre></div><p>The last piece of the puzzle: decode the <em>CoordinatorStub</em> inside the <em>AppDelegate</em> and call the desired method in the <em>Coordinator</em>! 👌</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">UIKit</span>
-
-<span style="color:#66d9ef">@UIApplicationMain</span>
-<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">AppDelegate</span>: UIResponder, UIApplicationDelegate {
-
-    <span style="color:#66d9ef">var</span> coordinator: CoordinatorProtocol!
-
-    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">application</span>(<span style="color:#66d9ef">_</span> application: UIApplication, willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = <span style="color:#66d9ef">nil</span>) -&gt; Bool {
-        ...
-        <span style="color:#66d9ef">let</span> window = UIWindow(frame: UIScreen.main.bounds)
-        coordinator = Coordinator(window: window, ...)
-
-        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span>
-    }
-
-    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">application</span>(<span style="color:#66d9ef">_</span> application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -&gt; Bool {
-        <span style="color:#66d9ef">guard</span> <span style="color:#66d9ef">let</span> coordinatorStub = ProcessInfo.processInfo.decode(CoordinatorStub.<span style="color:#66d9ef">self</span>) <span style="color:#66d9ef">else</span> {
-            coordinator.start()
-            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span>
-        }
-
-        <span style="color:#66d9ef">switch</span> coordinatorStub {
-        <span style="color:#66d9ef">case</span> .start:
-            coordinator.start()
-        <span style="color:#66d9ef">case</span> .openSomething(<span style="color:#66d9ef">let</span> something):
-            coordinator.open(something)
-        }
-
-        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span>
-    }
-}
-</code></pre></div><p>Smooth! 😍<br>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">XCTest</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">XCUIApplication</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">launch</span>(<span style="color:#66d9ef">_</span> coordinatorStub: CoordinatorStub, with sessionMock: URLSessionMock = URLSessionMock()) {
+</span></span><span style="display:flex;"><span>        launchEnvironment[CoordinatorStub.identifier] = coordinatorStub.json
+</span></span><span style="display:flex;"><span>        launchEnvironment[URLSessionMock.identifier] = sessionMock.json
+</span></span><span style="display:flex;"><span>        launch()
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>The last piece of the puzzle: decode the <em>CoordinatorStub</em> inside the <em>AppDelegate</em> and call the desired method in the <em>Coordinator</em>! 👌</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">UIKit</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">@UIApplicationMain</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">AppDelegate</span>: UIResponder, UIApplicationDelegate {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> coordinator: CoordinatorProtocol!
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">application</span>(<span style="color:#66d9ef">_</span> application: UIApplication, willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = <span style="color:#66d9ef">nil</span>) -&gt; Bool {
+</span></span><span style="display:flex;"><span>        ...
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">let</span> window = UIWindow(frame: UIScreen.main.bounds)
+</span></span><span style="display:flex;"><span>        coordinator = Coordinator(window: window, ...)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">application</span>(<span style="color:#66d9ef">_</span> application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -&gt; Bool {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">guard</span> <span style="color:#66d9ef">let</span> coordinatorStub = ProcessInfo.processInfo.decode(CoordinatorStub.<span style="color:#66d9ef">self</span>) <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>            coordinator.start()
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">switch</span> coordinatorStub {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">case</span> .start:
+</span></span><span style="display:flex;"><span>            coordinator.start()
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">case</span> .openSomething(<span style="color:#66d9ef">let</span> something):
+</span></span><span style="display:flex;"><span>            coordinator.open(something)
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Smooth! 😍<br>
 Now let’s take a closer look at our UI tests and see how it plays out! 👀</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swift" data-lang="swift"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">XCTest</span>
-
-<span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SomethingUITest</span>: XCTestCase {
-    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">lazy</span> <span style="color:#66d9ef">var</span> app = XCUIApplication()
-
-    <span style="color:#66d9ef">override</span> <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">setUp</span>() {
-        <span style="color:#66d9ef">super</span>.setUp()
-        ...
-    }
-
-    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">testStart</span>() {
-        <span style="color:#66d9ef">let</span> sessionMock = URLSessionMock(
-            responses: [
-                .fetchSomething: [
-                    Response(File(<span style="color:#e6db74">&#34;something_response&#34;</span>, .json)),
-                    Response(error: .invalidResponse)
-                ]
-            ]
-        )
-
-        app.launch(.start, with: sessionMock)
-        ...
-    }
-    
-    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">testOpenSomething</span>() {
-        <span style="color:#66d9ef">let</span> something = Something(stuff: <span style="color:#e6db74">&#34;Stuff&#34;</span>, ...)
-        <span style="color:#66d9ef">let</span> sessionMock = URLSessionMock(
-            responses: [
-                .fetchSomething: [
-                    Response(File(<span style="color:#e6db74">&#34;something_response&#34;</span>, .json)),
-                    Response(error: .invalidResponse)
-                ]
-            ]
-        )
-
-        app.launch(.openSomething(something), with: sessionMock)
-        ...
-    }
-}
-</code></pre></div><p>Boom! 💥<br>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">XCTest</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SomethingUITest</span>: XCTestCase {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">lazy</span> <span style="color:#66d9ef">var</span> app = XCUIApplication()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">override</span> <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">setUp</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">super</span>.setUp()
+</span></span><span style="display:flex;"><span>        ...
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">testStart</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">let</span> sessionMock = URLSessionMock(
+</span></span><span style="display:flex;"><span>            responses: [
+</span></span><span style="display:flex;"><span>                .fetchSomething: [
+</span></span><span style="display:flex;"><span>                    Response(File(<span style="color:#e6db74">&#34;something_response&#34;</span>, .json)),
+</span></span><span style="display:flex;"><span>                    Response(error: .invalidResponse)
+</span></span><span style="display:flex;"><span>                ]
+</span></span><span style="display:flex;"><span>            ]
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        app.launch(.start, with: sessionMock)
+</span></span><span style="display:flex;"><span>        ...
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">testOpenSomething</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">let</span> something = Something(stuff: <span style="color:#e6db74">&#34;Stuff&#34;</span>, ...)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">let</span> sessionMock = URLSessionMock(
+</span></span><span style="display:flex;"><span>            responses: [
+</span></span><span style="display:flex;"><span>                .fetchSomething: [
+</span></span><span style="display:flex;"><span>                    Response(File(<span style="color:#e6db74">&#34;something_response&#34;</span>, .json)),
+</span></span><span style="display:flex;"><span>                    Response(error: .invalidResponse)
+</span></span><span style="display:flex;"><span>                ]
+</span></span><span style="display:flex;"><span>            ]
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        app.launch(.openSomething(something), with: sessionMock)
+</span></span><span style="display:flex;"><span>        ...
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Boom! 💥<br>
 <strong>Fast, robust and readable</strong>, what else do you need? 😎<br>
 Not only we have full control over the <strong>Network</strong>, but now also the <strong>Navigation</strong> is in our grip! 👊<br>
 We can specify at launch, on a per-test basis, which screen to jump in, just by using a simple enum! 🚀</p>
