@@ -29,6 +29,7 @@
             <nav id="TableOfContents">
   <ul>
     <li><a href="#requirements">Requirements</a></li>
+    <li><a href="#creating-kind-cluster">Creating Kind Cluster</a></li>
     <li><a href="#using-argo-rollouts-with-prometheus">Using Argo Rollouts with Prometheus</a>
       <ul>
         <li><a href="#installing-nginx-ingress-controller">Installing NGINX Ingress Controller</a></li>
@@ -64,7 +65,7 @@ Well, that, my friend, is what Canary Deployment is all about!</p>
 <hr>
 <p>Before we start, make sure you have the following tools installed:</p>
 <ul>
-<li><a href="https://minikube.sigs.k8s.io/docs/start/">Minikube</a></li>
+<li><a href="https://kind.sigs.k8s.io/docs/user/quick-start/#installation">Kind</a></li>
 <li><a href="https://kubernetes.io/docs/tasks/tools/">Kubectl</a></li>
 <li><a href="https://argoproj.github.io/argo-rollouts/installation/#kubectl-plugin-installation">Argo Rollouts Kubectl Plugin</a></li>
 <li><a href="https://helm.sh/docs/intro/install/">Helm</a></li>
@@ -72,10 +73,32 @@ Well, that, my friend, is what Canary Deployment is all about!</p>
 </ul>
 <blockquote>
 <p><em>Note: for MacOS users or Linux users using Homebrew, simply run:</em><br>
-<code>brew install minikube kubectl argoproj/tap/kubectl-argo-rollouts helm k6</code></p>
+<code>brew install kind kubectl argoproj/tap/kubectl-argo-rollouts helm k6</code></p>
 </blockquote>
 <p>All set? Let’s go! 🏁</p>
-<h2 id="using-argo-rollouts-with-prometheus">Using Argo Rollouts with Prometheus</h2>
+<h2 id="creating-kind-cluster">Creating Kind Cluster</h2>
+<hr>
+<p><a href="https://kind.sigs.k8s.io/">Kind</a> is a tool for running local Kubernetes clusters using Docker container “nodes”.
+It was primarily designed for testing Kubernetes itself, but may be used for local development or CI.</p>
+<p>I don’t expect you to have a demo project in handy, so <a href="https://github.com/jhandguy/canary-deployment">I built one</a> for you.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>git clone https://github.com/jhandguy/canary-deployment.git
+</span></span><span style="display:flex;"><span>cd canary-deployment
+</span></span></code></pre></div><p>Alright, let&rsquo;s spin up our Kind cluster! 🚀</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kind create cluster --image kindest/node:v1.23.0 --config<span style="color:#f92672">=</span>kind/cluster.yaml
+</span></span><span style="display:flex;"><span>Creating cluster <span style="color:#e6db74">&#34;kind&#34;</span> ...
+</span></span><span style="display:flex;"><span> ✓ Ensuring node image <span style="color:#f92672">(</span>kindest/node:v1.23.0<span style="color:#f92672">)</span> 🖼
+</span></span><span style="display:flex;"><span> ✓ Preparing nodes 📦
+</span></span><span style="display:flex;"><span> ✓ Writing configuration 📜
+</span></span><span style="display:flex;"><span> ✓ Starting control-plane 🕹️
+</span></span><span style="display:flex;"><span> ✓ Installing CNI 🔌
+</span></span><span style="display:flex;"><span> ✓ Installing StorageClass 💾
+</span></span><span style="display:flex;"><span>Set kubectl context to <span style="color:#e6db74">&#34;kind-kind&#34;</span>
+</span></span><span style="display:flex;"><span>You can now use your cluster with:
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>kubectl cluster-info --context kind-kind
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Not sure what to <span style="color:#66d9ef">do</span> next? 😅 Check out https://kind.sigs.k8s.io/docs/user/quick-start/
+</span></span></code></pre></div><h2 id="using-argo-rollouts-with-prometheus">Using Argo Rollouts with Prometheus</h2>
 <hr>
 <p><a href="https://argoproj.github.io/argo-rollouts/">Argo Rollouts</a> is a <a href="https://kubernetes.io/docs/concepts/architecture/controller/">Kubernetes controller</a> and set of <a href="https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/">CRDs</a> which provide advanced deployment capabilities to Kubernetes such as blue-green, canary, canary analysis, experimentation, and progressive delivery.</p>
 <p>In combination with <a href="https://prometheus.io/">Prometheus</a>, Argo Rollouts can automatically roll back a Canary Deployment based on Prometheus metrics, which means it can theoretically handle an incremental rollout without human intervention.</p>
@@ -85,16 +108,10 @@ Well, that, my friend, is what Canary Deployment is all about!</p>
 <p><em>If you haven’t already, go read <a href="/posts/simple-canary-deployment/">Canary Deployment in Kubernetes (Part 1) — Simple Canary Deployment using Ingress NGINX</a> and learn how to implement a Simple Canary Deployment using Ingress NGINX!</em></p>
 </blockquote>
 <p><a href="https://github.com/kubernetes/ingress-nginx">NGINX Ingress Controller</a> is one of the <a href="https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/#additional-controllers">many available Kubernetes Ingress Controllers</a>, which acts as a load balancer and satisfies routing rules specified in <a href="https://kubernetes.io/docs/concepts/services-networking/ingress/#what-is-ingress">Ingress</a> resources, using the <a href="https://nginx.org/en/">NGINX reverse proxy</a>.</p>
-<blockquote>
-<p><strong>In a production Kubernetes cluster, it is recommended to install the NGINX Ingress Controller via its <a href="https://github.com/kubernetes/ingress-nginx/tree/main/charts/ingress-nginx">Helm chart</a>.</strong></p>
-</blockquote>
-<p>However, since we will be using <a href="https://minikube.sigs.k8s.io/docs/start/">Minikube</a> in this series, the dedicated <a href="https://kubernetes.io/docs/tasks/access-application-cluster/ingress-minikube/#enable-the-ingress-controller">ingress add-on</a> will suffice.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>minikube start --kubernetes-version<span style="color:#f92672">=</span>1.21.8 --addons<span style="color:#f92672">=</span>ingress <span style="color:#66d9ef">$(if</span> <span style="color:#f92672">[</span> <span style="color:#66d9ef">$(</span>uname<span style="color:#66d9ef">)</span> !<span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Linux&#34;</span> <span style="color:#f92672">]</span>; <span style="color:#66d9ef">then</span> echo <span style="color:#e6db74">&#34;--vm=true&#34;</span>; <span style="color:#66d9ef">fi)</span>
-</span></span></code></pre></div><blockquote>
-<p><em>Note: Argo Rollouts is still expecting the extensions/v1beta1 API version of the Ingress resource while it is no longer available in Kubernetes since v1.22.<br>
-<a href="https://github.com/argoproj/argo-rollouts/issues/1507">The issue</a> has already been fixed but hasn’t been released yet, this is why we need to restrict the kubernetes version to 1.21 for now.</em></p>
-</blockquote>
-<p>Now, if everything goes according to plan, you should be able to see the <strong>ingress-nginx-controller</strong> Deployment running in your freshly created Minikube cluster.</p>
+<p>NGINX Ingress Controller can be installed via its <a href="https://github.com/kubernetes/ingress-nginx/tree/main/charts/ingress-nginx">Helm chart</a>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+</span></span><span style="display:flex;"><span>helm install ingress-nginx/ingress-nginx --name-template ingress-nginx --create-namespace -n ingress-nginx --values kind/ingress-nginx-values.yaml --version 4.0.19 --wait
+</span></span></code></pre></div><p>Now, if everything goes according to plan, you should be able to see the <strong>ingress-nginx-controller</strong> Deployment running.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get deploy -n ingress-nginx
 </span></span><span style="display:flex;"><span>NAME                       READY   UP-TO-DATE   AVAILABLE   AGE
 </span></span><span style="display:flex;"><span>ingress-nginx-controller   1/1     <span style="color:#ae81ff">1</span>            <span style="color:#ae81ff">1</span>           4m35s
@@ -105,7 +122,7 @@ Well, that, my friend, is what Canary Deployment is all about!</p>
 </blockquote>
 <p>Argo Rollouts can be installed via its <a href="https://github.com/argoproj/argo-helm/tree/master/charts/argo-rollouts">Helm chart</a>.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>helm repo add argo https://argoproj.github.io/argo-helm
-</span></span><span style="display:flex;"><span>helm install argo/argo-rollouts --name-template argo-rollouts --create-namespace -n argo-rollouts --set dashboard.enabled<span style="color:#f92672">=</span>true --wait
+</span></span><span style="display:flex;"><span>helm install argo/argo-rollouts --name-template argo-rollouts --create-namespace -n argo-rollouts --set dashboard.enabled<span style="color:#f92672">=</span>true --version 2.14.0 --wait
 </span></span></code></pre></div><p>If all goes well, you should see two newly spawned Deployments with the READY state.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get deploy -n argo-rollouts
 </span></span><span style="display:flex;"><span>NAME                      READY   UP-TO-DATE   AVAILABLE   AGE
@@ -115,7 +132,7 @@ Well, that, my friend, is what Canary Deployment is all about!</p>
 <hr>
 <p>Prometheus can be installed via its community <a href="https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack">Helm chart</a>, which also provides <a href="https://grafana.com/grafana/">Grafana</a> out of the box.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-</span></span><span style="display:flex;"><span>helm install prometheus-community/kube-prometheus-stack --name-template prometheus --create-namespace -n prometheus --wait
+</span></span><span style="display:flex;"><span>helm install prometheus-community/kube-prometheus-stack --name-template prometheus --create-namespace -n prometheus --version 34.8.0 --wait
 </span></span></code></pre></div><p>If everything went fine, you should be able to see three newly spawned deployments with the READY state!</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get deploy -n prometheus
 </span></span><span style="display:flex;"><span>NAME                                  READY   UP-TO-DATE   AVAILABLE   
@@ -128,9 +145,7 @@ Well, that, my friend, is what Canary Deployment is all about!</p>
 Yet another amazing feature of Argo Rollouts is the ability to leverage Prometheus metrics in order to detect faulty deployments (i.e. based on request Success Share or Latency).</p>
 <p>To this end, Argo Rollouts provides another <a href="https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/">Custom Resource</a> called <strong>AnalysisTemplate</strong>.<br>
 Alright! Let’s explore what this is!</p>
-<p>I don’t expect you to have a Helm chart with a demo app in handy, so I <a href="https://github.com/jhandguy/canary-deployment">built one</a> for you.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>git clone https://github.com/jhandguy/canary-deployment.git
-</span></span><span style="display:flex;"><span>cd canary-deployment/argo-rollouts
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>cd argo-rollouts
 </span></span><span style="display:flex;"><span>helm install . --name-template sample-app --create-namespace -n sample-app --set prometheus.enabled<span style="color:#f92672">=</span>true
 </span></span></code></pre></div><p>If everything goes fine, you should eventually see one Rollout with the READY state.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get rollout sample-app -n sample-app
@@ -273,7 +288,7 @@ To monitor the progress of the Rollout, however, it is the <em>Status</em> and t
 <blockquote>
 <p>Since the PromQL query targets the canary Service specifically, we must make sure to always land in the canary Deployment using the Ingress <code>canary-by-header</code> annotation (learn more about it in <a href="/posts/simple-canary-deployment/">Part 1</a>).</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>curl <span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span>/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span> -H <span style="color:#e6db74">&#34;X-Canary: always&#34;</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>curl localhost/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span> -H <span style="color:#e6db74">&#34;X-Canary: always&#34;</span>
 </span></span></code></pre></div><p>After firing some requests and waiting about a minute for Prometheus to scrape the metrics and the <strong>AnalysisRun</strong> to measure the <code>success-share</code> metric, you should see one of the measurements with a value of <code>[1]</code>, meaning that the Success Share has been successfully measured at 100%! 💯</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl describe analysisrun -n sample-app
 </span></span><span style="display:flex;"><span>...
@@ -296,8 +311,8 @@ To monitor the progress of the Rollout, however, it is the <em>Status</em> and t
 <p><img src="/images/smart-canary-deployment/4.png" alt="Argo Rollouts Dashboard"></p>
 <p>That’s great! But let’s make things more interesting: what happens once the Success Share falls below 99%? 😱</p>
 <p>Let’s go ahead and simulate a 50% Success Share by sending several requests and alternating between successes and errors!</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>curl <span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span>/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span> -H <span style="color:#e6db74">&#34;X-Canary: always&#34;</span>
-</span></span><span style="display:flex;"><span>curl <span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span>/error -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span> -H <span style="color:#e6db74">&#34;X-Canary: always&#34;</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>curl localhost/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span> -H <span style="color:#e6db74">&#34;X-Canary: always&#34;</span>
+</span></span><span style="display:flex;"><span>curl localhost/error -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span> -H <span style="color:#e6db74">&#34;X-Canary: always&#34;</span>
 </span></span></code></pre></div><p>After a short while, you should notice that something quite magical has happened… 🪄</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl describe analysisrun -n sample-app
 </span></span><span style="display:flex;"><span>...
@@ -340,7 +355,7 @@ To monitor the progress of the Rollout, however, it is the <em>Status</em> and t
 <p>For Load Testing, I really recommend <a href="https://k6.io/docs/">k6</a> from the Grafana Labs team. It is a dead-simple yet super powerful tool with very extensive documentation.</p>
 <p>See for yourself!</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>cd ..
-</span></span><span style="display:flex;"><span>env URL<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span> k6 run k6/script.js
+</span></span><span style="display:flex;"><span>k6 run k6/script.js
 </span></span></code></pre></div><p>After about 1 minute, k6 should be done executing the load test and show you the results.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>          /<span style="color:#ae81ff">\ </span>     |‾‾| /‾‾/   /‾‾/
 </span></span><span style="display:flex;"><span>     /<span style="color:#ae81ff">\ </span> /  <span style="color:#ae81ff">\ </span>    |  |/  /   /  /
@@ -359,7 +374,7 @@ To monitor the progress of the Rollout, however, it is the <em>Status</em> and t
 </span></span><span style="display:flex;"><span>default ✓ <span style="color:#f92672">[======================================]</span> 00/20 VUs  1m0s
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>     ✓ status code is <span style="color:#ae81ff">200</span>
-</span></span><span style="display:flex;"><span>     ✓ node is minikube
+</span></span><span style="display:flex;"><span>     ✓ node is kind-control-plane
 </span></span><span style="display:flex;"><span>     ✓ namespace is sample-app
 </span></span><span style="display:flex;"><span>     ✓ pod is sample-app-*
 </span></span><span style="display:flex;"><span>     ✓ deployment is stable or canary
@@ -407,8 +422,8 @@ Depending on which step the Rollout is at, the Traffic Distribution shown in k6�
 <p><img src="/images/smart-canary-deployment/7.png" alt="Argo Rollouts Dashboard"></p>
 <h2 id="wrapping-up">Wrapping up</h2>
 <hr>
-<p>That’s it! You can now stop and delete your Minikube cluster!</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>minikube stop <span style="color:#f92672">&amp;&amp;</span> minikube delete
+<p>That’s it! You can now delete your Kind cluster!</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>kind delete cluster
 </span></span></code></pre></div><p>To summarize, using Argo Rollouts and Prometheus we were able to:</p>
 <ul>
 <li>Detect when a Prometheus metric breaches a given threshold and abort the faulty Rollout automatically, thanks to the <strong>AnalysisRun</strong> CRD;</li>

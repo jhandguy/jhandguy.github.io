@@ -29,6 +29,7 @@
             <nav id="TableOfContents">
   <ul>
     <li><a href="#requirements">Requirements</a></li>
+    <li><a href="#creating-kind-cluster">Creating Kind Cluster</a></li>
     <li><a href="#using-argo-rollouts-with-nginx-ingress-controller">Using Argo Rollouts with NGINX Ingress Controller</a>
       <ul>
         <li><a href="#installing-nginx-ingress-controller">Installing NGINX Ingress Controller</a></li>
@@ -64,7 +65,7 @@ Well, that, my friend, is what Canary Deployment is all about!</p>
 <hr>
 <p>Before we start, make sure you have the following tools installed:</p>
 <ul>
-<li><a href="https://minikube.sigs.k8s.io/docs/start/">Minikube</a></li>
+<li><a href="https://kind.sigs.k8s.io/docs/user/quick-start/#installation">Kind</a></li>
 <li><a href="https://kubernetes.io/docs/tasks/tools/">Kubectl</a></li>
 <li><a href="https://argoproj.github.io/argo-rollouts/installation/#kubectl-plugin-installation">Argo Rollouts Kubectl Plugin</a></li>
 <li><a href="https://helm.sh/docs/intro/install/">Helm</a></li>
@@ -72,10 +73,32 @@ Well, that, my friend, is what Canary Deployment is all about!</p>
 </ul>
 <blockquote>
 <p><em>Note: for MacOS users or Linux users using Homebrew, simply run:</em><br>
-<code>brew install minikube kubectl argoproj/tap/kubectl-argo-rollouts helm k6</code></p>
+<code>brew install kind kubectl argoproj/tap/kubectl-argo-rollouts helm k6</code></p>
 </blockquote>
 <p>All set? Let’s go! 🏁</p>
-<h2 id="using-argo-rollouts-with-nginx-ingress-controller">Using Argo Rollouts with NGINX Ingress Controller</h2>
+<h2 id="creating-kind-cluster">Creating Kind Cluster</h2>
+<hr>
+<p><a href="https://kind.sigs.k8s.io/">Kind</a> is a tool for running local Kubernetes clusters using Docker container “nodes”.
+It was primarily designed for testing Kubernetes itself, but may be used for local development or CI.</p>
+<p>I don’t expect you to have a demo project in handy, so <a href="https://github.com/jhandguy/canary-deployment">I built one</a> for you.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>git clone https://github.com/jhandguy/canary-deployment.git
+</span></span><span style="display:flex;"><span>cd canary-deployment
+</span></span></code></pre></div><p>Alright, let&rsquo;s spin up our Kind cluster! 🚀</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kind create cluster --image kindest/node:v1.23.0 --config<span style="color:#f92672">=</span>kind/cluster.yaml
+</span></span><span style="display:flex;"><span>Creating cluster <span style="color:#e6db74">&#34;kind&#34;</span> ...
+</span></span><span style="display:flex;"><span> ✓ Ensuring node image <span style="color:#f92672">(</span>kindest/node:v1.23.0<span style="color:#f92672">)</span> 🖼
+</span></span><span style="display:flex;"><span> ✓ Preparing nodes 📦
+</span></span><span style="display:flex;"><span> ✓ Writing configuration 📜
+</span></span><span style="display:flex;"><span> ✓ Starting control-plane 🕹️
+</span></span><span style="display:flex;"><span> ✓ Installing CNI 🔌
+</span></span><span style="display:flex;"><span> ✓ Installing StorageClass 💾
+</span></span><span style="display:flex;"><span>Set kubectl context to <span style="color:#e6db74">&#34;kind-kind&#34;</span>
+</span></span><span style="display:flex;"><span>You can now use your cluster with:
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>kubectl cluster-info --context kind-kind
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Not sure what to <span style="color:#66d9ef">do</span> next? 😅 Check out https://kind.sigs.k8s.io/docs/user/quick-start/
+</span></span></code></pre></div><h2 id="using-argo-rollouts-with-nginx-ingress-controller">Using Argo Rollouts with NGINX Ingress Controller</h2>
 <hr>
 <p><a href="https://argoproj.github.io/argo-rollouts/">Argo Rollouts</a> is a <a href="https://kubernetes.io/docs/concepts/architecture/controller/">Kubernetes controller</a> and set of <a href="https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/">CRDs</a> which provide advanced deployment capabilities to Kubernetes such as blue-green, canary, canary analysis, experimentation, and progressive delivery.</p>
 <p>In combination with the <a href="https://argoproj.github.io/argo-rollouts/features/traffic-management/nginx/">NGINX Ingress Controller</a>, Argo Rollouts achieves the same as a <a href="/posts/simple-canary-deployment/">Simple Canary Deployment using Ingress NGINX</a>, but better.</p>
@@ -85,16 +108,10 @@ Well, that, my friend, is what Canary Deployment is all about!</p>
 <p><em>If you haven’t already, go read <a href="/posts/simple-canary-deployment/">Canary Deployment in Kubernetes (Part 1) — Simple Canary Deployment using Ingress NGINX</a> and learn how to implement a Simple Canary Deployment using Ingress NGINX!</em></p>
 </blockquote>
 <p><a href="https://github.com/kubernetes/ingress-nginx">NGINX Ingress Controller</a> is one of the <a href="https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/#additional-controllers">many available Kubernetes Ingress Controllers</a>, which acts as a load balancer and satisfies routing rules specified in <a href="https://kubernetes.io/docs/concepts/services-networking/ingress/#what-is-ingress">Ingress</a> resources, using the <a href="https://nginx.org/en/">NGINX reverse proxy</a>.</p>
-<blockquote>
-<p><strong>In a production Kubernetes cluster, it is recommended to install the NGINX Ingress Controller via its <a href="https://github.com/kubernetes/ingress-nginx/tree/main/charts/ingress-nginx">Helm chart</a>.</strong></p>
-</blockquote>
-<p>However, since we will be using <a href="https://minikube.sigs.k8s.io/docs/start/">Minikube</a> in this series, the dedicated <a href="https://kubernetes.io/docs/tasks/access-application-cluster/ingress-minikube/#enable-the-ingress-controller">ingress add-on</a> will suffice.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>minikube start --kubernetes-version<span style="color:#f92672">=</span>1.21.8 --addons<span style="color:#f92672">=</span>ingress <span style="color:#66d9ef">$(if</span> <span style="color:#f92672">[</span> <span style="color:#66d9ef">$(</span>uname<span style="color:#66d9ef">)</span> !<span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Linux&#34;</span> <span style="color:#f92672">]</span>; <span style="color:#66d9ef">then</span> echo <span style="color:#e6db74">&#34;--vm=true&#34;</span>; <span style="color:#66d9ef">fi)</span>
-</span></span></code></pre></div><blockquote>
-<p><em>Note: Argo Rollouts is still expecting the extensions/v1beta1 API version of the Ingress resource while it is no longer available in Kubernetes since v1.22.<br>
-<a href="https://github.com/argoproj/argo-rollouts/issues/1507">The issue</a> has already been fixed but hasn’t been released yet, this is why we need to restrict the kubernetes version to 1.21 for now.</em></p>
-</blockquote>
-<p>Now, if everything goes according to plan, you should be able to see the <strong>ingress-nginx-controller</strong> Deployment running in your freshly created Minikube cluster.</p>
+<p>NGINX Ingress Controller can be installed via its <a href="https://github.com/kubernetes/ingress-nginx/tree/main/charts/ingress-nginx">Helm chart</a>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+</span></span><span style="display:flex;"><span>helm install ingress-nginx/ingress-nginx --name-template ingress-nginx --create-namespace -n ingress-nginx --values kind/ingress-nginx-values.yaml --version 4.0.19 --wait
+</span></span></code></pre></div><p>Now, if everything goes according to plan, you should be able to see the <strong>ingress-nginx-controller</strong> Deployment running.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get deploy -n ingress-nginx
 </span></span><span style="display:flex;"><span>NAME                       READY   UP-TO-DATE   AVAILABLE   AGE
 </span></span><span style="display:flex;"><span>ingress-nginx-controller   1/1     <span style="color:#ae81ff">1</span>            <span style="color:#ae81ff">1</span>           4m35s
@@ -102,7 +119,7 @@ Well, that, my friend, is what Canary Deployment is all about!</p>
 <hr>
 <p>Argo Rollouts can be installed via its <a href="https://github.com/argoproj/argo-helm/tree/master/charts/argo-rollouts">Helm chart</a>.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>helm repo add argo https://argoproj.github.io/argo-helm
-</span></span><span style="display:flex;"><span>helm install argo/argo-rollouts --name-template argo-rollouts --create-namespace -n argo-rollouts --set dashboard.enabled<span style="color:#f92672">=</span>true --wait
+</span></span><span style="display:flex;"><span>helm install argo/argo-rollouts --name-template argo-rollouts --create-namespace -n argo-rollouts --set dashboard.enabled<span style="color:#f92672">=</span>true --version 2.14.0 --wait
 </span></span></code></pre></div><p>If all goes well, you should see two newly spawned Deployments with the READY state.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get deploy -n argo-rollouts
 </span></span><span style="display:flex;"><span>NAME                      READY   UP-TO-DATE   AVAILABLE   AGE
@@ -115,9 +132,7 @@ With Argo Rollouts, the duplication of Kubernetes resources is reduced to only o
 <p>Another limitation of using plain Ingress NGINX is that the incremental rollout of the Canary Deployment (via <code>canary-weight</code>) has to be done manually by annotating the canary Ingress.<br>
 Argo Rollouts created its own <a href="https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/">Custom Resource</a> to remediate that problem: the <strong><a href="https://argoproj.github.io/argo-rollouts/features/specification/">Rollout</a></strong> resource.</p>
 <p>Alrighty then! Let’s get to it! 🧐</p>
-<p>I don’t expect you to have a Helm chart with a demo app in handy, so <a href="https://github.com/jhandguy/canary-deployment">I built one</a> for you.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>git clone https://github.com/jhandguy/canary-deployment.git
-</span></span><span style="display:flex;"><span>cd canary-deployment/argo-rollouts
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>cd argo-rollouts
 </span></span><span style="display:flex;"><span>helm install . --name-template sample-app --create-namespace -n sample-app
 </span></span></code></pre></div><p>If everything goes fine, you should eventually see one Rollout with the READY state.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get rollout sample-app -n sample-app
@@ -213,37 +228,37 @@ Argo Rollouts created its own <a href="https://kubernetes.io/docs/concepts/exten
 </span></span><span style="display:flex;"><span>...
 </span></span></code></pre></div><p>Indeed! An extra Ingress resource was automatically created, and given a <code>canary-weight</code> of 25.</p>
 <p>Let’s see if it works!</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>curl <span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span>/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>curl localhost/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span>
 </span></span></code></pre></div><p>As you can see, out of 4 requests, one came back from the <code>canary</code> pod.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ curl <span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span>/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">{</span><span style="color:#e6db74">&#34;node&#34;</span>:<span style="color:#e6db74">&#34;minikube&#34;</span>,<span style="color:#e6db74">&#34;namespace&#34;</span>:<span style="color:#e6db74">&#34;sample-app&#34;</span>,<span style="color:#e6db74">&#34;pod&#34;</span>:<span style="color:#e6db74">&#34;sample-app-6bf6dfdbb4-xmqdw&#34;</span>,<span style="color:#e6db74">&#34;deployment&#34;</span>:<span style="color:#e6db74">&#34;stable&#34;</span><span style="color:#f92672">}</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ curl localhost/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">{</span><span style="color:#e6db74">&#34;node&#34;</span>:<span style="color:#e6db74">&#34;kind-control-plane&#34;</span>,<span style="color:#e6db74">&#34;namespace&#34;</span>:<span style="color:#e6db74">&#34;sample-app&#34;</span>,<span style="color:#e6db74">&#34;pod&#34;</span>:<span style="color:#e6db74">&#34;sample-app-6bf6dfdbb4-xmqdw&#34;</span>,<span style="color:#e6db74">&#34;deployment&#34;</span>:<span style="color:#e6db74">&#34;stable&#34;</span><span style="color:#f92672">}</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>➜ curl <span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span>/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">{</span><span style="color:#e6db74">&#34;node&#34;</span>:<span style="color:#e6db74">&#34;minikube&#34;</span>,<span style="color:#e6db74">&#34;namespace&#34;</span>:<span style="color:#e6db74">&#34;sample-app&#34;</span>,<span style="color:#e6db74">&#34;pod&#34;</span>:<span style="color:#e6db74">&#34;sample-app-6bf6dfdbb4-xmqdw&#34;</span>,<span style="color:#e6db74">&#34;deployment&#34;</span>:<span style="color:#e6db74">&#34;stable&#34;</span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>➜ curl localhost/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">{</span><span style="color:#e6db74">&#34;node&#34;</span>:<span style="color:#e6db74">&#34;kind-control-plane&#34;</span>,<span style="color:#e6db74">&#34;namespace&#34;</span>:<span style="color:#e6db74">&#34;sample-app&#34;</span>,<span style="color:#e6db74">&#34;pod&#34;</span>:<span style="color:#e6db74">&#34;sample-app-6bf6dfdbb4-xmqdw&#34;</span>,<span style="color:#e6db74">&#34;deployment&#34;</span>:<span style="color:#e6db74">&#34;stable&#34;</span><span style="color:#f92672">}</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>➜ curl <span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span>/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">{</span><span style="color:#e6db74">&#34;node&#34;</span>:<span style="color:#e6db74">&#34;minikube&#34;</span>,<span style="color:#e6db74">&#34;namespace&#34;</span>:<span style="color:#e6db74">&#34;sample-app&#34;</span>,<span style="color:#e6db74">&#34;pod&#34;</span>:<span style="color:#e6db74">&#34;sample-app-6bf6dfdbb4-xmqdw&#34;</span>,<span style="color:#e6db74">&#34;deployment&#34;</span>:<span style="color:#e6db74">&#34;stable&#34;</span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>➜ curl localhost/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">{</span><span style="color:#e6db74">&#34;node&#34;</span>:<span style="color:#e6db74">&#34;kind-control-plane&#34;</span>,<span style="color:#e6db74">&#34;namespace&#34;</span>:<span style="color:#e6db74">&#34;sample-app&#34;</span>,<span style="color:#e6db74">&#34;pod&#34;</span>:<span style="color:#e6db74">&#34;sample-app-6bf6dfdbb4-xmqdw&#34;</span>,<span style="color:#e6db74">&#34;deployment&#34;</span>:<span style="color:#e6db74">&#34;stable&#34;</span><span style="color:#f92672">}</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>➜ curl <span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span>/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">{</span><span style="color:#e6db74">&#34;node&#34;</span>:<span style="color:#e6db74">&#34;minikube&#34;</span>,<span style="color:#e6db74">&#34;namespace&#34;</span>:<span style="color:#e6db74">&#34;sample-app&#34;</span>,<span style="color:#e6db74">&#34;pod&#34;</span>:<span style="color:#e6db74">&#34;sample-app-5c9fc8b7d4-wdrck&#34;</span>,<span style="color:#e6db74">&#34;deployment&#34;</span>:<span style="color:#e6db74">&#34;canary&#34;</span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>➜ curl localhost/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">{</span><span style="color:#e6db74">&#34;node&#34;</span>:<span style="color:#e6db74">&#34;kind-control-plane&#34;</span>,<span style="color:#e6db74">&#34;namespace&#34;</span>:<span style="color:#e6db74">&#34;sample-app&#34;</span>,<span style="color:#e6db74">&#34;pod&#34;</span>:<span style="color:#e6db74">&#34;sample-app-5c9fc8b7d4-wdrck&#34;</span>,<span style="color:#e6db74">&#34;deployment&#34;</span>:<span style="color:#e6db74">&#34;canary&#34;</span><span style="color:#f92672">}</span>
 </span></span></code></pre></div><p>And, the same way as in <a href="/posts/simple-canary-deployment/">Part 1</a>, we can easily <strong>Smoke Test</strong> our change in isolation by leveraging the Ingress <code>canary-by-header</code> annotation.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>curl <span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span>/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span> -H <span style="color:#e6db74">&#34;X-Canary: always&#34;</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>curl localhost/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span> -H <span style="color:#e6db74">&#34;X-Canary: always&#34;</span>
 </span></span></code></pre></div><p>Aha! We are now consistently hitting the <code>canary</code> pod.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ curl <span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span>/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span> -H <span style="color:#e6db74">&#34;X-Canary: always&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">{</span><span style="color:#e6db74">&#34;node&#34;</span>:<span style="color:#e6db74">&#34;minikube&#34;</span>,<span style="color:#e6db74">&#34;namespace&#34;</span>:<span style="color:#e6db74">&#34;sample-app&#34;</span>,<span style="color:#e6db74">&#34;pod&#34;</span>:<span style="color:#e6db74">&#34;sample-app-5c9fc8b7d4-wdrck&#34;</span>,<span style="color:#e6db74">&#34;deployment&#34;</span>:<span style="color:#e6db74">&#34;canary&#34;</span><span style="color:#f92672">}</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ curl localhost/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span> -H <span style="color:#e6db74">&#34;X-Canary: always&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">{</span><span style="color:#e6db74">&#34;node&#34;</span>:<span style="color:#e6db74">&#34;kind-control-plane&#34;</span>,<span style="color:#e6db74">&#34;namespace&#34;</span>:<span style="color:#e6db74">&#34;sample-app&#34;</span>,<span style="color:#e6db74">&#34;pod&#34;</span>:<span style="color:#e6db74">&#34;sample-app-5c9fc8b7d4-wdrck&#34;</span>,<span style="color:#e6db74">&#34;deployment&#34;</span>:<span style="color:#e6db74">&#34;canary&#34;</span><span style="color:#f92672">}</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>➜ curl <span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span>/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span> -H <span style="color:#e6db74">&#34;X-Canary: always&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">{</span><span style="color:#e6db74">&#34;node&#34;</span>:<span style="color:#e6db74">&#34;minikube&#34;</span>,<span style="color:#e6db74">&#34;namespace&#34;</span>:<span style="color:#e6db74">&#34;sample-app&#34;</span>,<span style="color:#e6db74">&#34;pod&#34;</span>:<span style="color:#e6db74">&#34;sample-app-5c9fc8b7d4-wdrck&#34;</span>,<span style="color:#e6db74">&#34;deployment&#34;</span>:<span style="color:#e6db74">&#34;canary&#34;</span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>➜ curl localhost/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span> -H <span style="color:#e6db74">&#34;X-Canary: always&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">{</span><span style="color:#e6db74">&#34;node&#34;</span>:<span style="color:#e6db74">&#34;kind-control-plane&#34;</span>,<span style="color:#e6db74">&#34;namespace&#34;</span>:<span style="color:#e6db74">&#34;sample-app&#34;</span>,<span style="color:#e6db74">&#34;pod&#34;</span>:<span style="color:#e6db74">&#34;sample-app-5c9fc8b7d4-wdrck&#34;</span>,<span style="color:#e6db74">&#34;deployment&#34;</span>:<span style="color:#e6db74">&#34;canary&#34;</span><span style="color:#f92672">}</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>➜ curl <span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span>/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span> -H <span style="color:#e6db74">&#34;X-Canary: always&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">{</span><span style="color:#e6db74">&#34;node&#34;</span>:<span style="color:#e6db74">&#34;minikube&#34;</span>,<span style="color:#e6db74">&#34;namespace&#34;</span>:<span style="color:#e6db74">&#34;sample-app&#34;</span>,<span style="color:#e6db74">&#34;pod&#34;</span>:<span style="color:#e6db74">&#34;sample-app-5c9fc8b7d4-wdrck&#34;</span>,<span style="color:#e6db74">&#34;deployment&#34;</span>:<span style="color:#e6db74">&#34;canary&#34;</span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>➜ curl localhost/success -H <span style="color:#e6db74">&#34;Host: sample.app&#34;</span> -H <span style="color:#e6db74">&#34;X-Canary: always&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">{</span><span style="color:#e6db74">&#34;node&#34;</span>:<span style="color:#e6db74">&#34;kind-control-plane&#34;</span>,<span style="color:#e6db74">&#34;namespace&#34;</span>:<span style="color:#e6db74">&#34;sample-app&#34;</span>,<span style="color:#e6db74">&#34;pod&#34;</span>:<span style="color:#e6db74">&#34;sample-app-5c9fc8b7d4-wdrck&#34;</span>,<span style="color:#e6db74">&#34;deployment&#34;</span>:<span style="color:#e6db74">&#34;canary&#34;</span><span style="color:#f92672">}</span>
 </span></span></code></pre></div><h3 id="load-testing-with-k6">Load Testing with k6</h3>
 <hr>
 <p>Now we’ve made a few requests, let’s see how it behaves under load and whether or not it indeed guarantees a rough 25/75 traffic split!</p>
 <p>For Load Testing, I really recommend <a href="https://k6.io/docs/">k6</a> from the Grafana Labs team. It is a dead-simple yet super powerful tool with very extensive documentation.</p>
 <p>See for yourself!</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>cd ..
-</span></span><span style="display:flex;"><span>env URL<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>minikube ip<span style="color:#66d9ef">)</span> k6 run k6/script.js
+</span></span><span style="display:flex;"><span>k6 run k6/script.js
 </span></span></code></pre></div><p>After about 1 minute, k6 should be done executing the load test and show you the results.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>          /<span style="color:#ae81ff">\ </span>     |‾‾| /‾‾/   /‾‾/
 </span></span><span style="display:flex;"><span>     /<span style="color:#ae81ff">\ </span> /  <span style="color:#ae81ff">\ </span>    |  |/  /   /  /
@@ -262,7 +277,7 @@ Argo Rollouts created its own <a href="https://kubernetes.io/docs/concepts/exten
 </span></span><span style="display:flex;"><span>default ✓ <span style="color:#f92672">[======================================]</span> 00/20 VUs  1m0s
 </span></span><span style="display:flex;"><span>     
 </span></span><span style="display:flex;"><span>     ✓ status code is <span style="color:#ae81ff">200</span>
-</span></span><span style="display:flex;"><span>     ✓ node is minikube
+</span></span><span style="display:flex;"><span>     ✓ node is kind-control-plane
 </span></span><span style="display:flex;"><span>     ✓ namespace is sample-app
 </span></span><span style="display:flex;"><span>     ✓ pod is sample-app-*
 </span></span><span style="display:flex;"><span>     ✓ deployment is stable or canary
@@ -305,8 +320,8 @@ Out of 818 requests, 214 (26%) were served by the <code>canary</code> Deployment
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>kubectl argo rollouts undo sample-app -n sample-app
 </span></span></code></pre></div><h2 id="wrapping-up">Wrapping up</h2>
 <hr>
-<p>That’s it! You can now stop and delete your Minikube cluster.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>minikube stop <span style="color:#f92672">&amp;&amp;</span> minikube delete
+<p>That’s it! You can now delete your Kind cluster.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>kind delete cluster
 </span></span></code></pre></div><p>To summarize, using Argo Rollouts we were able to:</p>
 <ul>
 <li>Improve our Canary Deployment setup, by leveraging the Rollout custom resource, without which duplicated Deployment and Ingress resources would have to be created;</li>
