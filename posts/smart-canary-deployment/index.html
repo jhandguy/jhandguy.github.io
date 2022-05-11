@@ -84,9 +84,9 @@ It was primarily designed for testing Kubernetes itself, but may be used for loc
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>git clone https://github.com/jhandguy/canary-deployment.git
 </span></span><span style="display:flex;"><span>cd canary-deployment
 </span></span></code></pre></div><p>Alright, let&rsquo;s spin up our Kind cluster! 🚀</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kind create cluster --image kindest/node:v1.23.0 --config<span style="color:#f92672">=</span>kind/cluster.yaml
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kind create cluster --image kindest/node:v1.23.4 --config<span style="color:#f92672">=</span>kind/cluster.yaml
 </span></span><span style="display:flex;"><span>Creating cluster <span style="color:#e6db74">&#34;kind&#34;</span> ...
-</span></span><span style="display:flex;"><span> ✓ Ensuring node image <span style="color:#f92672">(</span>kindest/node:v1.23.0<span style="color:#f92672">)</span> 🖼
+</span></span><span style="display:flex;"><span> ✓ Ensuring node image <span style="color:#f92672">(</span>kindest/node:v1.23.4<span style="color:#f92672">)</span> 🖼
 </span></span><span style="display:flex;"><span> ✓ Preparing nodes 📦
 </span></span><span style="display:flex;"><span> ✓ Writing configuration 📜
 </span></span><span style="display:flex;"><span> ✓ Starting control-plane 🕹️
@@ -97,7 +97,7 @@ It was primarily designed for testing Kubernetes itself, but may be used for loc
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>kubectl cluster-info --context kind-kind
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>Not sure what to <span style="color:#66d9ef">do</span> next? 😅 Check out https://kind.sigs.k8s.io/docs/user/quick-start/
+</span></span><span style="display:flex;"><span>Have a question, bug, or feature request? Let us know! https://kind.sigs.k8s.io/#community 🙂
 </span></span></code></pre></div><h2 id="using-argo-rollouts-with-prometheus">Using Argo Rollouts with Prometheus</h2>
 <hr>
 <p><a href="https://argoproj.github.io/argo-rollouts/">Argo Rollouts</a> is a <a href="https://kubernetes.io/docs/concepts/architecture/controller/">Kubernetes controller</a> and set of <a href="https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/">CRDs</a> which provide advanced deployment capabilities to Kubernetes such as blue-green, canary, canary analysis, experimentation, and progressive delivery.</p>
