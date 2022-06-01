@@ -17,15 +17,6 @@
     </item>
     
     <item>
-      <title>DevOps</title>
-      <link>https://jhandguy.github.io/tags/devops/</link>
-      <pubDate>Thu, 10 Mar 2022 00:00:00 +0000</pubDate>
-      
-      <guid>https://jhandguy.github.io/tags/devops/</guid>
-      <description></description>
-    </item>
-    
-    <item>
       <title>SRE</title>
       <link>https://jhandguy.github.io/tags/sre/</link>
       <pubDate>Thu, 10 Mar 2022 00:00:00 +0000</pubDate>
@@ -40,6 +31,15 @@
       <pubDate>Thu, 12 Sep 2019 00:00:00 +0000</pubDate>
       
       <guid>https://jhandguy.github.io/tags/ios/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Mobile DevOps</title>
+      <link>https://jhandguy.github.io/tags/mobile-devops/</link>
+      <pubDate>Thu, 12 Sep 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://jhandguy.github.io/tags/mobile-devops/</guid>
       <description></description>
     </item>
     
