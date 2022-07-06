@@ -14,7 +14,7 @@
       
       <guid>https://jhandguy.github.io/posts/robot-pattern-ios/</guid>
       <description>Most of the time, UI Testing gets abandoned because it becomes harder to maintain over time and one reason for that is: readability. We also tend to forget that UI tests should not only serve the purpose of verification but provide meaningful documentation that everybody (including non-developers) can understand. Alright, let’s get right into it, fellas!
- What if we could write UI Tests in a human-readable language, that even a Product Owner could understand?</description>
+What if we could write UI Tests in a human-readable language, that even a Product Owner could understand?</description>
     </item>
     
     <item>
@@ -24,7 +24,7 @@
       
       <guid>https://jhandguy.github.io/posts/generating-accessibility-identifiers-ios/</guid>
       <description>One of the most annoying things about UI Testing in iOS is the need to assign Accessibility Identifiers to views that are hard to access otherwise. Could be that a view is deeply nested, or that it is not easily distinguishable from other views, lots of scenarios might lead to manually assign Accessibility Identifiers… But don’t you worry, friend, I got something for you!
- What if we could generate and assign Accessibility Identifiers automatically, using reflection?</description>
+What if we could generate and assign Accessibility Identifiers automatically, using reflection?</description>
     </item>
     
     <item>

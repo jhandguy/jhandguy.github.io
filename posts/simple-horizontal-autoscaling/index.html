@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Horizontal Pod Autoscaler in Kubernetes (Part 1) — Simple Autoscaling using Metrics Server</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+
+<body id="top" class="has-background-white">
+<nav class="navbar is-light">
+    <div class="navbar-brand">
+        <a class="navbar-item" href="/">
+            Home
+        </a>
+
+        <div class="navbar-item">
+            <a class="button is-black" href="/about">
+                <strong>About me</strong>
+            </a>
+        </div>
+    </div>
+</nav>
+
+<nav class="navbar is-light is-fixed-bottom">
+    <div class="navbar-start"></div>
+    <div class="navbar-item is-mobile columns has-text-centered p-0 m-0">
+        <div class="column is-narrow">
+            
+            
+            <a class="button is-responsive is-black" href="https://jhandguy.github.io/posts/incremental-mobile-force-update/"><strong>←</strong></a>
+            
+            
+        </div>
+        <div class="column"></div>
+        <div class="column is-narrow">
+            <a class="button is-responsive is-white" href="#top"><strong>↑</strong></a>
+        </div>
+        <div class="column"></div>
+        <div class="column is-narrow">
+            
+            
+            <a class="button is-responsive is-black" disabled><strong>→</strong></a>
+            
+            
+        </div>
+    </div>
+    <div class="navbar-end"></div>
+</nav>
+<section class="section">
+    <div class="container is-max-desktop">
+        <div class="content">
+            <p class="title">Horizontal Pod Autoscaler in Kubernetes (Part 1) — Simple Autoscaling using Metrics Server</p>
+            
+            
+            <div class="box">
+                <p class="subtitle">Table of Contents</p>
+                <nav id="TableOfContents">
+  <ul>
+    <li><a href="#requirements">Requirements</a></li>
+    <li><a href="#creating-kind-cluster">Creating Kind Cluster</a></li>
+    <li><a href="#installing-nginx-ingress-controller">Installing NGINX Ingress Controller</a></li>
+    <li><a href="#installing-metrics-server">Installing Metrics Server</a></li>
+    <li><a href="#horizontal-pod-autoscaler">Horizontal Pod Autoscaler</a></li>
+    <li><a href="#autoscaling-native-services-based-on-cpu-and-memoryusage">Autoscaling Native Services based on CPU and Memory Usage</a></li>
+    <li><a href="#autoscaling-jvm-services-based-on-cpuusage">Autoscaling JVM Services based on CPU Usage</a></li>
+    <li><a href="#wrapping-up">Wrapping up</a></li>
+  </ul>
+</nav>
+            </div>
+            
+            
+        </div>
+    </div>
+    <div class="container is-max-desktop mt-6">
+        <div class="content has-text-justified-tablet">
+            <p>The Horizontal Pod Autoscaler (HPA) is a fundamental feature of Kubernetes. It enables automatic scale-up and scale-down of containerized applications based on CPU usage, memory usage, or custom metrics.</p>
+<p>Traditionally, when scaling software, we first think of vertical scaling: the CPU and the RAM are increased so the application consuming them can perform better. While this seems like a flawless mechanism on paper, it actually comes with many drawbacks.</p>
+<p>First, upgrading the CPU or RAM on a physical machine (or VM) requires downtime and unless a Pod Disruption Budget (PDB) is used to handle <a href="https://kubernetes.io/docs/concepts/workloads/pods/disruptions">disruptions</a>, all pods will be evicted and recreated in the new resized node.</p>
+<p>Nodes resource usage is also not optimized, as scaling vertically means requiring sufficient resources in a single node, while horizontal scaling may have the same amount of resources distributed across multiple nodes.</p>
+<p>Additionally, vertical scaling is not as resilient as horizontal scaling, as fewer replicas mean higher risks of disruptions in case of node failure.</p>
+<p>Finally, reaching a certain threshold, scaling only vertically becomes very expensive and most importantly, isn’t limitless. In fact, there is only so much CPU and RAM a physical machine(or VM) alone can handle.<br>
+This is where horizontal scaling comes into play!</p>
+<blockquote>
+<p>Eventually, it is more efficient to duplicate an instance, than increase its resources.</p>
+</blockquote>
+<p>🎬 Hi there, I&rsquo;m Jean!</p>
+<p>In this 2 parts series, we&rsquo;re going to explore several ways to scale services horizontally in Kubernetes, and the first one is…<br>
+🥁<br>
+… using <strong>Metrics Server</strong>! 🎊</p>
+<h2 id="requirements">Requirements</h2>
+<hr>
+<p>Before we start, make sure you have the following tools installed:</p>
+<ul>
+<li><a href="https://kind.sigs.k8s.io/docs/user/quick-start/#installation">Kind</a></li>
+<li><a href="https://kubernetes.io/docs/tasks/tools/">Kubectl</a></li>
+<li><a href="https://helm.sh/docs/intro/install/">Helm</a></li>
+<li><a href="https://k6.io/docs/getting-started/installation/">K6</a></li>
+</ul>
+<blockquote>
+<p><em>Note: for MacOS users or Linux users using Homebrew, simply run:</em><br>
+<code>brew install kind kubectl helm k6</code></p>
+</blockquote>
+<p>All set? Let’s go! 🏁</p>
+<h2 id="creating-kind-cluster">Creating Kind Cluster</h2>
+<hr>
+<p><a href="https://kind.sigs.k8s.io/">Kind</a> is a tool for running local Kubernetes clusters using Docker container “nodes”.
+It was primarily designed for testing Kubernetes itself, but may be used for local development or CI.</p>
+<p>I don’t expect you to have a demo project in handy, so <a href="https://github.com/jhandguy/canary-deployment">I built one</a> for you.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>git clone https://github.com/jhandguy/horizontal-pod-autoscaler.git
+</span></span><span style="display:flex;"><span>cd horizontal-pod-autoscaler
+</span></span></code></pre></div><p>Alright, let&rsquo;s spin up our Kind cluster! 🚀</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kind create cluster --image kindest/node:v1.23.4 --config<span style="color:#f92672">=</span>kind/cluster.yaml
+</span></span><span style="display:flex;"><span>Creating cluster <span style="color:#e6db74">&#34;kind&#34;</span> ...
+</span></span><span style="display:flex;"><span> ✓ Ensuring node image <span style="color:#f92672">(</span>kindest/node:v1.23.4<span style="color:#f92672">)</span> 🖼
+</span></span><span style="display:flex;"><span> ✓ Preparing nodes 📦
+</span></span><span style="display:flex;"><span> ✓ Writing configuration 📜
+</span></span><span style="display:flex;"><span> ✓ Starting control-plane 🕹️
+</span></span><span style="display:flex;"><span> ✓ Installing CNI 🔌
+</span></span><span style="display:flex;"><span> ✓ Installing StorageClass 💾
+</span></span><span style="display:flex;"><span>Set kubectl context to <span style="color:#e6db74">&#34;kind-kind&#34;</span>
+</span></span><span style="display:flex;"><span>You can now use your cluster with:
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>kubectl cluster-info --context kind-kind
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Have a question, bug, or feature request? Let us know! https://kind.sigs.k8s.io/#community 🙂
+</span></span></code></pre></div><h2 id="installing-nginx-ingress-controller">Installing NGINX Ingress Controller</h2>
+<hr>
+<p><a href="https://github.com/kubernetes/ingress-nginx">NGINX Ingress Controller</a> is one of the <a href="https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/#additional-controllers">many available Kubernetes Ingress Controllers</a>, which acts as a load balancer and satisfies routing rules specified in <a href="https://kubernetes.io/docs/concepts/services-networking/ingress/#what-is-ingress">Ingress</a> resources, using the <a href="https://nginx.org/en/">NGINX reverse proxy</a>.</p>
+<p>NGINX Ingress Controller can be installed via its <a href="https://github.com/kubernetes/ingress-nginx/tree/main/charts/ingress-nginx">Helm chart</a>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+</span></span><span style="display:flex;"><span>helm install ingress-nginx/ingress-nginx --name-template ingress-nginx --create-namespace -n ingress-nginx --values kind/ingress-nginx-values.yaml --version 4.0.19 --wait
+</span></span></code></pre></div><p>Now, if everything goes according to plan, you should be able to see the <strong>ingress-nginx-controller</strong> Deployment running.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get deploy -n ingress-nginx
+</span></span><span style="display:flex;"><span>NAME                       READY   UP-TO-DATE   AVAILABLE   AGE
+</span></span><span style="display:flex;"><span>ingress-nginx-controller   1/1     <span style="color:#ae81ff">1</span>            <span style="color:#ae81ff">1</span>           4m35s
+</span></span></code></pre></div><h2 id="installing-metrics-server">Installing Metrics Server</h2>
+<hr>
+<p><a href="https://github.com/kubernetes-sigs/metrics-server">Metrics Server</a> is a source of container resource metrics, which collects them from Kubelets and exposes them in Kubernetes API server through <a href="https://github.com/kubernetes/metrics">Metrics API</a> for use by <a href="https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/">Horizontal Pod Autoscaler</a> and <a href="https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler/">Vertical Pod Autoscaler</a>.</p>
+<p>Metrics Server can be installed via its <a href="https://github.com/kubernetes-sigs/metrics-server/tree/master/charts/metrics-server">Helm chart</a>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server
+</span></span><span style="display:flex;"><span>helm install metrics-server/metrics-server --name-template metrics-server --create-namespace -n metrics-server --values kind/metrics-server-values.yaml --version 3.8.2 --wait
+</span></span></code></pre></div><p>Now, if everything goes according to plan, you should be able to see the <strong>metrics-server</strong> Deployment running.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get deploy -n metrics-server
+</span></span><span style="display:flex;"><span>NAME             READY   UP-TO-DATE   AVAILABLE   AGE
+</span></span><span style="display:flex;"><span>metrics-server   1/1     <span style="color:#ae81ff">1</span>            <span style="color:#ae81ff">1</span>           38s
+</span></span></code></pre></div><h2 id="horizontal-pod-autoscaler">Horizontal Pod Autoscaler</h2>
+<hr>
+<p>Before we dive in, let&rsquo;s quickly remind ourselves of what a <a href="https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/">Horizontal Pod Autoscaler</a> in Kubernetes actually is:</p>
+<blockquote>
+<p><em>A <a href="https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/">HorizontalPodAutoscaler</a> (HPA for short) automatically updates a workload resource (such as a <a href="https://kubernetes.io/docs/concepts/workloads/controllers/deployment/">Deployment</a> or <a href="https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/">StatefulSet</a>), with the aim of automatically scaling the workload to match demand.</em><br>
+<em>Horizontal scaling means that the response to increased load is to deploy more <a href="https://kubernetes.io/docs/concepts/workloads/pods/">Pods</a>. This is different from vertical scaling, which for Kubernetes would mean assigning more resources (for example: memory or CPU) to the Pods that are already running for the workload.</em><br>
+<em>If the load decreases, and the number of Pods is above the configured minimum, the HorizontalPodAutoscaler instructs the workload resource (the Deployment, StatefulSet, or other similar resource) to scale back down.</em></p>
+</blockquote>
+<p>Now that we know what an HPA is, let&rsquo;s get started, shall we? 🧐</p>
+<h2 id="autoscaling-native-services-based-on-cpu-and-memoryusage">Autoscaling Native Services based on CPU and Memory Usage</h2>
+<hr>
+<p>A native service is a piece  of software that does not require a virtual environment in order to run across different OSs and CPU architectures. This is the case  for C/C++, Golang, Rust, and more: those are languages that compile into a binary, that is directly executable by the Pod.<br>
+This means that native services can utilize all of the CPU and memory  available from the Pod they run in, without an intermediary environment.</p>
+<p>Let&rsquo;s try it out with a Golang service!</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>cd golang
+</span></span><span style="display:flex;"><span>helm install . --name-template sample-app --create-namespace -n sample-app --wait
+</span></span></code></pre></div><p>If everything goes fine, you should eventually see one Deployment with the READY state.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get deploy -n sample-app
+</span></span><span style="display:flex;"><span>NAME         READY   UP-TO-DATE   AVAILABLE   AGE
+</span></span><span style="display:flex;"><span>sample-app   2/2     <span style="color:#ae81ff">2</span>            <span style="color:#ae81ff">2</span>           44s
+</span></span></code></pre></div><p>Once the Pods are running, Metrics Server will start collecting the Pods resource metrics from the node&rsquo;s Kubelet and expose them in Kubernetes through <a href="https://github.com/kubernetes/metrics">Metrics API</a> for use by <a href="https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/">Horizontal Pod Autoscaler</a> and <a href="https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler/">Vertical Pod Autoscaler</a>.</p>
+<p>Let&rsquo;s see what the resource usage for those Pods currently is!</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl top pods -n sample-app
+</span></span><span style="display:flex;"><span>NAME                          CPU<span style="color:#f92672">(</span>cores<span style="color:#f92672">)</span>   MEMORY<span style="color:#f92672">(</span>bytes<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>sample-app-6bcbfc8b49-j6xmq   1m           1Mi
+</span></span><span style="display:flex;"><span>sample-app-6bcbfc8b49-wtd8g   1m           1Mi
+</span></span></code></pre></div><p>Pretty low, right? 🤔<br>
+This is obviously expected since our Go service currently isn&rsquo;t handling any load.</p>
+<p>Alright, now let&rsquo;s have a look at the HPA!</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl describe hpa -n sample-app
+</span></span><span style="display:flex;"><span>...
+</span></span><span style="display:flex;"><span>Metrics: <span style="color:#f92672">(</span> current / target <span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>  resource memory on pods <span style="color:#f92672">(</span>as a percentage of request<span style="color:#f92672">)</span>:  8% / 50%
+</span></span><span style="display:flex;"><span>  resource cpu on pods <span style="color:#f92672">(</span>as a percentage of request<span style="color:#f92672">)</span>:     10% / 50%
+</span></span><span style="display:flex;"><span>Min replicas:                                            <span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span>Max replicas:                                            <span style="color:#ae81ff">8</span>
+</span></span><span style="display:flex;"><span>...
+</span></span></code></pre></div><p>As you can see, this HPA is configured to scale the service based on both CPU and memory, with average utilization of <strong>50%</strong> each.</p>
+<p>This means that as soon as either the CPU or memory utilization breaches the <strong>50%</strong> threshold, the HPA will trigger an upscale.</p>
+<p>Under minimal load, the HPA will still retain a replica count of <strong>2</strong>, while the maximum amount of Pods the HPA is allowed to spin up under high load is <strong>8</strong>.</p>
+<blockquote>
+<p><em>Note: in a production environment, it is recommended to have a minimum replica count of at least 3, to guarantee maintained availability in the case of <a href="https://kubernetes.io/docs/concepts/scheduling-eviction/_print/#pod-disruption">Pod Disruption</a>.</em></p>
+</blockquote>
+<p>Now, this is the moment you&rsquo;ve certainly expected… It&rsquo;s Load Testing time! 😎</p>
+<p>For Load Testing, I really recommend <a href="https://k6.io/docs/">k6</a> from the Grafana Labs team. It is a dead-simple yet super powerful tool with very extensive documentation.</p>
+<p>See for yourself!</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>cd ..
+</span></span><span style="display:flex;"><span>k6 run k6/script.js
+</span></span></code></pre></div><p>While the load test is running, I suggest watching the HPA in a separate tab.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>kubectl get hpa -n sample-app -w
+</span></span></code></pre></div><p>As the load test progresses and the 2 starting Pods struggle to handle incoming requests, you should see both CPU and memory targets increasing, and ultimately, the <strong>replica count reaching its maximum</strong>!</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>Deployment/sample-app   16%/50%, 10%/50%   <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   16%/50%, 15%/50%   <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   17%/50%, 40%/50%   <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   18%/50%, 50%/50%   <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   19%/50%, 60%/50%   <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   22%/50%, 75%/50%   <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">3</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   27%/50%, 85%/50%   <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">3</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   24%/50%, 80%/50%   <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">4</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   27%/50%, 80%/50%   <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">5</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   22%/50%, 72%/50%   <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">5</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   23%/50%, 70%/50%   <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">6</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   25%/50%, 64%/50%   <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">7</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   24%/50%, 61%/50%   <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">7</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   25%/50%, 61%/50%   <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">7</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   27%/50%, 60%/50%   <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">8</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   28%/50%, 60%/50%   <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">8</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   27%/50%, 57%/50%   <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">8</span>
+</span></span></code></pre></div><p>When relying on multiple targets for a single HPA, you can find out which of those have triggered the up/downscale by consulting Kubernetes events.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get events -n sample-app
+</span></span><span style="display:flex;"><span>...
+</span></span><span style="display:flex;"><span>New size: 3; reason: cpu resource utilization <span style="color:#f92672">(</span>percentage of request<span style="color:#f92672">)</span> above target
+</span></span><span style="display:flex;"><span>Scaled up replica set sample-app-6bcbfc8b49 to <span style="color:#ae81ff">3</span>
+</span></span><span style="display:flex;"><span>New size: 4; reason: cpu resource utilization <span style="color:#f92672">(</span>percentage of request<span style="color:#f92672">)</span> above target
+</span></span><span style="display:flex;"><span>Scaled up replica set sample-app-6bcbfc8b49 to <span style="color:#ae81ff">4</span>
+</span></span><span style="display:flex;"><span>New size: 5; reason: cpu resource utilization <span style="color:#f92672">(</span>percentage of request<span style="color:#f92672">)</span> above target
+</span></span><span style="display:flex;"><span>Scaled up replica set sample-app-6bcbfc8b49 to <span style="color:#ae81ff">5</span>
+</span></span><span style="display:flex;"><span>New size: 6; reason: cpu resource utilization <span style="color:#f92672">(</span>percentage of request<span style="color:#f92672">)</span> above target
+</span></span><span style="display:flex;"><span>Scaled up replica set sample-app-6bcbfc8b49 to <span style="color:#ae81ff">6</span>
+</span></span><span style="display:flex;"><span>New size: 7; reason: cpu resource utilization <span style="color:#f92672">(</span>percentage of request<span style="color:#f92672">)</span> above target
+</span></span><span style="display:flex;"><span>Scaled up replica set sample-app-6bcbfc8b49 to <span style="color:#ae81ff">7</span>
+</span></span><span style="display:flex;"><span>New size: 8; reason: cpu resource utilization <span style="color:#f92672">(</span>percentage of request<span style="color:#f92672">)</span> above target
+</span></span><span style="display:flex;"><span>Scaled up replica set sample-app-6bcbfc8b49 to <span style="color:#ae81ff">8</span>
+</span></span><span style="display:flex;"><span>...
+</span></span></code></pre></div><p>Now, let&rsquo;s quickly have a look at the Load Test summary and the result of the <code>http_req_duration</code> metric in particular!</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>          /<span style="color:#ae81ff">\ </span>     |‾‾| /‾‾/   /‾‾/
+</span></span><span style="display:flex;"><span>     /<span style="color:#ae81ff">\ </span> /  <span style="color:#ae81ff">\ </span>    |  |/  /   /  /
+</span></span><span style="display:flex;"><span>    /  <span style="color:#ae81ff">\/</span>    <span style="color:#ae81ff">\ </span>   |     <span style="color:#f92672">(</span>   /   ‾‾<span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>   /          <span style="color:#ae81ff">\ </span>  |  |<span style="color:#ae81ff">\ </span> <span style="color:#ae81ff">\ </span>|  <span style="color:#f92672">(</span>‾<span style="color:#f92672">)</span>  |
+</span></span><span style="display:flex;"><span>  / __________ <span style="color:#ae81ff">\ </span> |__| <span style="color:#ae81ff">\_</span>_<span style="color:#ae81ff">\ \_</span>____/ .io
+</span></span><span style="display:flex;"><span>  execution: local
+</span></span><span style="display:flex;"><span>     script: k6/script.js
+</span></span><span style="display:flex;"><span>     output: -
+</span></span><span style="display:flex;"><span>scenarios: <span style="color:#f92672">(</span>100.00%<span style="color:#f92672">)</span> <span style="color:#ae81ff">1</span> scenario, <span style="color:#ae81ff">100</span> max VUs, 5m30s max duration <span style="color:#f92672">(</span>incl. graceful stop<span style="color:#f92672">)</span>:
+</span></span><span style="display:flex;"><span>         * default: Up to <span style="color:#ae81ff">100</span> looping VUs <span style="color:#66d9ef">for</span> 5m0s over <span style="color:#ae81ff">2</span> stages <span style="color:#f92672">(</span>gracefulRampDown: 30s, gracefulStop: 30s<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>running <span style="color:#f92672">(</span>5m01.0s<span style="color:#f92672">)</span>, 000/100 VUs, <span style="color:#ae81ff">20866</span> complete and <span style="color:#ae81ff">0</span> interrupted iterations
+</span></span><span style="display:flex;"><span>default ✓ <span style="color:#f92672">[======================================]</span> 000/100 VUs  5m0s
+</span></span><span style="display:flex;"><span>     ✓ status code is <span style="color:#ae81ff">200</span>
+</span></span><span style="display:flex;"><span>     ✓ node is kind-control-plane
+</span></span><span style="display:flex;"><span>     ✓ namespace is sample-app
+</span></span><span style="display:flex;"><span>     ✓ pod is sample-app-*
+</span></span><span style="display:flex;"><span>   ✓ checks.........................: 100.00% ✓ <span style="color:#ae81ff">83464</span>   ✗ <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>     data_received..................: 4.8 MB  <span style="color:#ae81ff">16</span> kB/s
+</span></span><span style="display:flex;"><span>     data_sent......................: 2.4 MB  8.0 kB/s
+</span></span><span style="display:flex;"><span>     http_req_blocked...............: avg<span style="color:#f92672">=</span>7.7µs   min<span style="color:#f92672">=</span>1µs   med<span style="color:#f92672">=</span>4µs    max<span style="color:#f92672">=</span>1.09ms   p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>5µs    p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>6µs
+</span></span><span style="display:flex;"><span>     http_req_connecting............: avg<span style="color:#f92672">=</span>2.9µs   min<span style="color:#f92672">=</span>0s    med<span style="color:#f92672">=</span>0s     max<span style="color:#f92672">=</span>521µs    p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>0s     p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>0s
+</span></span><span style="display:flex;"><span>   ✓ http_req_duration..............: avg<span style="color:#f92672">=</span>8.18ms  min<span style="color:#f92672">=</span>812µs med<span style="color:#f92672">=</span>2.1ms  max<span style="color:#f92672">=</span>498.85ms p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>5.21ms p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>62.79ms
+</span></span><span style="display:flex;"><span>       <span style="color:#f92672">{</span> expected_response:true <span style="color:#f92672">}</span>...: avg<span style="color:#f92672">=</span>8.18ms  min<span style="color:#f92672">=</span>812µs med<span style="color:#f92672">=</span>2.1ms  max<span style="color:#f92672">=</span>498.85ms p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>5.21ms p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>62.79ms
+</span></span><span style="display:flex;"><span>     http_req_failed................: 0.00%   ✓ <span style="color:#ae81ff">0</span>       ✗ <span style="color:#ae81ff">20866</span>
+</span></span><span style="display:flex;"><span>     http_req_receiving.............: avg<span style="color:#f92672">=</span>41.25µs min<span style="color:#f92672">=</span>16µs  med<span style="color:#f92672">=</span>38µs   max<span style="color:#f92672">=</span>361µs    p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>57µs   p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>66µs
+</span></span><span style="display:flex;"><span>     http_req_sending...............: avg<span style="color:#f92672">=</span>18.84µs min<span style="color:#f92672">=</span>7µs   med<span style="color:#f92672">=</span>17µs   max<span style="color:#f92672">=</span>2.59ms   p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>27µs   p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>32µs
+</span></span><span style="display:flex;"><span>     http_req_tls_handshaking.......: avg<span style="color:#f92672">=</span>0s      min<span style="color:#f92672">=</span>0s    med<span style="color:#f92672">=</span>0s     max<span style="color:#f92672">=</span>0s       p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>0s     p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>0s
+</span></span><span style="display:flex;"><span>     http_req_waiting...............: avg<span style="color:#f92672">=</span>8.12ms  min<span style="color:#f92672">=</span>774µs med<span style="color:#f92672">=</span>2.04ms max<span style="color:#f92672">=</span>498.76ms p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>5.15ms p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>62.73ms
+</span></span><span style="display:flex;"><span>     http_reqs......................: <span style="color:#ae81ff">20866</span>   69.3225/s
+</span></span><span style="display:flex;"><span>     iteration_duration.............: avg<span style="color:#f92672">=</span>1s      min<span style="color:#f92672">=</span>1s    med<span style="color:#f92672">=</span>1s     max<span style="color:#f92672">=</span>1.49s    p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>1s     p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>1.06s
+</span></span><span style="display:flex;"><span>     iterations.....................: <span style="color:#ae81ff">20866</span>   69.3225/s
+</span></span><span style="display:flex;"><span>     vus............................: <span style="color:#ae81ff">1</span>       min<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>     max<span style="color:#f92672">=</span><span style="color:#ae81ff">100</span>
+</span></span><span style="display:flex;"><span>     vus_max........................: <span style="color:#ae81ff">100</span>     min<span style="color:#f92672">=</span><span style="color:#ae81ff">100</span>   max<span style="color:#f92672">=</span><span style="color:#ae81ff">100</span>
+</span></span></code></pre></div><p>As you can observe, our Golang service has performed very well under heavy load, with a Success Share of 100%, a median latency of ~2ms, and a 95th percentile latency of ~62ms!</p>
+<p>We have the HPA to thank for that, as it scaled the Deployment from 2 to 8 Pods swiftly and automatically, based on the Pods resource usage!</p>
+<p>We definitely would not have had the same results without an HPA… Actually, why don&rsquo;t you try it yourself? 😉</p>
+<p>Just delete the HPA (<code>kubectl delete hpa sample-app -n sample-app</code>), run the load test again (<code>k6 run k6/script.js</code>) and see what happens! (spoiler alert: it&rsquo;s not pretty 😬)</p>
+<p>Once you are done, don&rsquo;t forget to uninstall the Helm release! (we won&rsquo;t be needing this one anymore)</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>helm uninstall sample-app -n sample-app
+</span></span></code></pre></div><h2 id="autoscaling-jvm-services-based-on-cpuusage">Autoscaling JVM Services based on CPU Usage</h2>
+<hr>
+<p>While native services run as executable binaries, JVM services need an extra environment layer in order to run on various OSs and CPU architectures: the Java Virtual Machine (JVM).</p>
+<p>This creates an issue for Pod Autoscaling, as the JVM pre-allocates more memory than it actually needs from the Pod&rsquo;s resources, for its Garbage Collector (GC). This makes memory altogether an unreliable metric to use for autoscaling a JVM-based service in Kubernetes via Metrics Server.</p>
+<p>Thus, in the case of Java or other JVM-based  services, when utilizing Metrics Server for HPA, one can only rely on the CPU metric for autoscaling.</p>
+<p>Let&rsquo;s experience it with a Kotlin/JVM service!</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>cd kotlin
+</span></span><span style="display:flex;"><span>helm install . --name-template sample-app --create-namespace -n sample-app --wait
+</span></span></code></pre></div><p>If everything goes fine, you should eventually see one Deployment with the READY state.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get deploy -n sample-app
+</span></span><span style="display:flex;"><span>NAME         READY   UP-TO-DATE   AVAILABLE   AGE
+</span></span><span style="display:flex;"><span>sample-app   2/2     <span style="color:#ae81ff">2</span>            <span style="color:#ae81ff">2</span>           52s
+</span></span></code></pre></div><p>Let&rsquo;s see what the resource usage for those Pods running a JVM currently is!</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl top pods -n sample-app
+</span></span><span style="display:flex;"><span>NAME                         CPU<span style="color:#f92672">(</span>cores<span style="color:#f92672">)</span>   MEMORY<span style="color:#f92672">(</span>bytes<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>sample-app-8df8cfcd4-lg9s8   7m           105Mi
+</span></span><span style="display:flex;"><span>sample-app-8df8cfcd4-r9fjh   7m           105Mi
+</span></span></code></pre></div><p>Interesting! As you can see, while being idle, both pods consume ~100Mi (~104Mb) of memory, which is almost 50% of the Pods memory limit! 😱<br>
+As previously stated, this is due to the JVM pre-allocating memory for its Garbage Collector (GC).</p>
+<p>Alright, now let&rsquo;s have a look at the HPA!</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl describe hpa -n sample-app
+</span></span><span style="display:flex;"><span>...
+</span></span><span style="display:flex;"><span>Metrics: <span style="color:#f92672">(</span> current / target <span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>  resource cpu on pods <span style="color:#f92672">(</span>as a percentage of request<span style="color:#f92672">)</span>:  10% / 50%
+</span></span><span style="display:flex;"><span>Min replicas:                                         <span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span>Max replicas:                                         <span style="color:#ae81ff">8</span>
+</span></span><span style="display:flex;"><span>...
+</span></span></code></pre></div><p>As announced, this time the HPA only relies on one resource metric: the CPU.</p>
+<p>Alright, let&rsquo;s give our favorite Load Testing tool another go! 🚀</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>cd ..
+</span></span><span style="display:flex;"><span>k6 run k6/script.js
+</span></span></code></pre></div><p>As previously mentioned, I suggest watching the HPA in a separate tab.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>kubectl get hpa -n sample-app -w
+</span></span></code></pre></div><p>As the load test progresses and the 2 starting Pods struggle to handle incoming requests, you should see the CPU target increasing, and ultimately, the <strong>replica count reaching its maximum</strong>!</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>Deployment/sample-app   10%/50%   <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   15%/50%   <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   36%/50%   <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   64%/50%   <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   37%/50%   <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">3</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   41%/50%   <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">3</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   51%/50%   <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">3</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   99%/50%   <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">3</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   56%/50%   <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">6</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   50%/50%   <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">6</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   76%/50%   <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">6</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   74%/50%   <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">8</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   61%/50%   <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">8</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   58%/50%   <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">8</span>
+</span></span></code></pre></div><p>Now, let&rsquo;s quickly have a look at the Load Test summary and the result of the <code>http_req_duration</code> metric in particular!</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>          /<span style="color:#ae81ff">\ </span>     |‾‾| /‾‾/   /‾‾/
+</span></span><span style="display:flex;"><span>     /<span style="color:#ae81ff">\ </span> /  <span style="color:#ae81ff">\ </span>    |  |/  /   /  /
+</span></span><span style="display:flex;"><span>    /  <span style="color:#ae81ff">\/</span>    <span style="color:#ae81ff">\ </span>   |     <span style="color:#f92672">(</span>   /   ‾‾<span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>   /          <span style="color:#ae81ff">\ </span>  |  |<span style="color:#ae81ff">\ </span> <span style="color:#ae81ff">\ </span>|  <span style="color:#f92672">(</span>‾<span style="color:#f92672">)</span>  |
+</span></span><span style="display:flex;"><span>  / __________ <span style="color:#ae81ff">\ </span> |__| <span style="color:#ae81ff">\_</span>_<span style="color:#ae81ff">\ \_</span>____/ .io
+</span></span><span style="display:flex;"><span>  execution: local
+</span></span><span style="display:flex;"><span>     script: k6/script.js
+</span></span><span style="display:flex;"><span>     output: -
+</span></span><span style="display:flex;"><span>scenarios: <span style="color:#f92672">(</span>100.00%<span style="color:#f92672">)</span> <span style="color:#ae81ff">1</span> scenario, <span style="color:#ae81ff">100</span> max VUs, 5m30s max duration <span style="color:#f92672">(</span>incl. graceful stop<span style="color:#f92672">)</span>:
+</span></span><span style="display:flex;"><span>         * default: Up to <span style="color:#ae81ff">100</span> looping VUs <span style="color:#66d9ef">for</span> 5m0s over <span style="color:#ae81ff">2</span> stages <span style="color:#f92672">(</span>gracefulRampDown: 30s, gracefulStop: 30s<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>running <span style="color:#f92672">(</span>5m01.0s<span style="color:#f92672">)</span>, 000/100 VUs, <span style="color:#ae81ff">20714</span> complete and <span style="color:#ae81ff">0</span> interrupted iterations
+</span></span><span style="display:flex;"><span>default ✓ <span style="color:#f92672">[======================================]</span> 000/100 VUs  5m0s
+</span></span><span style="display:flex;"><span>     ✓ status code is <span style="color:#ae81ff">200</span>
+</span></span><span style="display:flex;"><span>     ✓ node is kind-control-plane
+</span></span><span style="display:flex;"><span>     ✓ namespace is sample-app
+</span></span><span style="display:flex;"><span>     ✓ pod is sample-app-*
+</span></span><span style="display:flex;"><span>   ✓ checks.........................: 100.00% ✓ <span style="color:#ae81ff">82856</span>     ✗ <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>     data_received..................: 4.6 MB  <span style="color:#ae81ff">15</span> kB/s
+</span></span><span style="display:flex;"><span>     data_sent......................: 2.4 MB  7.9 kB/s
+</span></span><span style="display:flex;"><span>     http_req_blocked...............: avg<span style="color:#f92672">=</span>7.54µs  min<span style="color:#f92672">=</span>1µs    med<span style="color:#f92672">=</span>4µs    max<span style="color:#f92672">=</span>2.82ms p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>5µs    p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>6µs
+</span></span><span style="display:flex;"><span>     http_req_connecting............: avg<span style="color:#f92672">=</span>2.87µs  min<span style="color:#f92672">=</span>0s     med<span style="color:#f92672">=</span>0s     max<span style="color:#f92672">=</span>2.74ms p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>0s     p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>0s
+</span></span><span style="display:flex;"><span>   ✓ http_req_duration..............: avg<span style="color:#f92672">=</span>15.92ms min<span style="color:#f92672">=</span>1.08ms med<span style="color:#f92672">=</span>2.8ms  max<span style="color:#f92672">=</span>2.28s  p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>7.23ms p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>31.43ms
+</span></span><span style="display:flex;"><span>       <span style="color:#f92672">{</span> expected_response:true <span style="color:#f92672">}</span>...: avg<span style="color:#f92672">=</span>15.92ms min<span style="color:#f92672">=</span>1.08ms med<span style="color:#f92672">=</span>2.8ms  max<span style="color:#f92672">=</span>2.28s  p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>7.23ms p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>31.43ms
+</span></span><span style="display:flex;"><span>     http_req_failed................: 0.00%   ✓ <span style="color:#ae81ff">0</span>         ✗ <span style="color:#ae81ff">20714</span>
+</span></span><span style="display:flex;"><span>     http_req_receiving.............: avg<span style="color:#f92672">=</span>43.94µs min<span style="color:#f92672">=</span>16µs   med<span style="color:#f92672">=</span>42µs   max<span style="color:#f92672">=</span>1.07ms p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>58µs   p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>66µs
+</span></span><span style="display:flex;"><span>     http_req_sending...............: avg<span style="color:#f92672">=</span>18.23µs min<span style="color:#f92672">=</span>6µs    med<span style="color:#f92672">=</span>17µs   max<span style="color:#f92672">=</span>805µs  p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>24µs   p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>29µs
+</span></span><span style="display:flex;"><span>     http_req_tls_handshaking.......: avg<span style="color:#f92672">=</span>0s      min<span style="color:#f92672">=</span>0s     med<span style="color:#f92672">=</span>0s     max<span style="color:#f92672">=</span>0s     p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>0s     p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>0s
+</span></span><span style="display:flex;"><span>     http_req_waiting...............: avg<span style="color:#f92672">=</span>15.86ms min<span style="color:#f92672">=</span>1.05ms med<span style="color:#f92672">=</span>2.74ms max<span style="color:#f92672">=</span>2.28s  p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>7.18ms p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>31.38ms
+</span></span><span style="display:flex;"><span>     http_reqs......................: <span style="color:#ae81ff">20714</span>   68.817872/s
+</span></span><span style="display:flex;"><span>     iteration_duration.............: avg<span style="color:#f92672">=</span>1.01s   min<span style="color:#f92672">=</span>1s     med<span style="color:#f92672">=</span>1s     max<span style="color:#f92672">=</span>3.28s  p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>1s     p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>1.03s
+</span></span><span style="display:flex;"><span>     iterations.....................: <span style="color:#ae81ff">20714</span>   68.817872/s
+</span></span><span style="display:flex;"><span>     vus............................: <span style="color:#ae81ff">2</span>       min<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>       max<span style="color:#f92672">=</span><span style="color:#ae81ff">100</span>
+</span></span><span style="display:flex;"><span>     vus_max........................: <span style="color:#ae81ff">100</span>     min<span style="color:#f92672">=</span><span style="color:#ae81ff">100</span>     max<span style="color:#f92672">=</span><span style="color:#ae81ff">100</span>
+</span></span></code></pre></div><p>As you can observe, our Kotlin/JVM service has performed very well under heavy load, with a Success Share of 100%, a median latency of ~2ms, and a 95th percentile latency of ~31ms!</p>
+<p>Once again, the HPA was able to scale the Deployment from 2 to 8 Pods swiftly and automatically, based on the Pods CPU usage alone!</p>
+<blockquote>
+<p><em>Note: if you keep the Deployment idle for a few minutes, you should see the HPA gradually scaling back down to 2 Pods, due to low CPU usage.</em></p>
+</blockquote>
+<h2 id="wrapping-up">Wrapping up</h2>
+<hr>
+<p>That&rsquo;s it! You can now stop and delete your Kind cluster.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>kind delete cluster
+</span></span></code></pre></div><p>To summarize, using Metrics Server we were able to:</p>
+<ul>
+<li>Autoscale horizontally our native service written in Golang, based on both CPU and memory usage;</li>
+<li>Autoscale horizontally our JVM service written in Kotlin/JVM, based on CPU usage.</li>
+</ul>
+<p>Was it worth it? Did that help you understand how to implement Horizontal Pod Autoscaler in Kubernetes using Metrics Server?</p>
+<p>If so, follow me on <a href="https://twitter.com/jhandguy">Twitter</a>, I’ll be happy to answer any of your questions and you’ll be the first one to know when a new article comes out! 👌</p>
+<p>See you next month, for Part 2 of my series <strong>Horizontal Pod Autoscaler in Kubernetes</strong>!</p>
+<p>Bye-bye! 👋</p>
+
+        </div>
+    </div>
+</section>
+</body>
+<footer>
+    <div class="footer has-background-light">
+        <div class="content has-text-centered">
+            <p class="subtitle is-6">Powered by <a href="https://gohugo.io/">Hugo</a></p>
+            <a href="https://bulma.io">
+                <img src="https://bulma.io/images/made-with-bulma--black.png" alt="Made with Bulma" width="128" height="24">
+            </a>
+        </div>
+    </div>
+</footer>
+</html>
