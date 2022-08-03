@@ -6,7 +6,18 @@
     <description>Recent content in Horizontal Scaling on jhandguy</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 06 Jul 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://jhandguy.github.io/tags/horizontal-scaling/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 03 Aug 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://jhandguy.github.io/tags/horizontal-scaling/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Horizontal Pod Autoscaler in Kubernetes (Part 2) — Advanced Autoscaling using Prometheus Adapter</title>
+      <link>https://jhandguy.github.io/posts/advanced-horizontal-autoscaling/</link>
+      <pubDate>Wed, 03 Aug 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://jhandguy.github.io/posts/advanced-horizontal-autoscaling/</guid>
+      <description>The Horizontal Pod Autoscaler (HPA) is a fundamental feature of Kubernetes. It enables automatic scale-up and scale-down of containerized applications based on CPU usage, memory usage, or custom metrics.
+Traditionally, when scaling software, we first think of vertical scaling: the CPU and the RAM are increased so the application consuming them can perform better. While this seems like a flawless mechanism on paper, it actually comes with many drawbacks.
+First, upgrading the CPU or RAM on a physical machine (or VM) requires downtime and unless a Pod Disruption Budget (PDB) is used to handle disruptions, all pods will be evicted and recreated in the new resized node.</description>
+    </item>
+    
     <item>
       <title>Horizontal Pod Autoscaler in Kubernetes (Part 1) — Simple Autoscaling using Metrics Server</title>
       <link>https://jhandguy.github.io/posts/simple-horizontal-autoscaling/</link>

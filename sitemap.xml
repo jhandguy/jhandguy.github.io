@@ -2,22 +2,25 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://jhandguy.github.io/posts/simple-horizontal-autoscaling/</loc>
-    <lastmod>2022-07-06T00:00:00+00:00</lastmod>
+    <loc>https://jhandguy.github.io/posts/advanced-horizontal-autoscaling/</loc>
+    <lastmod>2022-08-03T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://jhandguy.github.io/tags/horizontal-scaling/</loc>
-    <lastmod>2022-07-06T00:00:00+00:00</lastmod>
+    <lastmod>2022-08-03T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://jhandguy.github.io/</loc>
-    <lastmod>2022-07-06T00:00:00+00:00</lastmod>
+    <lastmod>2022-08-03T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://jhandguy.github.io/posts/</loc>
-    <lastmod>2022-07-06T00:00:00+00:00</lastmod>
+    <lastmod>2022-08-03T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://jhandguy.github.io/tags/sre/</loc>
-    <lastmod>2022-07-06T00:00:00+00:00</lastmod>
+    <lastmod>2022-08-03T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://jhandguy.github.io/tags/</loc>
+    <lastmod>2022-08-03T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://jhandguy.github.io/posts/simple-horizontal-autoscaling/</loc>
     <lastmod>2022-07-06T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://jhandguy.github.io/tags/canary-deployment/</loc>

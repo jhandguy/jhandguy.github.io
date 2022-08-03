@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Horizontal Pod Autoscaler in Kubernetes (Part 2) — Advanced Autoscaling using Prometheus Adapter</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+
+<body id="top" class="has-background-white">
+<nav class="navbar is-light">
+    <div class="navbar-brand">
+        <a class="navbar-item" href="/">
+            Home
+        </a>
+
+        <div class="navbar-item">
+            <a class="button is-black" href="/about">
+                <strong>About me</strong>
+            </a>
+        </div>
+    </div>
+</nav>
+
+<nav class="navbar is-light is-fixed-bottom">
+    <div class="navbar-start"></div>
+    <div class="navbar-item is-mobile columns has-text-centered p-0 m-0">
+        <div class="column is-narrow">
+            
+            
+            <a class="button is-responsive is-black" href="https://jhandguy.github.io/posts/simple-horizontal-autoscaling/"><strong>←</strong></a>
+            
+            
+        </div>
+        <div class="column"></div>
+        <div class="column is-narrow">
+            <a class="button is-responsive is-white" href="#top"><strong>↑</strong></a>
+        </div>
+        <div class="column"></div>
+        <div class="column is-narrow">
+            
+            
+            <a class="button is-responsive is-black" disabled><strong>→</strong></a>
+            
+            
+        </div>
+    </div>
+    <div class="navbar-end"></div>
+</nav>
+<section class="section">
+    <div class="container is-max-desktop">
+        <div class="content">
+            <p class="title">Horizontal Pod Autoscaler in Kubernetes (Part 2) — Advanced Autoscaling using Prometheus Adapter</p>
+            
+            
+            <div class="box">
+                <p class="subtitle">Table of Contents</p>
+                <nav id="TableOfContents">
+  <ul>
+    <li><a href="#requirements">Requirements</a></li>
+    <li><a href="#creating-kind-cluster">Creating Kind Cluster</a></li>
+    <li><a href="#installing-nginx-ingress-controller">Installing NGINX Ingress Controller</a></li>
+    <li><a href="#installing-prometheus">Installing Prometheus</a></li>
+    <li><a href="#installing-prometheus-adapter">Installing Prometheus Adapter</a></li>
+    <li><a href="#autoscaling-services-based-on-prometheus-metrics">Autoscaling Services based on Prometheus Metrics</a></li>
+    <li><a href="#wrapping-up">Wrapping up</a></li>
+  </ul>
+</nav>
+            </div>
+            
+            
+        </div>
+    </div>
+    <div class="container is-max-desktop mt-6">
+        <div class="content has-text-justified-tablet">
+            <p>The Horizontal Pod Autoscaler (HPA) is a fundamental feature of Kubernetes. It enables automatic scale-up and scale-down of containerized applications based on CPU usage, memory usage, or custom metrics.</p>
+<p>Traditionally, when scaling software, we first think of vertical scaling: the CPU and the RAM are increased so the application consuming them can perform better. While this seems like a flawless mechanism on paper, it actually comes with many drawbacks.</p>
+<p>First, upgrading the CPU or RAM on a physical machine (or VM) requires downtime and unless a Pod Disruption Budget (PDB) is used to handle <a href="https://kubernetes.io/docs/concepts/workloads/pods/disruptions">disruptions</a>, all pods will be evicted and recreated in the new resized node.</p>
+<p>Nodes resource usage is also not optimized, as scaling vertically means requiring sufficient resources in a single node, while horizontal scaling may have the same amount of resources distributed across multiple nodes.</p>
+<p>Additionally, vertical scaling is not as resilient as horizontal scaling, as fewer replicas mean higher risks of disruptions in case of node failure.</p>
+<p>Finally, reaching a certain threshold, scaling only vertically becomes very expensive and most importantly, isn’t limitless. In fact, there is only so much CPU and RAM a physical machine(or VM) alone can handle.<br>
+This is where horizontal scaling comes into play!</p>
+<blockquote>
+<p>Eventually, it is more efficient to duplicate an instance, than increase its resources.</p>
+</blockquote>
+<p>🎬 Hi there, I&rsquo;m Jean!</p>
+<p>In this 2 parts series, we&rsquo;re going to explore several ways to scale services horizontally in Kubernetes, and the second one is…<br>
+🥁<br>
+… using <strong>Prometheus Adapter</strong>! 🎊</p>
+<h2 id="requirements">Requirements</h2>
+<hr>
+<p>Before we start, make sure you have the following tools installed:</p>
+<ul>
+<li><a href="https://kind.sigs.k8s.io/docs/user/quick-start/#installation">Kind</a></li>
+<li><a href="https://kubernetes.io/docs/tasks/tools/">Kubectl</a></li>
+<li><a href="https://helm.sh/docs/intro/install/">Helm</a></li>
+<li><a href="https://k6.io/docs/getting-started/installation/">K6</a></li>
+</ul>
+<blockquote>
+<p><em>Note: for MacOS users or Linux users using Homebrew, simply run:</em><br>
+<code>brew install kind kubectl helm k6</code></p>
+</blockquote>
+<p>All set? Let’s go! 🏁</p>
+<h2 id="creating-kind-cluster">Creating Kind Cluster</h2>
+<hr>
+<p><a href="https://kind.sigs.k8s.io/">Kind</a> is a tool for running local Kubernetes clusters using Docker container “nodes”.
+It was primarily designed for testing Kubernetes itself, but may be used for local development or CI.</p>
+<p>I don’t expect you to have a demo project in handy, so <a href="https://github.com/jhandguy/canary-deployment">I built one</a> for you.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>git clone https://github.com/jhandguy/horizontal-pod-autoscaler.git
+</span></span><span style="display:flex;"><span>cd horizontal-pod-autoscaler
+</span></span></code></pre></div><p>Alright, let&rsquo;s spin up our Kind cluster! 🚀</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kind create cluster --image kindest/node:v1.23.4 --config<span style="color:#f92672">=</span>kind/cluster.yaml
+</span></span><span style="display:flex;"><span>Creating cluster <span style="color:#e6db74">&#34;kind&#34;</span> ...
+</span></span><span style="display:flex;"><span> ✓ Ensuring node image <span style="color:#f92672">(</span>kindest/node:v1.23.4<span style="color:#f92672">)</span> 🖼
+</span></span><span style="display:flex;"><span> ✓ Preparing nodes 📦
+</span></span><span style="display:flex;"><span> ✓ Writing configuration 📜
+</span></span><span style="display:flex;"><span> ✓ Starting control-plane 🕹️
+</span></span><span style="display:flex;"><span> ✓ Installing CNI 🔌
+</span></span><span style="display:flex;"><span> ✓ Installing StorageClass 💾
+</span></span><span style="display:flex;"><span>Set kubectl context to <span style="color:#e6db74">&#34;kind-kind&#34;</span>
+</span></span><span style="display:flex;"><span>You can now use your cluster with:
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>kubectl cluster-info --context kind-kind
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Have a question, bug, or feature request? Let us know! https://kind.sigs.k8s.io/#community 🙂
+</span></span></code></pre></div><h2 id="installing-nginx-ingress-controller">Installing NGINX Ingress Controller</h2>
+<hr>
+<p><a href="https://github.com/kubernetes/ingress-nginx">NGINX Ingress Controller</a> is one of the <a href="https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/#additional-controllers">many available Kubernetes Ingress Controllers</a>, which acts as a load balancer and satisfies routing rules specified in <a href="https://kubernetes.io/docs/concepts/services-networking/ingress/#what-is-ingress">Ingress</a> resources, using the <a href="https://nginx.org/en/">NGINX reverse proxy</a>.</p>
+<p>NGINX Ingress Controller can be installed via its <a href="https://github.com/kubernetes/ingress-nginx/tree/main/charts/ingress-nginx">Helm chart</a>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+</span></span><span style="display:flex;"><span>helm install ingress-nginx/ingress-nginx --name-template ingress-nginx --create-namespace -n ingress-nginx --values kind/ingress-nginx-values.yaml --version 4.0.19 --wait
+</span></span></code></pre></div><p>Now, if everything goes according to plan, you should be able to see the <strong>ingress-nginx-controller</strong> Deployment running.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get deploy -n ingress-nginx
+</span></span><span style="display:flex;"><span>NAME                       READY   UP-TO-DATE   AVAILABLE   AGE
+</span></span><span style="display:flex;"><span>ingress-nginx-controller   1/1     <span style="color:#ae81ff">1</span>            <span style="color:#ae81ff">1</span>           4m35s
+</span></span></code></pre></div><h2 id="installing-prometheus">Installing Prometheus</h2>
+<hr>
+<p>Prometheus can be installed via its community <a href="https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack">Helm chart</a>, which also provides <a href="https://grafana.com/grafana/">Grafana</a> out of the box.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+</span></span><span style="display:flex;"><span>helm install prometheus-community/kube-prometheus-stack --name-template prometheus --create-namespace -n prometheus --version 34.9.1 --wait
+</span></span></code></pre></div><p>If everything went fine, you should be able to see three newly spawned deployments with the READY state!</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get deploy -n prometheus
+</span></span><span style="display:flex;"><span>NAME                                  READY   UP-TO-DATE   AVAILABLE   
+</span></span><span style="display:flex;"><span>prometheus-grafana                    1/1     <span style="color:#ae81ff">1</span>            <span style="color:#ae81ff">1</span>           
+</span></span><span style="display:flex;"><span>prometheus-kube-prometheus-operator   1/1     <span style="color:#ae81ff">1</span>            <span style="color:#ae81ff">1</span>           
+</span></span><span style="display:flex;"><span>prometheus-kube-state-metrics         1/1     <span style="color:#ae81ff">1</span>            <span style="color:#ae81ff">1</span>
+</span></span></code></pre></div><h2 id="installing-prometheus-adapter">Installing Prometheus Adapter</h2>
+<hr>
+<p><a href="https://github.com/kubernetes-sigs/prometheus-adapter">Prometheus Adapter</a> is a source of custom metrics, which collects them from Prometheus and exposes them in Kubernetes API server through <a href="https://github.com/kubernetes/metrics">Metrics API</a> for use by <a href="https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/">Horizontal Pod Autoscaler</a> and <a href="https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler/">Vertical Pod Autoscaler</a>.</p>
+<p>Unlike <a href="https://github.com/kubernetes-sigs/metrics-server">Metrics Server</a> which is limited to resource metrics, Prometheus Adapter exposes custom metrics measurable from within a Pod&rsquo;s container, such as memory usage, GC duration, but also request throughput, latency, etc.</p>
+<blockquote>
+<p><em>If you haven&rsquo;t already, go read <a href="/posts/simple-horizontal-autoscaling/">Horizontal Pod Autoscaler in Kubernetes (Part 1) - Simple Autoscaling using Metrics Server</a> and learn how to implement a Horizontal Pod Autoscaler using Metrics Server!</em></p>
+</blockquote>
+<p>Prometheus Adapter can be installed via its <a href="https://github.com/prometheus-community/helm-charts/tree/main/charts/prometheus-adapter">Helm chart</a>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>helm install prometheus-community/prometheus-adapter --name-template prometheus-adapter --create-namespace -n prometheus-adapter --values kind/prometheus-adapter-values.yaml --version 3.2.1 --wait
+</span></span></code></pre></div><p>Now, if all goes well, you should see the <strong>prometheus-adapter</strong> Deployment running with the READY state.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get deploy -n prometheus-adapter
+</span></span><span style="display:flex;"><span>NAME                 READY   UP-TO-DATE   AVAILABLE   AGE
+</span></span><span style="display:flex;"><span>prometheus-adapter   1/1     <span style="color:#ae81ff">1</span>            <span style="color:#ae81ff">1</span>           52s
+</span></span></code></pre></div><h2 id="autoscaling-services-based-on-prometheus-metrics">Autoscaling Services based on Prometheus Metrics</h2>
+<hr>
+<p>Now that Prometheus Adapter is up and running, let&rsquo;s get to it, shall we? 🧐</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>cd golang
+</span></span><span style="display:flex;"><span>helm install . --name-template sample-app --create-namespace -n sample-app --set prometheus.enabled<span style="color:#f92672">=</span>true --wait
+</span></span></code></pre></div><p>If everything goes fine, you should eventually see one Deployment with the READY state.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get deploy -n sample-app
+</span></span><span style="display:flex;"><span>NAME         READY   UP-TO-DATE   AVAILABLE   AGE
+</span></span><span style="display:flex;"><span>sample-app   2/2     <span style="color:#ae81ff">2</span>            <span style="color:#ae81ff">2</span>           28s
+</span></span></code></pre></div><p>Alright, now let&rsquo;s have a look at the HPA!</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl describe hpa -n sample-app
+</span></span><span style="display:flex;"><span>...
+</span></span><span style="display:flex;"><span>Metrics: <span style="color:#f92672">(</span> current / target <span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;golang_sample_app_requests_per_second&#34;</span> on pods:  &lt;unknown&gt; / <span style="color:#ae81ff">10</span>
+</span></span><span style="display:flex;"><span>Min replicas:                                       <span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span>Max replicas:                                       <span style="color:#ae81ff">8</span>
+</span></span></code></pre></div><p>As you can see, this HPA is configured to scale the service based on requests per second (rps), with an average of <strong>10</strong>.</p>
+<blockquote>
+<p><em>Note: as you probably have noticed, the current value for the request throughput is <strong>unknown</strong>, this is expected as the service hasn&rsquo;t served any requests yet, thus no timeseries for this metric are present in Prometheus.</em></p>
+</blockquote>
+<p>This means that as soon as the request throughput breaches the <strong>10rps</strong> threshold, the HPA will trigger an upscale.</p>
+<p>Under minimal load, the HPA will still retain a replica count of <strong>2</strong>, while the maximum amount of Pods the HPA is allowed to spin up under high load is <strong>8</strong>.</p>
+<blockquote>
+<p><em>Note: in a production environment, it is recommended to have a minimum replica count of at least 3, to guarantee maintained availability in the case of <a href="https://kubernetes.io/docs/concepts/scheduling-eviction/_print/#pod-disruption">Pod Disruption</a>.</em></p>
+</blockquote>
+<p>Now, this is the moment you&rsquo;ve certainly expected… It&rsquo;s Load Testing time! 😎</p>
+<p>For Load Testing, I really recommend <a href="https://k6.io/docs/">k6</a> from the Grafana Labs team. It is a dead-simple yet super powerful tool with very extensive documentation.</p>
+<p>See for yourself!</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>cd ..
+</span></span><span style="display:flex;"><span>k6 run k6/script.js
+</span></span></code></pre></div><p>While the load test is running, I suggest watching the HPA in a separate tab.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>kubectl get hpa -n sample-app -w
+</span></span></code></pre></div><p>As the load test progresses and the 2 starting Pods start to handle more than 10rps each, you should see the Prometheus metric&rsquo;s target increasing, and ultimately, the <strong>replica count reaching its maximum</strong>!</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>Deployment/sample-app   &lt;unknown&gt;/10   <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   4360m/10       <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   6236m/10       <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   12471m/10      <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   15577m/10      <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">3</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   21231m/10      <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">3</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   21231m/10      <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">5</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   16752m/10      <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">5</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   18362m/10      <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">5</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   15921m/10      <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">6</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   15543m/10      <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">6</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   16530m/10      <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">8</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   15397m/10      <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">8</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   14428m/10      <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">8</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   11897m/10      <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">8</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   12370m/10      <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">8</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   12423m/10      <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">8</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   12414m/10      <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">8</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   12423m/10      <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">8</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   10962m/10      <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">8</span>
+</span></span></code></pre></div><p>Now, let&rsquo;s quickly have a look at the Load Test summary and the result of the <code>http_req_duration</code> metric in particular!</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>          /<span style="color:#ae81ff">\ </span>     |‾‾| /‾‾/   /‾‾/
+</span></span><span style="display:flex;"><span>     /<span style="color:#ae81ff">\ </span> /  <span style="color:#ae81ff">\ </span>    |  |/  /   /  /
+</span></span><span style="display:flex;"><span>    /  <span style="color:#ae81ff">\/</span>    <span style="color:#ae81ff">\ </span>   |     <span style="color:#f92672">(</span>   /   ‾‾<span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>   /          <span style="color:#ae81ff">\ </span>  |  |<span style="color:#ae81ff">\ </span> <span style="color:#ae81ff">\ </span>|  <span style="color:#f92672">(</span>‾<span style="color:#f92672">)</span>  |
+</span></span><span style="display:flex;"><span>  / __________ <span style="color:#ae81ff">\ </span> |__| <span style="color:#ae81ff">\_</span>_<span style="color:#ae81ff">\ \_</span>____/ .io
+</span></span><span style="display:flex;"><span>  execution: local
+</span></span><span style="display:flex;"><span>     script: k6/script.js
+</span></span><span style="display:flex;"><span>     output: -
+</span></span><span style="display:flex;"><span>scenarios: <span style="color:#f92672">(</span>100.00%<span style="color:#f92672">)</span> <span style="color:#ae81ff">1</span> scenario, <span style="color:#ae81ff">100</span> max VUs, 5m30s max duration <span style="color:#f92672">(</span>incl. graceful stop<span style="color:#f92672">)</span>:
+</span></span><span style="display:flex;"><span>         * default: Up to <span style="color:#ae81ff">100</span> looping VUs <span style="color:#66d9ef">for</span> 5m0s over <span style="color:#ae81ff">2</span> stages <span style="color:#f92672">(</span>gracefulRampDown: 30s, gracefulStop: 30s<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>running <span style="color:#f92672">(</span>5m01.0s<span style="color:#f92672">)</span>, 000/100 VUs, <span style="color:#ae81ff">20895</span> complete and <span style="color:#ae81ff">0</span> interrupted iterations
+</span></span><span style="display:flex;"><span>default ✓ <span style="color:#f92672">[======================================]</span> 000/100 VUs  5m0s
+</span></span><span style="display:flex;"><span>     ✓ status code is <span style="color:#ae81ff">200</span>
+</span></span><span style="display:flex;"><span>     ✓ node is kind-control-plane
+</span></span><span style="display:flex;"><span>     ✓ namespace is sample-app
+</span></span><span style="display:flex;"><span>     ✓ pod is sample-app-*
+</span></span><span style="display:flex;"><span>   ✓ checks.........................: 100.00% ✓ <span style="color:#ae81ff">83580</span>     ✗ <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>     data_received..................: 4.8 MB  <span style="color:#ae81ff">16</span> kB/s
+</span></span><span style="display:flex;"><span>     data_sent......................: 2.4 MB  8.0 kB/s
+</span></span><span style="display:flex;"><span>     http_req_blocked...............: avg<span style="color:#f92672">=</span>7.21µs  min<span style="color:#f92672">=</span>1µs   med<span style="color:#f92672">=</span>3µs    max<span style="color:#f92672">=</span>1.79ms   p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>5µs    p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>6µs
+</span></span><span style="display:flex;"><span>     http_req_connecting............: avg<span style="color:#f92672">=</span>2.73µs  min<span style="color:#f92672">=</span>0s    med<span style="color:#f92672">=</span>0s     max<span style="color:#f92672">=</span>1.39ms   p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>0s     p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>0s
+</span></span><span style="display:flex;"><span>   ✓ http_req_duration..............: avg<span style="color:#f92672">=</span>7.12ms  min<span style="color:#f92672">=</span>819µs med<span style="color:#f92672">=</span>1.88ms max<span style="color:#f92672">=</span>677.91ms p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>4.5ms  p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>47.6ms
+</span></span><span style="display:flex;"><span>       <span style="color:#f92672">{</span> expected_response:true <span style="color:#f92672">}</span>...: avg<span style="color:#f92672">=</span>7.12ms  min<span style="color:#f92672">=</span>819µs med<span style="color:#f92672">=</span>1.88ms max<span style="color:#f92672">=</span>677.91ms p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>4.5ms  p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>47.6ms
+</span></span><span style="display:flex;"><span>     http_req_failed................: 0.00%   ✓ <span style="color:#ae81ff">0</span>         ✗ <span style="color:#ae81ff">20895</span>
+</span></span><span style="display:flex;"><span>     http_req_receiving.............: avg<span style="color:#f92672">=</span>40.99µs min<span style="color:#f92672">=</span>18µs  med<span style="color:#f92672">=</span>38µs   max<span style="color:#f92672">=</span>1.02ms   p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>56µs   p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>67µs
+</span></span><span style="display:flex;"><span>     http_req_sending...............: avg<span style="color:#f92672">=</span>17.53µs min<span style="color:#f92672">=</span>6µs   med<span style="color:#f92672">=</span>16µs   max<span style="color:#f92672">=</span>1.3ms    p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>23µs   p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>28µs
+</span></span><span style="display:flex;"><span>     http_req_tls_handshaking.......: avg<span style="color:#f92672">=</span>0s      min<span style="color:#f92672">=</span>0s    med<span style="color:#f92672">=</span>0s     max<span style="color:#f92672">=</span>0s       p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>0s     p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>0s
+</span></span><span style="display:flex;"><span>     http_req_waiting...............: avg<span style="color:#f92672">=</span>7.07ms  min<span style="color:#f92672">=</span>780µs med<span style="color:#f92672">=</span>1.82ms max<span style="color:#f92672">=</span>677.83ms p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>4.43ms p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>47.53ms
+</span></span><span style="display:flex;"><span>     http_reqs......................: <span style="color:#ae81ff">20895</span>   69.425399/s
+</span></span><span style="display:flex;"><span>     iteration_duration.............: avg<span style="color:#f92672">=</span>1s      min<span style="color:#f92672">=</span>1s    med<span style="color:#f92672">=</span>1s     max<span style="color:#f92672">=</span>1.67s    p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>1s     p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>1.04s
+</span></span><span style="display:flex;"><span>     iterations.....................: <span style="color:#ae81ff">20895</span>   69.425399/s
+</span></span><span style="display:flex;"><span>     vus............................: <span style="color:#ae81ff">100</span>     min<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>       max<span style="color:#f92672">=</span><span style="color:#ae81ff">100</span>
+</span></span><span style="display:flex;"><span>     vus_max........................: <span style="color:#ae81ff">100</span>     min<span style="color:#f92672">=</span><span style="color:#ae81ff">100</span>     max<span style="color:#f92672">=</span><span style="color:#ae81ff">100</span>
+</span></span></code></pre></div><p>As you can observe, our service has performed very well under heavy load, with a Success Share of 100%, a median latency of ~2ms, and a 95th percentile latency of ~48ms!</p>
+<p>We have the HPA to thank for that, as it scaled the Deployment from 2 to 8 Pods swiftly and automatically, based on request throughput!</p>
+<p>We definitely would not have had the same results without an HPA… Actually, why don&rsquo;t you try it yourself? 😉</p>
+<p>Just delete the HPA (<code>kubectl delete hpa sample-app -n sample-app</code>), run the load test again (<code>k6 run k6/script.js</code>) and see what happens! (spoiler alert: it&rsquo;s not pretty 😬)</p>
+<h2 id="wrapping-up">Wrapping up</h2>
+<hr>
+<p>That&rsquo;s it! You can now stop and delete your Kind cluster.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>kind delete cluster
+</span></span></code></pre></div><p>To summarize, using Prometheus Adapter we were able to:</p>
+<ul>
+<li>Autoscale horizontally our service, based on Prometheus metrics.</li>
+</ul>
+<p>Was it worth it? Did that help you understand how to implement Horizontal Pod Autoscaler in Kubernetes using Prometheus Adapter?</p>
+<p>If so, follow me on <a href="https://twitter.com/jhandguy">Twitter</a>, I’ll be happy to answer any of your questions and you’ll be the first one to know when a new article comes out! 👌</p>
+<p>Bye-bye! 👋</p>
+
+        </div>
+    </div>
+</section>
+</body>
+<footer>
+    <div class="footer has-background-light">
+        <div class="content has-text-centered">
+            <p class="subtitle is-6">Powered by <a href="https://gohugo.io/">Hugo</a></p>
+            <a href="https://bulma.io">
+                <img src="https://bulma.io/images/made-with-bulma--black.png" alt="Made with Bulma" width="128" height="24">
+            </a>
+        </div>
+    </div>
+</footer>
+</html>
