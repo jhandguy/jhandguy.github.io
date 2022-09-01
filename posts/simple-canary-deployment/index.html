@@ -137,7 +137,7 @@ It was primarily designed for testing Kubernetes itself, but may be used for loc
 </span></span></code></pre></div><h2 id="configuring-ingress-canary-annotations">Configuring Ingress Canary Annotations</h2>
 <hr>
 <p>Now that our NGINX Ingress Controller is up and running, let’s get into the thick of it, shall we? 🧐</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>cd ingress-nginx
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>cd sample-app/helm-charts/ingress-nginx
 </span></span><span style="display:flex;"><span>helm install . --name-template sample-app --create-namespace -n sample-app
 </span></span></code></pre></div><p>If everything goes fine, you should eventually see two Deployments with the READY state.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get deploy -n sample-app

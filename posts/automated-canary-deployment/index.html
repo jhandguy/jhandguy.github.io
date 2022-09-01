@@ -165,7 +165,7 @@ With Argo Rollouts, the duplication of Kubernetes resources is reduced to only o
 <p>Another limitation of using plain Ingress NGINX is that the incremental rollout of the Canary Deployment (via <code>canary-weight</code>) has to be done manually by annotating the canary Ingress.<br>
 Argo Rollouts created its own <a href="https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/">Custom Resource</a> to remediate that problem: the <strong><a href="https://argoproj.github.io/argo-rollouts/features/specification/">Rollout</a></strong> resource.</p>
 <p>Alrighty then! Let’s get to it! 🧐</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>cd argo-rollouts
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>cd sample-app/helm-charts/argo-rollouts
 </span></span><span style="display:flex;"><span>helm install . --name-template sample-app --create-namespace -n sample-app
 </span></span></code></pre></div><p>If everything goes fine, you should eventually see one Rollout with the READY state.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get rollout sample-app -n sample-app

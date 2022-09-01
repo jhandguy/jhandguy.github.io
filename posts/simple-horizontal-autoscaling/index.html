@@ -159,7 +159,7 @@ It was primarily designed for testing Kubernetes itself, but may be used for loc
 <p>A native service is a piece  of software that does not require a virtual environment in order to run across different OSs and CPU architectures. This is the case  for C/C++, Golang, Rust, and more: those are languages that compile into a binary, that is directly executable by the Pod.<br>
 This means that native services can utilize all of the CPU and memory  available from the Pod they run in, without an intermediary environment.</p>
 <p>Let&rsquo;s try it out with a Golang service!</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>cd golang
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>cd golang-sample-app/helm-chart
 </span></span><span style="display:flex;"><span>helm install . --name-template sample-app --create-namespace -n sample-app --wait
 </span></span></code></pre></div><p>If everything goes fine, you should eventually see one Deployment with the READY state.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get deploy -n sample-app
@@ -275,7 +275,7 @@ This is obviously expected since our Go service currently isn&rsquo;t handling a
 <p>This creates an issue for Pod Autoscaling, as the JVM pre-allocates more memory than it actually needs from the Pod&rsquo;s resources, for its Garbage Collector (GC). This makes memory altogether an unreliable metric to use for autoscaling a JVM-based service in Kubernetes via Metrics Server.</p>
 <p>Thus, in the case of Java or other JVM-based  services, when utilizing Metrics Server for HPA, one can only rely on the CPU metric for autoscaling.</p>
 <p>Let&rsquo;s experience it with a Kotlin/JVM service!</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>cd kotlin
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>cd kotlin-sample-app/helm-chart
 </span></span><span style="display:flex;"><span>helm install . --name-template sample-app --create-namespace -n sample-app --wait
 </span></span></code></pre></div><p>If everything goes fine, you should eventually see one Deployment with the READY state.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get deploy -n sample-app

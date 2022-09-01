@@ -178,7 +178,7 @@ It was primarily designed for testing Kubernetes itself, but may be used for loc
 Yet another amazing feature of Argo Rollouts is the ability to leverage Prometheus metrics in order to detect faulty deployments (i.e. based on request Success Share or Latency).</p>
 <p>To this end, Argo Rollouts provides another <a href="https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/">Custom Resource</a> called <strong>AnalysisTemplate</strong>.<br>
 Alright! Let’s explore what this is!</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>cd argo-rollouts
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>cd sample-app/helm-charts/argo-rollouts
 </span></span><span style="display:flex;"><span>helm install . --name-template sample-app --create-namespace -n sample-app --set prometheus.enabled<span style="color:#f92672">=</span>true
 </span></span></code></pre></div><p>If everything goes fine, you should eventually see one Rollout with the READY state.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get rollout sample-app -n sample-app

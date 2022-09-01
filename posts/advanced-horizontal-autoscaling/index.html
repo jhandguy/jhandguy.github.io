@@ -161,7 +161,7 @@ It was primarily designed for testing Kubernetes itself, but may be used for loc
 </span></span></code></pre></div><h2 id="autoscaling-services-based-on-prometheus-metrics">Autoscaling Services based on Prometheus Metrics</h2>
 <hr>
 <p>Now that Prometheus Adapter is up and running, let&rsquo;s get to it, shall we? 🧐</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>cd golang
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>cd golang-sample-app/helm-chart
 </span></span><span style="display:flex;"><span>helm install . --name-template sample-app --create-namespace -n sample-app --set prometheus.enabled<span style="color:#f92672">=</span>true --wait
 </span></span></code></pre></div><p>If everything goes fine, you should eventually see one Deployment with the READY state.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get deploy -n sample-app
