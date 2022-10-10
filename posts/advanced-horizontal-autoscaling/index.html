@@ -215,17 +215,22 @@ It was primarily designed for testing Kubernetes itself, but may be used for loc
 </span></span><span style="display:flex;"><span>    /  <span style="color:#ae81ff">\/</span>    <span style="color:#ae81ff">\ </span>   |     <span style="color:#f92672">(</span>   /   ‾‾<span style="color:#ae81ff">\
 </span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>   /          <span style="color:#ae81ff">\ </span>  |  |<span style="color:#ae81ff">\ </span> <span style="color:#ae81ff">\ </span>|  <span style="color:#f92672">(</span>‾<span style="color:#f92672">)</span>  |
 </span></span><span style="display:flex;"><span>  / __________ <span style="color:#ae81ff">\ </span> |__| <span style="color:#ae81ff">\_</span>_<span style="color:#ae81ff">\ \_</span>____/ .io
+</span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>  execution: local
 </span></span><span style="display:flex;"><span>     script: k6/script.js
 </span></span><span style="display:flex;"><span>     output: -
+</span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>scenarios: <span style="color:#f92672">(</span>100.00%<span style="color:#f92672">)</span> <span style="color:#ae81ff">1</span> scenario, <span style="color:#ae81ff">100</span> max VUs, 5m30s max duration <span style="color:#f92672">(</span>incl. graceful stop<span style="color:#f92672">)</span>:
 </span></span><span style="display:flex;"><span>         * default: Up to <span style="color:#ae81ff">100</span> looping VUs <span style="color:#66d9ef">for</span> 5m0s over <span style="color:#ae81ff">2</span> stages <span style="color:#f92672">(</span>gracefulRampDown: 30s, gracefulStop: 30s<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>running <span style="color:#f92672">(</span>5m01.0s<span style="color:#f92672">)</span>, 000/100 VUs, <span style="color:#ae81ff">20895</span> complete and <span style="color:#ae81ff">0</span> interrupted iterations
 </span></span><span style="display:flex;"><span>default ✓ <span style="color:#f92672">[======================================]</span> 000/100 VUs  5m0s
+</span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>     ✓ status code is <span style="color:#ae81ff">200</span>
 </span></span><span style="display:flex;"><span>     ✓ node is kind-control-plane
 </span></span><span style="display:flex;"><span>     ✓ namespace is sample-app
 </span></span><span style="display:flex;"><span>     ✓ pod is sample-app-*
+</span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>   ✓ checks.........................: 100.00% ✓ <span style="color:#ae81ff">83580</span>     ✗ <span style="color:#ae81ff">0</span>
 </span></span><span style="display:flex;"><span>     data_received..................: 4.8 MB  <span style="color:#ae81ff">16</span> kB/s
 </span></span><span style="display:flex;"><span>     data_sent......................: 2.4 MB  8.0 kB/s

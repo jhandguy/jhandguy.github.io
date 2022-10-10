@@ -63,8 +63,8 @@
     <li><a href="#installing-nginx-ingress-controller">Installing NGINX Ingress Controller</a></li>
     <li><a href="#installing-metrics-server">Installing Metrics Server</a></li>
     <li><a href="#horizontal-pod-autoscaler">Horizontal Pod Autoscaler</a></li>
-    <li><a href="#autoscaling-native-services-based-on-cpu-and-memoryusage">Autoscaling Native Services based on CPU and Memory Usage</a></li>
-    <li><a href="#autoscaling-jvm-services-based-on-cpuusage">Autoscaling JVM Services based on CPU Usage</a></li>
+    <li><a href="#autoscaling-native-services-based-on-cpu-and-memory-usage">Autoscaling Native Services based on CPU and Memory Usage</a></li>
+    <li><a href="#autoscaling-jvm-services-based-on-cpu-usage">Autoscaling JVM Services based on CPU Usage</a></li>
     <li><a href="#wrapping-up">Wrapping up</a></li>
   </ul>
 </nav>
@@ -154,7 +154,7 @@ It was primarily designed for testing Kubernetes itself, but may be used for loc
 <em>If the load decreases, and the number of Pods is above the configured minimum, the HorizontalPodAutoscaler instructs the workload resource (the Deployment, StatefulSet, or other similar resource) to scale back down.</em></p>
 </blockquote>
 <p>Now that we know what an HPA is, let&rsquo;s get started, shall we? 🧐</p>
-<h2 id="autoscaling-native-services-based-on-cpu-and-memoryusage">Autoscaling Native Services based on CPU and Memory Usage</h2>
+<h2 id="autoscaling-native-services-based-on-cpu-and-memory-usage">Autoscaling Native Services based on CPU and Memory Usage</h2>
 <hr>
 <p>A native service is a piece  of software that does not require a virtual environment in order to run across different OSs and CPU architectures. This is the case  for C/C++, Golang, Rust, and more: those are languages that compile into a binary, that is directly executable by the Pod.<br>
 This means that native services can utilize all of the CPU and memory  available from the Pod they run in, without an intermediary environment.</p>
@@ -233,17 +233,22 @@ This is obviously expected since our Go service currently isn&rsquo;t handling a
 </span></span><span style="display:flex;"><span>    /  <span style="color:#ae81ff">\/</span>    <span style="color:#ae81ff">\ </span>   |     <span style="color:#f92672">(</span>   /   ‾‾<span style="color:#ae81ff">\
 </span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>   /          <span style="color:#ae81ff">\ </span>  |  |<span style="color:#ae81ff">\ </span> <span style="color:#ae81ff">\ </span>|  <span style="color:#f92672">(</span>‾<span style="color:#f92672">)</span>  |
 </span></span><span style="display:flex;"><span>  / __________ <span style="color:#ae81ff">\ </span> |__| <span style="color:#ae81ff">\_</span>_<span style="color:#ae81ff">\ \_</span>____/ .io
+</span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>  execution: local
 </span></span><span style="display:flex;"><span>     script: k6/script.js
 </span></span><span style="display:flex;"><span>     output: -
+</span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>scenarios: <span style="color:#f92672">(</span>100.00%<span style="color:#f92672">)</span> <span style="color:#ae81ff">1</span> scenario, <span style="color:#ae81ff">100</span> max VUs, 5m30s max duration <span style="color:#f92672">(</span>incl. graceful stop<span style="color:#f92672">)</span>:
 </span></span><span style="display:flex;"><span>         * default: Up to <span style="color:#ae81ff">100</span> looping VUs <span style="color:#66d9ef">for</span> 5m0s over <span style="color:#ae81ff">2</span> stages <span style="color:#f92672">(</span>gracefulRampDown: 30s, gracefulStop: 30s<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>running <span style="color:#f92672">(</span>5m01.0s<span style="color:#f92672">)</span>, 000/100 VUs, <span style="color:#ae81ff">20866</span> complete and <span style="color:#ae81ff">0</span> interrupted iterations
 </span></span><span style="display:flex;"><span>default ✓ <span style="color:#f92672">[======================================]</span> 000/100 VUs  5m0s
+</span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>     ✓ status code is <span style="color:#ae81ff">200</span>
 </span></span><span style="display:flex;"><span>     ✓ node is kind-control-plane
 </span></span><span style="display:flex;"><span>     ✓ namespace is sample-app
 </span></span><span style="display:flex;"><span>     ✓ pod is sample-app-*
+</span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>   ✓ checks.........................: 100.00% ✓ <span style="color:#ae81ff">83464</span>   ✗ <span style="color:#ae81ff">0</span>
 </span></span><span style="display:flex;"><span>     data_received..................: 4.8 MB  <span style="color:#ae81ff">16</span> kB/s
 </span></span><span style="display:flex;"><span>     data_sent......................: 2.4 MB  8.0 kB/s
@@ -267,7 +272,7 @@ This is obviously expected since our Go service currently isn&rsquo;t handling a
 <p>Just delete the HPA (<code>kubectl delete hpa sample-app -n sample-app</code>), run the load test again (<code>k6 run k6/script.js</code>) and see what happens! (spoiler alert: it&rsquo;s not pretty 😬)</p>
 <p>Once you are done, don&rsquo;t forget to uninstall the Helm release! (we won&rsquo;t be needing this one anymore)</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>helm uninstall sample-app -n sample-app
-</span></span></code></pre></div><h2 id="autoscaling-jvm-services-based-on-cpuusage">Autoscaling JVM Services based on CPU Usage</h2>
+</span></span></code></pre></div><h2 id="autoscaling-jvm-services-based-on-cpu-usage">Autoscaling JVM Services based on CPU Usage</h2>
 <hr>
 <p>While native services run as executable binaries, JVM services need an extra environment layer in order to run on various OSs and CPU architectures: the Java Virtual Machine (JVM).</p>
 <p>This creates an issue for Pod Autoscaling, as the JVM pre-allocates more memory than it actually needs from the Pod&rsquo;s resources, for its Garbage Collector (GC). This makes memory altogether an unreliable metric to use for autoscaling a JVM-based service in Kubernetes via Metrics Server.</p>
