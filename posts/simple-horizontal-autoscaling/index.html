@@ -159,8 +159,7 @@ It was primarily designed for testing Kubernetes itself, but may be used for loc
 <p>A native service is a piece  of software that does not require a virtual environment in order to run across different OSs and CPU architectures. This is the case  for C/C++, Golang, Rust, and more: those are languages that compile into a binary, that is directly executable by the Pod.<br>
 This means that native services can utilize all of the CPU and memory  available from the Pod they run in, without an intermediary environment.</p>
 <p>Let&rsquo;s try it out with a Golang service!</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>cd golang-sample-app/helm-chart
-</span></span><span style="display:flex;"><span>helm install . --name-template sample-app --create-namespace -n sample-app --wait
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>helm install golang-sample-app/helm-chart --name-template sample-app --create-namespace -n sample-app --wait
 </span></span></code></pre></div><p>If everything goes fine, you should eventually see one Deployment with the READY state.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get deploy -n sample-app
 </span></span><span style="display:flex;"><span>NAME         READY   UP-TO-DATE   AVAILABLE   AGE
@@ -191,8 +190,7 @@ This is obviously expected since our Go service currently isn&rsquo;t handling a
 <p>Now, this is the moment you&rsquo;ve certainly expected… It&rsquo;s Load Testing time! 😎</p>
 <p>For Load Testing, I really recommend <a href="https://k6.io/docs/">k6</a> from the Grafana Labs team. It is a dead-simple yet super powerful tool with very extensive documentation.</p>
 <p>See for yourself!</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>cd ..
-</span></span><span style="display:flex;"><span>k6 run k6/script.js
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>k6 run k6/script.js
 </span></span></code></pre></div><p>While the load test is running, I suggest watching the HPA in a separate tab.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>kubectl get hpa -n sample-app -w
 </span></span></code></pre></div><p>As the load test progresses and the 2 starting Pods struggle to handle incoming requests, you should see both CPU and memory targets increasing, and ultimately, the <strong>replica count reaching its maximum</strong>!</p>
@@ -275,8 +273,7 @@ This is obviously expected since our Go service currently isn&rsquo;t handling a
 <p>This creates an issue for Pod Autoscaling, as the JVM pre-allocates more memory than it actually needs from the Pod&rsquo;s resources, for its Garbage Collector (GC). This makes memory altogether an unreliable metric to use for autoscaling a JVM-based service in Kubernetes via Metrics Server.</p>
 <p>Thus, in the case of Java or other JVM-based  services, when utilizing Metrics Server for HPA, one can only rely on the CPU metric for autoscaling.</p>
 <p>Let&rsquo;s experience it with a Kotlin/JVM service!</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>cd kotlin-sample-app/helm-chart
-</span></span><span style="display:flex;"><span>helm install . --name-template sample-app --create-namespace -n sample-app --wait
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>helm install kotlin-sample-app/helm-chart --name-template sample-app --create-namespace -n sample-app --wait
 </span></span></code></pre></div><p>If everything goes fine, you should eventually see one Deployment with the READY state.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get deploy -n sample-app
 </span></span><span style="display:flex;"><span>NAME         READY   UP-TO-DATE   AVAILABLE   AGE
@@ -298,8 +295,7 @@ As previously stated, this is due to the JVM pre-allocating memory for its Garba
 </span></span><span style="display:flex;"><span>...
 </span></span></code></pre></div><p>As announced, this time the HPA only relies on one resource metric: the CPU.</p>
 <p>Alright, let&rsquo;s give our favorite Load Testing tool another go! 🚀</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>cd ..
-</span></span><span style="display:flex;"><span>k6 run k6/script.js
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>k6 run k6/script.js
 </span></span></code></pre></div><p>As previously mentioned, I suggest watching the HPA in a separate tab.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>kubectl get hpa -n sample-app -w
 </span></span></code></pre></div><p>As the load test progresses and the 2 starting Pods struggle to handle incoming requests, you should see the CPU target increasing, and ultimately, the <strong>replica count reaching its maximum</strong>!</p>

@@ -161,8 +161,7 @@ It was primarily designed for testing Kubernetes itself, but may be used for loc
 </span></span></code></pre></div><h2 id="autoscaling-services-based-on-prometheus-metrics">Autoscaling Services based on Prometheus Metrics</h2>
 <hr>
 <p>Now that Prometheus Adapter is up and running, let&rsquo;s get to it, shall we? 🧐</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>cd golang-sample-app/helm-chart
-</span></span><span style="display:flex;"><span>helm install . --name-template sample-app --create-namespace -n sample-app --set prometheus.enabled<span style="color:#f92672">=</span>true --wait
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>helm install golang-sample-app/helm-chart --name-template sample-app --create-namespace -n sample-app --set prometheus.enabled<span style="color:#f92672">=</span>true --wait
 </span></span></code></pre></div><p>If everything goes fine, you should eventually see one Deployment with the READY state.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get deploy -n sample-app
 </span></span><span style="display:flex;"><span>NAME         READY   UP-TO-DATE   AVAILABLE   AGE
@@ -186,8 +185,7 @@ It was primarily designed for testing Kubernetes itself, but may be used for loc
 <p>Now, this is the moment you&rsquo;ve certainly expected… It&rsquo;s Load Testing time! 😎</p>
 <p>For Load Testing, I really recommend <a href="https://k6.io/docs/">k6</a> from the Grafana Labs team. It is a dead-simple yet super powerful tool with very extensive documentation.</p>
 <p>See for yourself!</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>cd ..
-</span></span><span style="display:flex;"><span>k6 run k6/script.js
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>k6 run k6/script.js
 </span></span></code></pre></div><p>While the load test is running, I suggest watching the HPA in a separate tab.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>kubectl get hpa -n sample-app -w
 </span></span></code></pre></div><p>As the load test progresses and the 2 starting Pods start to handle more than 10rps each, you should see the Prometheus metric&rsquo;s target increasing, and ultimately, the <strong>replica count reaching its maximum</strong>!</p>

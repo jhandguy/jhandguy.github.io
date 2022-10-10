@@ -178,14 +178,13 @@ It was primarily designed for testing Kubernetes itself, but may be used for loc
 Yet another amazing feature of Argo Rollouts is the ability to leverage Prometheus metrics in order to detect faulty deployments (i.e. based on request Success Share or Latency).</p>
 <p>To this end, Argo Rollouts provides another <a href="https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/">Custom Resource</a> called <strong>AnalysisTemplate</strong>.<br>
 Alright! Let’s explore what this is!</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>cd sample-app/helm-charts/argo-rollouts
-</span></span><span style="display:flex;"><span>helm install . --name-template sample-app --create-namespace -n sample-app --set prometheus.enabled<span style="color:#f92672">=</span>true
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>helm install sample-app/helm-charts/argo-rollouts --name-template sample-app --create-namespace -n sample-app --set prometheus.enabled<span style="color:#f92672">=</span>true
 </span></span></code></pre></div><p>If everything goes fine, you should eventually see one Rollout with the READY state.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get rollout sample-app -n sample-app
 </span></span><span style="display:flex;"><span>NAME         DESIRED   CURRENT   UP-TO-DATE   AVAILABLE
 </span></span><span style="display:flex;"><span>sample-app   <span style="color:#ae81ff">1</span>         <span style="color:#ae81ff">1</span>         <span style="color:#ae81ff">1</span>            <span style="color:#ae81ff">1</span>
 </span></span></code></pre></div><p>Alright, let’s have a look at the <code>analysistemplate.yaml</code> and the <code>rollout.yaml</code> inside the <code>templates</code> folder!</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ ls -1 templates
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ ls -1 sample-app/helm-charts/argo-rollouts/templates
 </span></span><span style="display:flex;"><span>analysistemplate.yaml
 </span></span><span style="display:flex;"><span>canary
 </span></span><span style="display:flex;"><span>ingress.yaml
@@ -387,8 +386,7 @@ To monitor the progress of the Rollout, however, it is the <em>Status</em> and t
 <p>Instead of running some <code>curl</code> commands like we previously did, how about we execute a Load Test instead?</p>
 <p>For Load Testing, I really recommend <a href="https://k6.io/docs/">k6</a> from the Grafana Labs team. It is a dead-simple yet super powerful tool with very extensive documentation.</p>
 <p>See for yourself!</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>cd ..
-</span></span><span style="display:flex;"><span>k6 run k6/script.js
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>k6 run k6/script.js
 </span></span></code></pre></div><p>After about 1 minute, k6 should be done executing the load test and show you the results.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>          /<span style="color:#ae81ff">\ </span>     |‾‾| /‾‾/   /‾‾/
 </span></span><span style="display:flex;"><span>     /<span style="color:#ae81ff">\ </span> /  <span style="color:#ae81ff">\ </span>    |  |/  /   /  /
