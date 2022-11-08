@@ -6,22 +6,31 @@
     <description>Recent content in Tags on jhandguy</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 03 Aug 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://jhandguy.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 08 Nov 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://jhandguy.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>SRE</title>
+      <link>https://jhandguy.github.io/tags/sre/</link>
+      <pubDate>Tue, 08 Nov 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://jhandguy.github.io/tags/sre/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Vertical Scaling</title>
+      <link>https://jhandguy.github.io/tags/vertical-scaling/</link>
+      <pubDate>Tue, 08 Nov 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://jhandguy.github.io/tags/vertical-scaling/</guid>
+      <description></description>
+    </item>
+    
     <item>
       <title>Horizontal Scaling</title>
       <link>https://jhandguy.github.io/tags/horizontal-scaling/</link>
       <pubDate>Wed, 03 Aug 2022 00:00:00 +0000</pubDate>
       
       <guid>https://jhandguy.github.io/tags/horizontal-scaling/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>SRE</title>
-      <link>https://jhandguy.github.io/tags/sre/</link>
-      <pubDate>Wed, 03 Aug 2022 00:00:00 +0000</pubDate>
-      
-      <guid>https://jhandguy.github.io/tags/sre/</guid>
       <description></description>
     </item>
     
@@ -35,20 +44,20 @@
     </item>
     
     <item>
+      <title>CI CD</title>
+      <link>https://jhandguy.github.io/tags/ci-cd/</link>
+      <pubDate>Thu, 12 Sep 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://jhandguy.github.io/tags/ci-cd/</guid>
+      <description></description>
+    </item>
+    
+    <item>
       <title>iOS</title>
       <link>https://jhandguy.github.io/tags/ios/</link>
       <pubDate>Thu, 12 Sep 2019 00:00:00 +0000</pubDate>
       
       <guid>https://jhandguy.github.io/tags/ios/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>Mobile DevOps</title>
-      <link>https://jhandguy.github.io/tags/mobile-devops/</link>
-      <pubDate>Thu, 12 Sep 2019 00:00:00 +0000</pubDate>
-      
-      <guid>https://jhandguy.github.io/tags/mobile-devops/</guid>
       <description></description>
     </item>
     

@@ -6,7 +6,18 @@
     <description>Recent content on jhandguy</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 03 Aug 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://jhandguy.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 08 Nov 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://jhandguy.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Vertical Pod Autoscaler in Kubernetes</title>
+      <link>https://jhandguy.github.io/posts/vertical-pod-autoscaler/</link>
+      <pubDate>Tue, 08 Nov 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://jhandguy.github.io/posts/vertical-pod-autoscaler/</guid>
+      <description>In Kubernetes, we usually think about the Horizontal Pod Autoscaler (HPA) when referring to autoscaling. In most cases, it will be the preferred way of scaling services, based on CPU usage, memory usage, or custom metrics.
+If you haven&amp;rsquo;t already, go read Horizontal Pod Autoscaler in Kubernetes (Part 1) - Simple Autoscaling using Metrics Server and learn how to implement a Horizontal Pod Autoscaler using Metrics Server!
+However, while HPA can scale up and down replicas based on the current load, it is not capable of optimizing resource usage over the long term: This is where the Vertical Pod Autoscaler (VPA) comes in.</description>
+    </item>
+    
     <item>
       <title>Horizontal Pod Autoscaler in Kubernetes (Part 2) — Advanced Autoscaling using Prometheus Adapter</title>
       <link>https://jhandguy.github.io/posts/advanced-horizontal-autoscaling/</link>
