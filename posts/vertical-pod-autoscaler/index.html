@@ -241,7 +241,7 @@ Its <strong>spec</strong> states that the minimum allowed CPU/memory is <em>10m/
 </span></span><span style="display:flex;"><span>          cpu: 10m
 </span></span><span style="display:flex;"><span>          memory: 20Mi
 </span></span></code></pre></div><p>Now, let&rsquo;s give some load to our service and see what happens!</p>
-<p>For Load Testing, I really recommend k6 from the Grafana Labs team. It is a dead-simple yet super powerful tool with very extensive documentation.</p>
+<p>For Load Testing, I really recommend <a href="https://k6.io/docs/">k6</a> from the Grafana Labs team. It is a dead-simple yet super powerful tool with very extensive documentation.</p>
 <p>See for yourself!</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>k6 run k6/script.js
 </span></span></code></pre></div><p>While k6 is gradually increasing strain on the pods&rsquo; CPU usage, let&rsquo;s watch out for any <code>EvictedByVPA</code> events in a second tab: eventually, you should see all 3 pods get evicted simultaneously!</p>
