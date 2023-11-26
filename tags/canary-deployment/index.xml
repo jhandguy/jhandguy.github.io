@@ -6,45 +6,38 @@
     <description>Recent content in Canary Deployment on jhandguy</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 10 Mar 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://jhandguy.github.io/tags/canary-deployment/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 10 Mar 2022 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://jhandguy.github.io/tags/canary-deployment/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Incremental Mobile Force Update using Ingress NGINX and Firebase Remote Config</title>
       <link>https://jhandguy.github.io/posts/incremental-mobile-force-update/</link>
       <pubDate>Thu, 10 Mar 2022 00:00:00 +0000</pubDate>
-      
       <guid>https://jhandguy.github.io/posts/incremental-mobile-force-update/</guid>
       <description>Mobile force updates occur when old versions of an app are no longer compatible with the APIs they consume. Until the app is updated to the required version, the UI blocks further usage. This is usually materialized as a system popup that will redirect users to the respective Store and disappear only once they have updated to the latest version. This is often considered bad practice as it deteriorates the UX of an app drastically, yet there are situations (mostly breaking API changes) when it is unavoidable.</description>
     </item>
-    
     <item>
       <title>Canary Deployment in Kubernetes (Part 3) — Smart Canary Deployment using Argo Rollouts and Prometheus</title>
       <link>https://jhandguy.github.io/posts/smart-canary-deployment/</link>
       <pubDate>Wed, 02 Feb 2022 00:00:00 +0000</pubDate>
-      
       <guid>https://jhandguy.github.io/posts/smart-canary-deployment/</guid>
       <description>Deploying to production in Kubernetes can be quite stressful. Even after meaningful and reliable automated tests have successfully passed, there is still room for things to go wrong and lead to a nasty incident when pressing the final button.
 Thankfully, Kubernetes is made to be resilient to this kind of scenario, and rolling back is a no-brainer. But still, rolling back means that, at least for some time, all of the users were negatively impacted by the faulty change…</description>
     </item>
-    
     <item>
       <title>Canary Deployment in Kubernetes (Part 2) — Automated Canary Deployment using Argo Rollouts</title>
       <link>https://jhandguy.github.io/posts/automated-canary-deployment/</link>
       <pubDate>Tue, 25 Jan 2022 00:00:00 +0000</pubDate>
-      
       <guid>https://jhandguy.github.io/posts/automated-canary-deployment/</guid>
       <description>Deploying to production in Kubernetes can be quite stressful. Even after meaningful and reliable automated tests have successfully passed, there is still room for things to go wrong and lead to a nasty incident when pressing the final button.
 Thankfully, Kubernetes is made to be resilient to this kind of scenario, and rolling back is a no-brainer. But still, rolling back means that, at least for some time, all of the users were negatively impacted by the faulty change…</description>
     </item>
-    
     <item>
       <title>Canary Deployment in Kubernetes (Part 1) — Simple Canary Deployment using Ingress NGINX</title>
       <link>https://jhandguy.github.io/posts/simple-canary-deployment/</link>
       <pubDate>Tue, 18 Jan 2022 00:00:00 +0000</pubDate>
-      
       <guid>https://jhandguy.github.io/posts/simple-canary-deployment/</guid>
       <description>Deploying to production in Kubernetes can be quite stressful. Even after meaningful and reliable automated tests have successfully passed, there is still room for things to go wrong and lead to a nasty incident when pressing the final button.
 Thankfully, Kubernetes is made to be resilient to this kind of scenario, and rolling back is a no-brainer. But still, rolling back means that, at least for some time, all of the users were negatively impacted by the faulty change…</description>
     </item>
-    
   </channel>
 </rss>

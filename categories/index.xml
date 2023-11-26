@@ -5,6 +5,7 @@
     <link>https://jhandguy.github.io/categories/</link>
     <description>Recent content in Categories on jhandguy</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language><atom:link href="https://jhandguy.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
+    <language>en-us</language>
+    <atom:link href="https://jhandguy.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
   </channel>
 </rss>

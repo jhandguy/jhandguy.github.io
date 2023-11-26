@@ -6,174 +6,141 @@
     <description>Recent content in Posts on jhandguy</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 08 Nov 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://jhandguy.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 08 Nov 2022 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://jhandguy.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Vertical Pod Autoscaler in Kubernetes</title>
       <link>https://jhandguy.github.io/posts/vertical-pod-autoscaler/</link>
       <pubDate>Tue, 08 Nov 2022 00:00:00 +0000</pubDate>
-      
       <guid>https://jhandguy.github.io/posts/vertical-pod-autoscaler/</guid>
       <description>In Kubernetes, we usually think about the Horizontal Pod Autoscaler (HPA) when referring to autoscaling. In most cases, it will be the preferred way of scaling services, based on CPU usage, memory usage, or custom metrics.
 If you haven&amp;rsquo;t already, go read Horizontal Pod Autoscaler in Kubernetes (Part 1) - Simple Autoscaling using Metrics Server and learn how to implement a Horizontal Pod Autoscaler using Metrics Server!
 However, while HPA can scale up and down replicas based on the current load, it is not capable of optimizing resource usage over the long term: This is where the Vertical Pod Autoscaler (VPA) comes in.</description>
     </item>
-    
     <item>
       <title>Horizontal Pod Autoscaler in Kubernetes (Part 2) — Advanced Autoscaling using Prometheus Adapter</title>
       <link>https://jhandguy.github.io/posts/advanced-horizontal-autoscaling/</link>
       <pubDate>Wed, 03 Aug 2022 00:00:00 +0000</pubDate>
-      
       <guid>https://jhandguy.github.io/posts/advanced-horizontal-autoscaling/</guid>
       <description>The Horizontal Pod Autoscaler (HPA) is a fundamental feature of Kubernetes. It enables automatic scale-up and scale-down of containerized applications based on CPU usage, memory usage, or custom metrics.
 Traditionally, when scaling software, we first think of vertical scaling: the CPU and the RAM are increased so the application consuming them can perform better. While this seems like a flawless mechanism on paper, it actually comes with many drawbacks.
 First, upgrading the CPU or RAM on a physical machine (or VM) requires downtime and unless a Pod Disruption Budget (PDB) is used to handle disruptions, all pods will be evicted and recreated in the new resized node.</description>
     </item>
-    
     <item>
       <title>Horizontal Pod Autoscaler in Kubernetes (Part 1) — Simple Autoscaling using Metrics Server</title>
       <link>https://jhandguy.github.io/posts/simple-horizontal-autoscaling/</link>
       <pubDate>Wed, 06 Jul 2022 00:00:00 +0000</pubDate>
-      
       <guid>https://jhandguy.github.io/posts/simple-horizontal-autoscaling/</guid>
       <description>The Horizontal Pod Autoscaler (HPA) is a fundamental feature of Kubernetes. It enables automatic scale-up and scale-down of containerized applications based on CPU usage, memory usage, or custom metrics.
 Traditionally, when scaling software, we first think of vertical scaling: the CPU and the RAM are increased so the application consuming them can perform better. While this seems like a flawless mechanism on paper, it actually comes with many drawbacks.
 First, upgrading the CPU or RAM on a physical machine (or VM) requires downtime and unless a Pod Disruption Budget (PDB) is used to handle disruptions, all pods will be evicted and recreated in the new resized node.</description>
     </item>
-    
     <item>
       <title>Incremental Mobile Force Update using Ingress NGINX and Firebase Remote Config</title>
       <link>https://jhandguy.github.io/posts/incremental-mobile-force-update/</link>
       <pubDate>Thu, 10 Mar 2022 00:00:00 +0000</pubDate>
-      
       <guid>https://jhandguy.github.io/posts/incremental-mobile-force-update/</guid>
       <description>Mobile force updates occur when old versions of an app are no longer compatible with the APIs they consume. Until the app is updated to the required version, the UI blocks further usage. This is usually materialized as a system popup that will redirect users to the respective Store and disappear only once they have updated to the latest version. This is often considered bad practice as it deteriorates the UX of an app drastically, yet there are situations (mostly breaking API changes) when it is unavoidable.</description>
     </item>
-    
     <item>
       <title>Canary Deployment in Kubernetes (Part 3) — Smart Canary Deployment using Argo Rollouts and Prometheus</title>
       <link>https://jhandguy.github.io/posts/smart-canary-deployment/</link>
       <pubDate>Wed, 02 Feb 2022 00:00:00 +0000</pubDate>
-      
       <guid>https://jhandguy.github.io/posts/smart-canary-deployment/</guid>
       <description>Deploying to production in Kubernetes can be quite stressful. Even after meaningful and reliable automated tests have successfully passed, there is still room for things to go wrong and lead to a nasty incident when pressing the final button.
 Thankfully, Kubernetes is made to be resilient to this kind of scenario, and rolling back is a no-brainer. But still, rolling back means that, at least for some time, all of the users were negatively impacted by the faulty change…</description>
     </item>
-    
     <item>
       <title>Canary Deployment in Kubernetes (Part 2) — Automated Canary Deployment using Argo Rollouts</title>
       <link>https://jhandguy.github.io/posts/automated-canary-deployment/</link>
       <pubDate>Tue, 25 Jan 2022 00:00:00 +0000</pubDate>
-      
       <guid>https://jhandguy.github.io/posts/automated-canary-deployment/</guid>
       <description>Deploying to production in Kubernetes can be quite stressful. Even after meaningful and reliable automated tests have successfully passed, there is still room for things to go wrong and lead to a nasty incident when pressing the final button.
 Thankfully, Kubernetes is made to be resilient to this kind of scenario, and rolling back is a no-brainer. But still, rolling back means that, at least for some time, all of the users were negatively impacted by the faulty change…</description>
     </item>
-    
     <item>
       <title>Canary Deployment in Kubernetes (Part 1) — Simple Canary Deployment using Ingress NGINX</title>
       <link>https://jhandguy.github.io/posts/simple-canary-deployment/</link>
       <pubDate>Tue, 18 Jan 2022 00:00:00 +0000</pubDate>
-      
       <guid>https://jhandguy.github.io/posts/simple-canary-deployment/</guid>
       <description>Deploying to production in Kubernetes can be quite stressful. Even after meaningful and reliable automated tests have successfully passed, there is still room for things to go wrong and lead to a nasty incident when pressing the final button.
 Thankfully, Kubernetes is made to be resilient to this kind of scenario, and rolling back is a no-brainer. But still, rolling back means that, at least for some time, all of the users were negatively impacted by the faulty change…</description>
     </item>
-    
     <item>
       <title>A Path to CI / CD Nirvana in iOS</title>
       <link>https://jhandguy.github.io/posts/path-to-cicd-nirvana-ios/</link>
       <pubDate>Thu, 12 Sep 2019 00:00:00 +0000</pubDate>
-      
       <guid>https://jhandguy.github.io/posts/path-to-cicd-nirvana-ios/</guid>
       <description>For many companies, testing and releasing are still very blurry processes, which don’t seem to work as they should. Testing is mostly manual, slow and error-prone. Releasing is usually also manual and slow, making its frequency hard to maintain on a sprint-basis. Continuous Integration (CI) and Continuous Deployment (CD) are all about automating both testing and releasing, making it possible for a team to release every week or two. At EGYM, we have achieved just that and I am going to tell you all about it!</description>
     </item>
-    
     <item>
       <title>UI Testing in iOS - Robot Pattern</title>
       <link>https://jhandguy.github.io/posts/robot-pattern-ios/</link>
       <pubDate>Fri, 03 May 2019 00:00:00 +0000</pubDate>
-      
       <guid>https://jhandguy.github.io/posts/robot-pattern-ios/</guid>
       <description>Most of the time, UI Testing gets abandoned because it becomes harder to maintain over time and one reason for that is: readability. We also tend to forget that UI tests should not only serve the purpose of verification but provide meaningful documentation that everybody (including non-developers) can understand. Alright, let’s get right into it, fellas!
 What if we could write UI Tests in a human-readable language, that even a Product Owner could understand?</description>
     </item>
-    
     <item>
       <title>UI Testing in iOS - Generating Accessibility Identifiers using Reflection</title>
       <link>https://jhandguy.github.io/posts/generating-accessibility-identifiers-ios/</link>
       <pubDate>Thu, 18 Apr 2019 00:00:00 +0000</pubDate>
-      
       <guid>https://jhandguy.github.io/posts/generating-accessibility-identifiers-ios/</guid>
       <description>One of the most annoying things about UI Testing in iOS is the need to assign Accessibility Identifiers to views that are hard to access otherwise. Could be that a view is deeply nested, or that it is not easily distinguishable from other views, lots of scenarios might lead to manually assign Accessibility Identifiers… But don’t you worry, friend, I got something for you!
 What if we could generate and assign Accessibility Identifiers automatically, using reflection?</description>
     </item>
-    
     <item>
       <title>Painless UI Testing in iOS (Part 3) - Disabling Animations</title>
       <link>https://jhandguy.github.io/posts/disabling-animations-ios/</link>
       <pubDate>Mon, 25 Feb 2019 00:00:00 +0000</pubDate>
-      
       <guid>https://jhandguy.github.io/posts/disabling-animations-ios/</guid>
       <description>Let’s be realistic, UI Testing is a pain. For everybody. And with everybody, I include both Android and iOS developers. The main reason for it is that we’ve all come to this point when one-tenth of the UI Tests fail, randomly, for no definite reason. Could be the CI Virtual Machine which was slower than usual, or a small latency in the emulator… Don’t get me started with execution time… We’ve all been through that.</description>
     </item>
-    
     <item>
       <title>Painless UI Testing in iOS (Part 2) - Stubbing the Navigation</title>
       <link>https://jhandguy.github.io/posts/stubbing-the-navigation-ios/</link>
       <pubDate>Mon, 18 Feb 2019 00:00:00 +0000</pubDate>
-      
       <guid>https://jhandguy.github.io/posts/stubbing-the-navigation-ios/</guid>
       <description>Let’s be realistic, UI Testing is a pain. For everybody. And with everybody, I include both Android and iOS developers. The main reason for it is that we’ve all come to this point when one-tenth of the UI Tests fail, randomly, for no definite reason. Could be the CI Virtual Machine which was slower than usual, or a small latency in the emulator… Don’t get me started with execution time… We’ve all been through that.</description>
     </item>
-    
     <item>
       <title>Painless UI Testing in iOS (Part 1) - Mocking the Network</title>
       <link>https://jhandguy.github.io/posts/mocking-the-network-ios/</link>
       <pubDate>Fri, 11 Jan 2019 00:00:00 +0000</pubDate>
-      
       <guid>https://jhandguy.github.io/posts/mocking-the-network-ios/</guid>
       <description>Let’s be realistic, UI Testing is a pain. For everybody. And with everybody, I include both Android and iOS developers. The main reason for it is that we’ve all come to this point when one-tenth of the UI Tests fail, randomly, for no definite reason. Could be the CI Virtual Machine which was slower than usual, or a small latency in the emulator… Don’t get me started with execution time… We’ve all been through that.</description>
     </item>
-    
     <item>
       <title>Lightweight Design Patterns in iOS (Part 4) - Factory</title>
       <link>https://jhandguy.github.io/posts/factory-design-pattern-ios/</link>
       <pubDate>Mon, 26 Nov 2018 00:00:00 +0000</pubDate>
-      
       <guid>https://jhandguy.github.io/posts/factory-design-pattern-ios/</guid>
       <description>Design Patterns are part of Mobile Development for a while now and a revolution towards Quality Assurance is on. Such patterns have become a standard among the community, yet implementing an academic one might come with a price — complexity.
 Because some Design Patterns solve very complex problems, they often result in a complicated implementation as well. So complex sometimes, that we tend to use heavy Third Party Frameworks, even for simple use cases.</description>
     </item>
-    
     <item>
       <title>Lightweight Design Patterns in iOS (Part 3) - Coordinator</title>
       <link>https://jhandguy.github.io/posts/coordinator-design-pattern-ios/</link>
       <pubDate>Mon, 19 Nov 2018 00:00:00 +0000</pubDate>
-      
       <guid>https://jhandguy.github.io/posts/coordinator-design-pattern-ios/</guid>
       <description>Design Patterns are part of Mobile Development for a while now and a revolution towards Quality Assurance is on. Such patterns have become a standard among the community, yet implementing an academic one might come with a price — complexity.
 Because some Design Patterns solve very complex problems, they often result in a complicated implementation as well. So complex sometimes, that we tend to use heavy Third Party Frameworks, even for simple use cases.</description>
     </item>
-    
     <item>
       <title>Lightweight Design Patterns in iOS (Part 2) - Presenter</title>
       <link>https://jhandguy.github.io/posts/presenter-design-pattern-ios/</link>
       <pubDate>Mon, 12 Nov 2018 00:00:00 +0000</pubDate>
-      
       <guid>https://jhandguy.github.io/posts/presenter-design-pattern-ios/</guid>
       <description>Design Patterns are part of Mobile Development for a while now and a revolution towards Quality Assurance is on. Such patterns have become a standard among the community, yet implementing an academic one might come with a price — complexity.
 Because some Design Patterns solve very complex problems, they often result in a complicated implementation as well. So complex sometimes, that we tend to use heavy Third Party Frameworks, even for simple use cases.</description>
     </item>
-    
     <item>
       <title>Lightweight Design Patterns in iOS (Part 1) - Observer</title>
       <link>https://jhandguy.github.io/posts/observer-design-pattern-ios/</link>
       <pubDate>Tue, 06 Nov 2018 00:00:00 +0000</pubDate>
-      
       <guid>https://jhandguy.github.io/posts/observer-design-pattern-ios/</guid>
       <description>Design Patterns are part of Mobile Development for a while now and a revolution towards Quality Assurance is on. Such patterns have become a standard among the community, yet implementing an academic one might come with a price — complexity.
 Because some Design Patterns solve very complex problems, they often result in a complicated implementation as well. So complex sometimes, that we tend to use heavy Third Party Frameworks, even for simple use cases.</description>
     </item>
-    
   </channel>
 </rss>
