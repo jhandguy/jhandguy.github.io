@@ -132,9 +132,9 @@ It was primarily designed for testing Kubernetes itself, but may be used for loc
 <p><a href="https://github.com/cert-manager/cert-manager">cert-manager</a> is a Kubernetes addon that automates the management and issuance of TLS certificates from various issuing sources. It ensures certificates are valid and up to date periodically, and attempts to renew certificates at an appropriate time before expiry.</p>
 <p>cert-manager can be installed via its <a href="https://github.com/cert-manager/cert-manager/tree/master/deploy/charts/cert-manager">Helm chart</a>.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>helm repo add jetstack https://charts.jetstack.io
-</span></span><span style="display:flex;"><span>helm install jetstack/cert-manager --name-template cert-manager --create-namespace -n cert-manager --values kind/cert-manager-values.yaml --version 1.9.1 --wait
+</span></span><span style="display:flex;"><span>helm install jetstack/cert-manager --name-template cert-manager --create-namespace -n cert-manager --values kind/cert-manager-values.yaml --version 1.13.2 --wait
 </span></span></code></pre></div><p>If everything went fine, you should be able to see three newly spawned Deployments with the READY state!</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ k get deploy -n cert-manager
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get deploy -n cert-manager
 </span></span><span style="display:flex;"><span>NAME                      READY   UP-TO-DATE   AVAILABLE   AGE
 </span></span><span style="display:flex;"><span>cert-manager              1/1     <span style="color:#ae81ff">1</span>            <span style="color:#ae81ff">1</span>           6m27m
 </span></span><span style="display:flex;"><span>cert-manager-cainjector   1/1     <span style="color:#ae81ff">1</span>            <span style="color:#ae81ff">1</span>           6m27m
