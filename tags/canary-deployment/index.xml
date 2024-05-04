@@ -4,7 +4,7 @@
     <title>Canary Deployment on jhandguy</title>
     <link>https://jhandguy.github.io/tags/canary-deployment/</link>
     <description>Recent content in Canary Deployment on jhandguy</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <generator>Hugo</generator>
     <language>en-us</language>
     <lastBuildDate>Thu, 10 Mar 2022 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://jhandguy.github.io/tags/canary-deployment/index.xml" rel="self" type="application/rss+xml" />
@@ -20,24 +20,21 @@
       <link>https://jhandguy.github.io/posts/smart-canary-deployment/</link>
       <pubDate>Wed, 02 Feb 2022 00:00:00 +0000</pubDate>
       <guid>https://jhandguy.github.io/posts/smart-canary-deployment/</guid>
-      <description>Deploying to production in Kubernetes can be quite stressful. Even after meaningful and reliable automated tests have successfully passed, there is still room for things to go wrong and lead to a nasty incident when pressing the final button.
-Thankfully, Kubernetes is made to be resilient to this kind of scenario, and rolling back is a no-brainer. But still, rolling back means that, at least for some time, all of the users were negatively impacted by the faulty change…</description>
+      <description>Deploying to production in Kubernetes can be quite stressful. Even after meaningful and reliable automated tests have successfully passed, there is still room for things to go wrong and lead to a nasty incident when pressing the final button.&#xA;Thankfully, Kubernetes is made to be resilient to this kind of scenario, and rolling back is a no-brainer. But still, rolling back means that, at least for some time, all of the users were negatively impacted by the faulty change…</description>
     </item>
     <item>
       <title>Canary Deployment in Kubernetes (Part 2) — Automated Canary Deployment using Argo Rollouts</title>
       <link>https://jhandguy.github.io/posts/automated-canary-deployment/</link>
       <pubDate>Tue, 25 Jan 2022 00:00:00 +0000</pubDate>
       <guid>https://jhandguy.github.io/posts/automated-canary-deployment/</guid>
-      <description>Deploying to production in Kubernetes can be quite stressful. Even after meaningful and reliable automated tests have successfully passed, there is still room for things to go wrong and lead to a nasty incident when pressing the final button.
-Thankfully, Kubernetes is made to be resilient to this kind of scenario, and rolling back is a no-brainer. But still, rolling back means that, at least for some time, all of the users were negatively impacted by the faulty change…</description>
+      <description>Deploying to production in Kubernetes can be quite stressful. Even after meaningful and reliable automated tests have successfully passed, there is still room for things to go wrong and lead to a nasty incident when pressing the final button.&#xA;Thankfully, Kubernetes is made to be resilient to this kind of scenario, and rolling back is a no-brainer. But still, rolling back means that, at least for some time, all of the users were negatively impacted by the faulty change…</description>
     </item>
     <item>
       <title>Canary Deployment in Kubernetes (Part 1) — Simple Canary Deployment using Ingress NGINX</title>
       <link>https://jhandguy.github.io/posts/simple-canary-deployment/</link>
       <pubDate>Tue, 18 Jan 2022 00:00:00 +0000</pubDate>
       <guid>https://jhandguy.github.io/posts/simple-canary-deployment/</guid>
-      <description>Deploying to production in Kubernetes can be quite stressful. Even after meaningful and reliable automated tests have successfully passed, there is still room for things to go wrong and lead to a nasty incident when pressing the final button.
-Thankfully, Kubernetes is made to be resilient to this kind of scenario, and rolling back is a no-brainer. But still, rolling back means that, at least for some time, all of the users were negatively impacted by the faulty change…</description>
+      <description>Deploying to production in Kubernetes can be quite stressful. Even after meaningful and reliable automated tests have successfully passed, there is still room for things to go wrong and lead to a nasty incident when pressing the final button.&#xA;Thankfully, Kubernetes is made to be resilient to this kind of scenario, and rolling back is a no-brainer. But still, rolling back means that, at least for some time, all of the users were negatively impacted by the faulty change…</description>
     </item>
   </channel>
 </rss>

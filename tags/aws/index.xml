@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>AWS on jhandguy</title>
+    <link>https://jhandguy.github.io/tags/aws/</link>
+    <description>Recent content in AWS on jhandguy</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 28 Feb 2024 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://jhandguy.github.io/tags/aws/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Farewell, ECS! Hello, EKS: A Kubernetes Migration Story</title>
+      <link>https://jhandguy.github.io/posts/farewell-ecs-hello-eks/</link>
+      <pubDate>Wed, 28 Feb 2024 00:00:00 +0000</pubDate>
+      <guid>https://jhandguy.github.io/posts/farewell-ecs-hello-eks/</guid>
+      <description>Saying goodbye to old systems can sound scary, but for us at EGYM, migrating from Elastic Container Service (ECS) to Elastic Kubernetes Service (EKS) was a journey of growth and excitement.&#xA;🎬 Hi there, I’m Jean!&#xA;In this blog post, I’ll share the inside scoop on our successful migration from ECS to EKS, why we did it and how, complete with the magic formula for zero downtime!&#xA;Starting with the Why Let’s kick it off with a famous phrase in engineering:</description>
+    </item>
+  </channel>
+</rss>

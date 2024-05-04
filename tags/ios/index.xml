@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>iOS on jhandguy</title>
+    <title>IOS on jhandguy</title>
     <link>https://jhandguy.github.io/tags/ios/</link>
-    <description>Recent content in iOS on jhandguy</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <description>Recent content in IOS on jhandguy</description>
+    <generator>Hugo</generator>
     <language>en-us</language>
     <lastBuildDate>Thu, 12 Sep 2019 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://jhandguy.github.io/tags/ios/index.xml" rel="self" type="application/rss+xml" />
@@ -20,16 +20,14 @@
       <link>https://jhandguy.github.io/posts/robot-pattern-ios/</link>
       <pubDate>Fri, 03 May 2019 00:00:00 +0000</pubDate>
       <guid>https://jhandguy.github.io/posts/robot-pattern-ios/</guid>
-      <description>Most of the time, UI Testing gets abandoned because it becomes harder to maintain over time and one reason for that is: readability. We also tend to forget that UI tests should not only serve the purpose of verification but provide meaningful documentation that everybody (including non-developers) can understand. Alright, let’s get right into it, fellas!
-What if we could write UI Tests in a human-readable language, that even a Product Owner could understand?</description>
+      <description>Most of the time, UI Testing gets abandoned because it becomes harder to maintain over time and one reason for that is: readability. We also tend to forget that UI tests should not only serve the purpose of verification but provide meaningful documentation that everybody (including non-developers) can understand. Alright, let’s get right into it, fellas!&#xA;What if we could write UI Tests in a human-readable language, that even a Product Owner could understand?</description>
     </item>
     <item>
       <title>UI Testing in iOS - Generating Accessibility Identifiers using Reflection</title>
       <link>https://jhandguy.github.io/posts/generating-accessibility-identifiers-ios/</link>
       <pubDate>Thu, 18 Apr 2019 00:00:00 +0000</pubDate>
       <guid>https://jhandguy.github.io/posts/generating-accessibility-identifiers-ios/</guid>
-      <description>One of the most annoying things about UI Testing in iOS is the need to assign Accessibility Identifiers to views that are hard to access otherwise. Could be that a view is deeply nested, or that it is not easily distinguishable from other views, lots of scenarios might lead to manually assign Accessibility Identifiers… But don’t you worry, friend, I got something for you!
-What if we could generate and assign Accessibility Identifiers automatically, using reflection?</description>
+      <description>One of the most annoying things about UI Testing in iOS is the need to assign Accessibility Identifiers to views that are hard to access otherwise. Could be that a view is deeply nested, or that it is not easily distinguishable from other views, lots of scenarios might lead to manually assign Accessibility Identifiers… But don’t you worry, friend, I got something for you!&#xA;What if we could generate and assign Accessibility Identifiers automatically, using reflection?</description>
     </item>
     <item>
       <title>Painless UI Testing in iOS (Part 3) - Disabling Animations</title>
@@ -57,32 +55,28 @@ What if we could generate and assign Accessibility Identifiers automatically, us
       <link>https://jhandguy.github.io/posts/factory-design-pattern-ios/</link>
       <pubDate>Mon, 26 Nov 2018 00:00:00 +0000</pubDate>
       <guid>https://jhandguy.github.io/posts/factory-design-pattern-ios/</guid>
-      <description>Design Patterns are part of Mobile Development for a while now and a revolution towards Quality Assurance is on. Such patterns have become a standard among the community, yet implementing an academic one might come with a price — complexity.
-Because some Design Patterns solve very complex problems, they often result in a complicated implementation as well. So complex sometimes, that we tend to use heavy Third Party Frameworks, even for simple use cases.</description>
+      <description>Design Patterns are part of Mobile Development for a while now and a revolution towards Quality Assurance is on. Such patterns have become a standard among the community, yet implementing an academic one might come with a price — complexity.&#xA;Because some Design Patterns solve very complex problems, they often result in a complicated implementation as well. So complex sometimes, that we tend to use heavy Third Party Frameworks, even for simple use cases.</description>
     </item>
     <item>
       <title>Lightweight Design Patterns in iOS (Part 3) - Coordinator</title>
       <link>https://jhandguy.github.io/posts/coordinator-design-pattern-ios/</link>
       <pubDate>Mon, 19 Nov 2018 00:00:00 +0000</pubDate>
       <guid>https://jhandguy.github.io/posts/coordinator-design-pattern-ios/</guid>
-      <description>Design Patterns are part of Mobile Development for a while now and a revolution towards Quality Assurance is on. Such patterns have become a standard among the community, yet implementing an academic one might come with a price — complexity.
-Because some Design Patterns solve very complex problems, they often result in a complicated implementation as well. So complex sometimes, that we tend to use heavy Third Party Frameworks, even for simple use cases.</description>
+      <description>Design Patterns are part of Mobile Development for a while now and a revolution towards Quality Assurance is on. Such patterns have become a standard among the community, yet implementing an academic one might come with a price — complexity.&#xA;Because some Design Patterns solve very complex problems, they often result in a complicated implementation as well. So complex sometimes, that we tend to use heavy Third Party Frameworks, even for simple use cases.</description>
     </item>
     <item>
       <title>Lightweight Design Patterns in iOS (Part 2) - Presenter</title>
       <link>https://jhandguy.github.io/posts/presenter-design-pattern-ios/</link>
       <pubDate>Mon, 12 Nov 2018 00:00:00 +0000</pubDate>
       <guid>https://jhandguy.github.io/posts/presenter-design-pattern-ios/</guid>
-      <description>Design Patterns are part of Mobile Development for a while now and a revolution towards Quality Assurance is on. Such patterns have become a standard among the community, yet implementing an academic one might come with a price — complexity.
-Because some Design Patterns solve very complex problems, they often result in a complicated implementation as well. So complex sometimes, that we tend to use heavy Third Party Frameworks, even for simple use cases.</description>
+      <description>Design Patterns are part of Mobile Development for a while now and a revolution towards Quality Assurance is on. Such patterns have become a standard among the community, yet implementing an academic one might come with a price — complexity.&#xA;Because some Design Patterns solve very complex problems, they often result in a complicated implementation as well. So complex sometimes, that we tend to use heavy Third Party Frameworks, even for simple use cases.</description>
     </item>
     <item>
       <title>Lightweight Design Patterns in iOS (Part 1) - Observer</title>
       <link>https://jhandguy.github.io/posts/observer-design-pattern-ios/</link>
       <pubDate>Tue, 06 Nov 2018 00:00:00 +0000</pubDate>
       <guid>https://jhandguy.github.io/posts/observer-design-pattern-ios/</guid>
-      <description>Design Patterns are part of Mobile Development for a while now and a revolution towards Quality Assurance is on. Such patterns have become a standard among the community, yet implementing an academic one might come with a price — complexity.
-Because some Design Patterns solve very complex problems, they often result in a complicated implementation as well. So complex sometimes, that we tend to use heavy Third Party Frameworks, even for simple use cases.</description>
+      <description>Design Patterns are part of Mobile Development for a while now and a revolution towards Quality Assurance is on. Such patterns have become a standard among the community, yet implementing an academic one might come with a price — complexity.&#xA;Because some Design Patterns solve very complex problems, they often result in a complicated implementation as well. So complex sometimes, that we tend to use heavy Third Party Frameworks, even for simple use cases.</description>
     </item>
   </channel>
 </rss>
