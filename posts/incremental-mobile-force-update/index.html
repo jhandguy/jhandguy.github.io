@@ -8,52 +8,25 @@
     <link rel="stylesheet" href="/css/custom.css">
 </head>
 
-<body class="has-background-white">
-
-<nav class="navbar is-light">
+<body>
+<nav class="navbar">
     <div class="navbar-brand">
         <a class="navbar-item" href="/">
             Home
         </a>
 
         <div class="navbar-item">
-            <a class="button is-black" href="/about">
+            <a class="button is-link" href="/about">
                 <strong>About me</strong>
             </a>
         </div>
     </div>
 </nav>
 
-<nav class="navbar is-light is-fixed-bottom">
-    <div class="navbar-start"></div>
-    <div class="navbar-item is-mobile columns has-text-centered p-0 m-0">
-        <div class="column is-narrow">
-            
-            
-            <a class="button is-responsive is-black" href="https://jhandguy.github.io/posts/smart-canary-deployment/"><strong>←</strong></a>
-            
-            
-        </div>
-        <div class="column"></div>
-        <div class="column is-narrow">
-            <a class="button is-responsive is-white" href="#"><strong>↑</strong></a>
-        </div>
-        <div class="column"></div>
-        <div class="column is-narrow">
-            
-            
-            <a class="button is-responsive is-black" href="https://jhandguy.github.io/posts/simple-horizontal-autoscaling/"><strong>→</strong></a>
-            
-            
-        </div>
-    </div>
-    <div class="navbar-end"></div>
-</nav>
-
 <section class="section">
-    <div class="container is-max-desktop">
+    <div class="container">
         <div class="content">
-            <p class="title">Incremental Mobile Force Update using Ingress NGINX and Firebase Remote Config</p>
+            <p class="title is-spaced">Incremental Mobile Force Update using Ingress NGINX and Firebase Remote Config</p>
             
             
             <div class="box">
@@ -70,8 +43,8 @@
             
         </div>
     </div>
-    <div class="container is-max-desktop mt-6">
-        <div class="content has-text-justified-tablet">
+    <div class="container mt-6">
+        <div class="content has-text-justified">
             <p>Mobile <a href="https://betterprogramming.pub/force-update-your-apps-74de57523650">force updates</a> occur when old versions of an app are no longer compatible with the APIs they consume.
 Until the app is updated to the required version, the UI blocks further usage.
 This is usually materialized as a system popup that will redirect users to the respective Store and disappear only once they have updated to the latest version.
@@ -140,7 +113,28 @@ This means that all users have now migrated to the <strong>v2</strong> version o
 
 </body>
 <footer>
-    <div class="footer has-background-light">
+    <div class="footer pt-3 has-background-black-bis">
+        <div class="container pb-6 has-text-centered is-mobile columns">
+            <div class="column is-narrow paddingless">
+                
+                
+                <a class="button is-large" href="https://jhandguy.github.io/posts/smart-canary-deployment/"><strong>👈</strong></a>
+                
+                
+            </div>
+            <div class="column"></div>
+            <div class="column is-narrow paddingless">
+                <a class="button is-large" href="#"><strong>👆</strong></a>
+            </div>
+            <div class="column"></div>
+            <div class="column is-narrow paddingless">
+                
+                
+                <a class="button is-large" href="https://jhandguy.github.io/posts/simple-horizontal-autoscaling/"><strong>👉</strong></a>
+                
+                
+            </div>
+        </div>
         <div class="content has-text-centered">
             <p class="subtitle is-6">Powered by <a href="https://gohugo.io/">Hugo</a></p>
             <a href="https://bulma.io">

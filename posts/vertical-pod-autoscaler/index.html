@@ -8,52 +8,25 @@
     <link rel="stylesheet" href="/css/custom.css">
 </head>
 
-<body class="has-background-white">
-
-<nav class="navbar is-light">
+<body>
+<nav class="navbar">
     <div class="navbar-brand">
         <a class="navbar-item" href="/">
             Home
         </a>
 
         <div class="navbar-item">
-            <a class="button is-black" href="/about">
+            <a class="button is-link" href="/about">
                 <strong>About me</strong>
             </a>
         </div>
     </div>
 </nav>
 
-<nav class="navbar is-light is-fixed-bottom">
-    <div class="navbar-start"></div>
-    <div class="navbar-item is-mobile columns has-text-centered p-0 m-0">
-        <div class="column is-narrow">
-            
-            
-            <a class="button is-responsive is-black" href="https://jhandguy.github.io/posts/advanced-horizontal-autoscaling/"><strong>←</strong></a>
-            
-            
-        </div>
-        <div class="column"></div>
-        <div class="column is-narrow">
-            <a class="button is-responsive is-white" href="#"><strong>↑</strong></a>
-        </div>
-        <div class="column"></div>
-        <div class="column is-narrow">
-            
-            
-            <a class="button is-responsive is-black" href="https://jhandguy.github.io/posts/farewell-ecs-hello-eks/"><strong>→</strong></a>
-            
-            
-        </div>
-    </div>
-    <div class="navbar-end"></div>
-</nav>
-
 <section class="section">
-    <div class="container is-max-desktop">
+    <div class="container">
         <div class="content">
-            <p class="title">Vertical Pod Autoscaler in Kubernetes</p>
+            <p class="title is-spaced">Vertical Pod Autoscaler in Kubernetes</p>
             
             
             <div class="box">
@@ -76,8 +49,8 @@
             
         </div>
     </div>
-    <div class="container is-max-desktop mt-6">
-        <div class="content has-text-justified-tablet">
+    <div class="container mt-6">
+        <div class="content has-text-justified">
             <p>In Kubernetes, we usually think about the Horizontal Pod Autoscaler (HPA) when referring to autoscaling. In most cases, it will be the preferred way of scaling services, based on CPU usage, memory usage, or custom metrics.</p>
 <blockquote>
 <p><em>If you haven&rsquo;t already, go read <a href="/posts/simple-horizontal-autoscaling/">Horizontal Pod Autoscaler in Kubernetes (Part 1) - Simple Autoscaling using Metrics Server</a> and learn how to implement a Horizontal Pod Autoscaler using Metrics Server!</em></p>
@@ -422,7 +395,28 @@ This time, our service handled pod disruption beautifully and not a single reque
 
 </body>
 <footer>
-    <div class="footer has-background-light">
+    <div class="footer pt-3 has-background-black-bis">
+        <div class="container pb-6 has-text-centered is-mobile columns">
+            <div class="column is-narrow paddingless">
+                
+                
+                <a class="button is-large" href="https://jhandguy.github.io/posts/advanced-horizontal-autoscaling/"><strong>👈</strong></a>
+                
+                
+            </div>
+            <div class="column"></div>
+            <div class="column is-narrow paddingless">
+                <a class="button is-large" href="#"><strong>👆</strong></a>
+            </div>
+            <div class="column"></div>
+            <div class="column is-narrow paddingless">
+                
+                
+                <a class="button is-large" href="https://jhandguy.github.io/posts/farewell-ecs-hello-eks/"><strong>👉</strong></a>
+                
+                
+            </div>
+        </div>
         <div class="content has-text-centered">
             <p class="subtitle is-6">Powered by <a href="https://gohugo.io/">Hugo</a></p>
             <a href="https://bulma.io">

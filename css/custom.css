@@ -1,3 +1,10 @@
+/* add small bottom margin after code snippets */
 .highlight {
   margin-bottom: 1em;
 }
+
+/* reduce top margin on first child in table of contents */
+  .content ul:not(:first-child) {
+    margin-top: .25em;
+    margin-bottom: 0;
+  }

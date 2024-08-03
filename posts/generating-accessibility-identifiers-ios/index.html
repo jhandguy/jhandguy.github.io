@@ -8,52 +8,25 @@
     <link rel="stylesheet" href="/css/custom.css">
 </head>
 
-<body class="has-background-white">
-
-<nav class="navbar is-light">
+<body>
+<nav class="navbar">
     <div class="navbar-brand">
         <a class="navbar-item" href="/">
             Home
         </a>
 
         <div class="navbar-item">
-            <a class="button is-black" href="/about">
+            <a class="button is-link" href="/about">
                 <strong>About me</strong>
             </a>
         </div>
     </div>
 </nav>
 
-<nav class="navbar is-light is-fixed-bottom">
-    <div class="navbar-start"></div>
-    <div class="navbar-item is-mobile columns has-text-centered p-0 m-0">
-        <div class="column is-narrow">
-            
-            
-            <a class="button is-responsive is-black" href="https://jhandguy.github.io/posts/disabling-animations-ios/"><strong>←</strong></a>
-            
-            
-        </div>
-        <div class="column"></div>
-        <div class="column is-narrow">
-            <a class="button is-responsive is-white" href="#"><strong>↑</strong></a>
-        </div>
-        <div class="column"></div>
-        <div class="column is-narrow">
-            
-            
-            <a class="button is-responsive is-black" href="https://jhandguy.github.io/posts/robot-pattern-ios/"><strong>→</strong></a>
-            
-            
-        </div>
-    </div>
-    <div class="navbar-end"></div>
-</nav>
-
 <section class="section">
-    <div class="container is-max-desktop">
+    <div class="container">
         <div class="content">
-            <p class="title">UI Testing in iOS - Generating Accessibility Identifiers using Reflection</p>
+            <p class="title is-spaced">UI Testing in iOS - Generating Accessibility Identifiers using Reflection</p>
             
             
             <div class="box">
@@ -69,8 +42,8 @@
             
         </div>
     </div>
-    <div class="container is-max-desktop mt-6">
-        <div class="content has-text-justified-tablet">
+    <div class="container mt-6">
+        <div class="content has-text-justified">
             <p>One of the most annoying things about UI Testing in iOS is the need to assign Accessibility Identifiers to views that are hard to access otherwise. Could be that a view is deeply nested, or that it is not easily distinguishable from other views, lots of scenarios might lead to manually assign Accessibility Identifiers… But don’t you worry, friend, I got something for you!</p>
 <blockquote>
 <p>What if we could generate and assign Accessibility Identifiers automatically, using reflection?</p>
@@ -159,7 +132,28 @@ Check out my 3 parts series:</p>
 
 </body>
 <footer>
-    <div class="footer has-background-light">
+    <div class="footer pt-3 has-background-black-bis">
+        <div class="container pb-6 has-text-centered is-mobile columns">
+            <div class="column is-narrow paddingless">
+                
+                
+                <a class="button is-large" href="https://jhandguy.github.io/posts/disabling-animations-ios/"><strong>👈</strong></a>
+                
+                
+            </div>
+            <div class="column"></div>
+            <div class="column is-narrow paddingless">
+                <a class="button is-large" href="#"><strong>👆</strong></a>
+            </div>
+            <div class="column"></div>
+            <div class="column is-narrow paddingless">
+                
+                
+                <a class="button is-large" href="https://jhandguy.github.io/posts/robot-pattern-ios/"><strong>👉</strong></a>
+                
+                
+            </div>
+        </div>
         <div class="content has-text-centered">
             <p class="subtitle is-6">Powered by <a href="https://gohugo.io/">Hugo</a></p>
             <a href="https://bulma.io">

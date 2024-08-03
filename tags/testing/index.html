@@ -8,51 +8,32 @@
     <link rel="stylesheet" href="/css/custom.css">
 </head>
 
-<body class="has-background-white">
-
-<nav class="navbar is-light">
+<body>
+<nav class="navbar">
     <div class="navbar-brand">
         <a class="navbar-item" href="/">
             Home
         </a>
 
         <div class="navbar-item">
-            <a class="button is-black" href="/about">
+            <a class="button is-link" href="/about">
                 <strong>About me</strong>
             </a>
         </div>
     </div>
 </nav>
 
-<nav class="navbar is-light is-fixed-bottom">
-    <div class="navbar-start"></div>
-    <div class="navbar-item is-mobile columns has-text-centered p-0 m-0">
-        <div class="column is-narrow">
-            
-        </div>
-        <div class="column"></div>
-        <div class="column is-narrow">
-            <a class="button is-responsive is-white" href="#"><strong>↑</strong></a>
-        </div>
-        <div class="column"></div>
-        <div class="column is-narrow">
-            
-        </div>
-    </div>
-    <div class="navbar-end"></div>
-</nav>
-
-<section class="hero is-light">
+<section class="hero">
     <div class="hero-body">
-        <p class="title">Hi there! 👋</p>
+        <p class="title is-spaced">Hi there! 👋</p>
         <p class="subtitle">Welcome to <strong>Jean</strong>'s blog!</p>
     </div>
 </section>
 
-<section class="section">
-    <div class="container is-max-desktop">
+<section class="section pt-2">
+    <div class="container">
         <div class="content">
-            <p class="title">Articles</p>
+            <p class="title is-spaced">Articles</p>
             <p class="subtitle">Frequently published articles about Software Engineering and SRE!</p>
         </div>
         <div class="box mb-6">
@@ -60,65 +41,65 @@
             <div class="field is-grouped is-grouped-multiline">
                 
                 
-                <div class="control">
+                <div>
                     <a href="/">
-                        <div class="tag is-medium is-light">all</div>
+                        <div class="tag is-medium is-hoverable ">all</div>
                     </a>
                 </div>
                 
                 
                 
-                <div class="control">
+                <div>
                     <a href="/tags/aws">
-                        <div class="tag is-medium is-light">aws</div>
+                        <div class="tag is-medium is-hoverable ">aws</div>
                     </a>
                 </div>
                 
                 
                 
-                <div class="control">
+                <div>
                     <a href="/tags/canary-deployment">
-                        <div class="tag is-medium is-light">canary deployment</div>
+                        <div class="tag is-medium is-hoverable ">canary deployment</div>
                     </a>
                 </div>
                 
                 
                 
-                <div class="control">
+                <div>
                     <a href="/tags/ci-cd">
-                        <div class="tag is-medium is-light">ci cd</div>
+                        <div class="tag is-medium is-hoverable ">ci cd</div>
                     </a>
                 </div>
                 
                 
                 
-                <div class="control">
+                <div>
                     <a href="/tags/design-pattern">
-                        <div class="tag is-medium is-light">design pattern</div>
+                        <div class="tag is-medium is-hoverable ">design pattern</div>
                     </a>
                 </div>
                 
                 
                 
-                <div class="control">
+                <div>
                     <a href="/tags/horizontal-scaling">
-                        <div class="tag is-medium is-light">horizontal scaling</div>
+                        <div class="tag is-medium is-hoverable ">horizontal scaling</div>
                     </a>
                 </div>
                 
                 
                 
-                <div class="control">
+                <div>
                     <a href="/tags/ios">
-                        <div class="tag is-medium is-light">ios</div>
+                        <div class="tag is-medium is-hoverable ">ios</div>
                     </a>
                 </div>
                 
                 
                 
-                <div class="control">
+                <div>
                     <a href="/tags/sre">
-                        <div class="tag is-medium is-light">sre</div>
+                        <div class="tag is-medium is-hoverable ">sre</div>
                     </a>
                 </div>
                 
@@ -126,147 +107,133 @@
                 
                 
                 
-                <div class="control">
+                <div>
                     <a href="/tags/testing">
-                        <div class="tag is-medium is-black">testing</div>
+                        <div class="tag is-medium is-hoverable is-link">testing</div>
                     </a>
                 </div>
                 
                 
                 
-                <div class="control">
+                <div>
                     <a href="/tags/vertical-scaling">
-                        <div class="tag is-medium is-light">vertical scaling</div>
+                        <div class="tag is-medium is-hoverable ">vertical scaling</div>
                     </a>
                 </div>
                 
             </div>
         </div>
     </div>
-    <div class="container is-max-desktop mt-4">
-        <div class="tile is-ancestor">
-            <div class="tile is-vertical">
+    <div class="container fixed-grid has-1-cols-mobile">
+            <div class="grid">
                 
                 
-                <div class="tile is-parent is-vertical">
-    <a href="https://jhandguy.github.io/posts/robot-pattern-ios/">
-        <article class="tile is-child notification is-light">
-            <div class="content">
-                <p class="title is-4">UI Testing in iOS - Robot Pattern</p>
-                <p class="subtitle is-6">Let&#39;s have a look at today&#39;s UI Testing tip: the Robot Pattern!</p>
-                <div class="is-pulled-right">
-                    <time datetime="2006-1-02" class="is-size-7">May 3, 2019</time>
-                </div>
-                <div class="is-grouped is-grouped-multiline">
-                    
-                    <div class="tag is-dark">iOS</div>
-                    
-                    <div class="tag is-dark">Testing</div>
-                    
-                </div>
-            </div>
-        </article>
-    </a>
-</div>
+                <a class="is-flex is-flex-direction-column cell box marginless" href="https://jhandguy.github.io/posts/robot-pattern-ios/">
+    <p class="title is-spaced is-5">UI Testing in iOS - Robot Pattern</p>
+    <p class="subtitle has-text-justified is-6">Let&#39;s have a look at today&#39;s UI Testing tip: the Robot Pattern!</p>
+    <div class="is-flex-grow-1"></div>
+    <div>
+        
+        <div class="tag">iOS</div>
+        
+        <div class="tag">Testing</div>
+        
+        <div class="is-pulled-right">
+            <time datetime="2006-1-02" class="is-size-7">May 3, 2019</time>
+        </div>
+    </div>
+</a>
 
                 
-                <div class="tile is-parent is-vertical">
-    <a href="https://jhandguy.github.io/posts/generating-accessibility-identifiers-ios/">
-        <article class="tile is-child notification is-light">
-            <div class="content">
-                <p class="title is-4">UI Testing in iOS - Generating Accessibility Identifiers using Reflection</p>
-                <p class="subtitle is-6">Let&#39;s have a look at today&#39;s UI Testing tip: Generating Accessibility Identifiers using Reflection!</p>
-                <div class="is-pulled-right">
-                    <time datetime="2006-1-02" class="is-size-7">Apr 18, 2019</time>
-                </div>
-                <div class="is-grouped is-grouped-multiline">
-                    
-                    <div class="tag is-dark">iOS</div>
-                    
-                    <div class="tag is-dark">Testing</div>
-                    
-                </div>
-            </div>
-        </article>
-    </a>
-</div>
+                <a class="is-flex is-flex-direction-column cell box marginless" href="https://jhandguy.github.io/posts/generating-accessibility-identifiers-ios/">
+    <p class="title is-spaced is-5">UI Testing in iOS - Generating Accessibility Identifiers using Reflection</p>
+    <p class="subtitle has-text-justified is-6">Let&#39;s have a look at today&#39;s UI Testing tip: Generating Accessibility Identifiers using Reflection!</p>
+    <div class="is-flex-grow-1"></div>
+    <div>
+        
+        <div class="tag">iOS</div>
+        
+        <div class="tag">Testing</div>
+        
+        <div class="is-pulled-right">
+            <time datetime="2006-1-02" class="is-size-7">Apr 18, 2019</time>
+        </div>
+    </div>
+</a>
 
                 
-                <div class="tile is-parent is-vertical">
-    <a href="https://jhandguy.github.io/posts/disabling-animations-ios/">
-        <article class="tile is-child notification is-light">
-            <div class="content">
-                <p class="title is-4">Painless UI Testing in iOS (Part 3) - Disabling Animations</p>
-                <p class="subtitle is-6">Let&#39;s have a look at today&#39;s UI Testing tip: Disabling Animations!</p>
-                <div class="is-pulled-right">
-                    <time datetime="2006-1-02" class="is-size-7">Feb 25, 2019</time>
-                </div>
-                <div class="is-grouped is-grouped-multiline">
-                    
-                    <div class="tag is-dark">iOS</div>
-                    
-                    <div class="tag is-dark">Testing</div>
-                    
-                </div>
-            </div>
-        </article>
-    </a>
-</div>
+                <a class="is-flex is-flex-direction-column cell box marginless" href="https://jhandguy.github.io/posts/disabling-animations-ios/">
+    <p class="title is-spaced is-5">Painless UI Testing in iOS (Part 3) - Disabling Animations</p>
+    <p class="subtitle has-text-justified is-6">Let&#39;s have a look at today&#39;s UI Testing tip: Disabling Animations!</p>
+    <div class="is-flex-grow-1"></div>
+    <div>
+        
+        <div class="tag">iOS</div>
+        
+        <div class="tag">Testing</div>
+        
+        <div class="is-pulled-right">
+            <time datetime="2006-1-02" class="is-size-7">Feb 25, 2019</time>
+        </div>
+    </div>
+</a>
 
                 
-                <div class="tile is-parent is-vertical">
-    <a href="https://jhandguy.github.io/posts/stubbing-the-navigation-ios/">
-        <article class="tile is-child notification is-light">
-            <div class="content">
-                <p class="title is-4">Painless UI Testing in iOS (Part 2) - Stubbing the Navigation</p>
-                <p class="subtitle is-6">Let&#39;s have a look at today&#39;s UI Testing tip: Stubbing the Navigation!</p>
-                <div class="is-pulled-right">
-                    <time datetime="2006-1-02" class="is-size-7">Feb 18, 2019</time>
-                </div>
-                <div class="is-grouped is-grouped-multiline">
-                    
-                    <div class="tag is-dark">iOS</div>
-                    
-                    <div class="tag is-dark">Testing</div>
-                    
-                </div>
-            </div>
-        </article>
-    </a>
-</div>
+                <a class="is-flex is-flex-direction-column cell box marginless" href="https://jhandguy.github.io/posts/stubbing-the-navigation-ios/">
+    <p class="title is-spaced is-5">Painless UI Testing in iOS (Part 2) - Stubbing the Navigation</p>
+    <p class="subtitle has-text-justified is-6">Let&#39;s have a look at today&#39;s UI Testing tip: Stubbing the Navigation!</p>
+    <div class="is-flex-grow-1"></div>
+    <div>
+        
+        <div class="tag">iOS</div>
+        
+        <div class="tag">Testing</div>
+        
+        <div class="is-pulled-right">
+            <time datetime="2006-1-02" class="is-size-7">Feb 18, 2019</time>
+        </div>
+    </div>
+</a>
 
                 
-                <div class="tile is-parent is-vertical">
-    <a href="https://jhandguy.github.io/posts/mocking-the-network-ios/">
-        <article class="tile is-child notification is-light">
-            <div class="content">
-                <p class="title is-4">Painless UI Testing in iOS (Part 1) - Mocking the Network</p>
-                <p class="subtitle is-6">Let&#39;s have a look at today&#39;s UI Testing tip: Mocking the Network!</p>
-                <div class="is-pulled-right">
-                    <time datetime="2006-1-02" class="is-size-7">Jan 11, 2019</time>
-                </div>
-                <div class="is-grouped is-grouped-multiline">
-                    
-                    <div class="tag is-dark">iOS</div>
-                    
-                    <div class="tag is-dark">Testing</div>
-                    
-                </div>
-            </div>
-        </article>
-    </a>
-</div>
+                <a class="is-flex is-flex-direction-column cell box marginless" href="https://jhandguy.github.io/posts/mocking-the-network-ios/">
+    <p class="title is-spaced is-5">Painless UI Testing in iOS (Part 1) - Mocking the Network</p>
+    <p class="subtitle has-text-justified is-6">Let&#39;s have a look at today&#39;s UI Testing tip: Mocking the Network!</p>
+    <div class="is-flex-grow-1"></div>
+    <div>
+        
+        <div class="tag">iOS</div>
+        
+        <div class="tag">Testing</div>
+        
+        <div class="is-pulled-right">
+            <time datetime="2006-1-02" class="is-size-7">Jan 11, 2019</time>
+        </div>
+    </div>
+</a>
 
                 
                 
             </div>
         </div>
-    </div>
 </section>
 
 </body>
 <footer>
-    <div class="footer has-background-light">
+    <div class="footer pt-3 has-background-black-bis">
+        <div class="container pb-6 has-text-centered is-mobile columns">
+            <div class="column is-narrow paddingless">
+                
+            </div>
+            <div class="column"></div>
+            <div class="column is-narrow paddingless">
+                <a class="button is-large" href="#"><strong>👆</strong></a>
+            </div>
+            <div class="column"></div>
+            <div class="column is-narrow paddingless">
+                
+            </div>
+        </div>
         <div class="content has-text-centered">
             <p class="subtitle is-6">Powered by <a href="https://gohugo.io/">Hugo</a></p>
             <a href="https://bulma.io">
