@@ -9,8 +9,8 @@
 }
 
 /* prevent code resizing on mobile */
-.highlight code {
-  font-size: 1em;
+.highlight * {
+  font-size: 1em !important;
 }
 
 /* reduce top margin on first child in table of contents */
