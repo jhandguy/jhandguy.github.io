@@ -3,10 +3,14 @@
   margin-bottom: 1em;
 }
 
-/* prevent code resizing and add small end of line space */
-.highlight pre code span {
-  font-size: 1em;
+/* add small end of line space */
+.highlight pre>code>span>span {
   padding-right: 1.5em;
+}
+
+/* prevent code resizing on mobile */
+.highlight code {
+  font-size: 1em;
 }
 
 /* reduce top margin on first child in table of contents */

@@ -24,7 +24,7 @@
 </nav>
 
 <section class="section">
-    <div class="container">
+    <div class="container is-max-desktop">
         <div class="content">
             <p class="title is-spaced">Horizontal Pod Autoscaler in Kubernetes (Part 2) — Advanced Autoscaling using Prometheus Adapter</p>
             
@@ -47,8 +47,8 @@
             
         </div>
     </div>
-    <div class="container mt-6">
-        <div class="content has-text-justified">
+    <div class="container is-max-desktop mt-6">
+        <div class="content has-text-justified-tablet">
             <p>The Horizontal Pod Autoscaler (HPA) is a fundamental feature of Kubernetes. It enables automatic scale-up and scale-down of containerized applications based on CPU usage, memory usage, or custom metrics.</p>
 <p>Traditionally, when scaling software, we first think of vertical scaling: the CPU and the RAM are increased so the application consuming them can perform better. While this seems like a flawless mechanism on paper, it actually comes with many drawbacks.</p>
 <p>First, upgrading the CPU or RAM on a physical machine (or VM) requires downtime and unless a Pod Disruption Budget (PDB) is used to handle <a href="https://kubernetes.io/docs/concepts/workloads/pods/disruptions">disruptions</a>, all pods will be evicted and recreated in the new resized node.</p>

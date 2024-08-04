@@ -24,7 +24,7 @@
 </nav>
 
 <section class="section">
-    <div class="container">
+    <div class="container is-max-desktop">
         <div class="content">
             <p class="title is-spaced">Canary Deployment in Kubernetes (Part 2) — Automated Canary Deployment using Argo Rollouts</p>
             
@@ -56,8 +56,8 @@
             
         </div>
     </div>
-    <div class="container mt-6">
-        <div class="content has-text-justified">
+    <div class="container is-max-desktop mt-6">
+        <div class="content has-text-justified-tablet">
             <p>Deploying to production in Kubernetes can be quite stressful. Even after meaningful and reliable automated tests have successfully passed, there is still room for things to go wrong and lead to a nasty incident when pressing the final button.</p>
 <p>Thankfully, Kubernetes is made to be resilient to this kind of scenario, and rolling back is a no-brainer. But still, rolling back means that, at least for some time, <strong>all of the users</strong> were negatively impacted by the faulty change…</p>
 <p>What if we could smoke test our change in production <strong>before</strong> it actually hits real users? What if we could roll out a change incrementally to <strong>some users</strong> instead of all of them at once? What if we could detect a faulty deployment and roll it back automatically?<br>
