@@ -82,18 +82,18 @@ This is where horizontal scaling comes into play!</p>
 <p><a href="https://kind.sigs.k8s.io/">Kind</a> is a tool for running local Kubernetes clusters using Docker container “nodes”.
 It was primarily designed for testing Kubernetes itself, but may be used for local development or CI.</p>
 <p>I don’t expect you to have a demo project in handy, so <a href="https://github.com/jhandguy/canary-deployment">I built one</a> for you.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>git clone https://github.com/jhandguy/horizontal-pod-autoscaler.git
-</span></span><span style="display:flex;"><span>cd horizontal-pod-autoscaler
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>git clone https://github.com/jhandguy/horizontal-pod-autoscaler.git
+</span></span><span style="display:flex;"><span><span style="color:#d0a8ff">cd</span> horizontal-pod-autoscaler
 </span></span></code></pre></div><p>Alright, let&rsquo;s spin up our Kind cluster! 🚀</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kind create cluster --image kindest/node:v1.27.3 --config<span style="color:#f92672">=</span>kind/cluster.yaml
-</span></span><span style="display:flex;"><span>Creating cluster <span style="color:#e6db74">&#34;kind&#34;</span> ...
-</span></span><span style="display:flex;"><span> ✓ Ensuring node image <span style="color:#f92672">(</span>kindest/node:v1.27.3<span style="color:#f92672">)</span> 🖼
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kind create cluster --image kindest/node:v1.27.3 --config=kind/cluster.yaml
+</span></span><span style="display:flex;"><span>Creating cluster <span style="color:#fc6a5d">&#34;kind&#34;</span> ...
+</span></span><span style="display:flex;"><span> ✓ Ensuring node image (kindest/node:v1.27.3) 🖼
 </span></span><span style="display:flex;"><span> ✓ Preparing nodes 📦
 </span></span><span style="display:flex;"><span> ✓ Writing configuration 📜
 </span></span><span style="display:flex;"><span> ✓ Starting control-plane 🕹️
 </span></span><span style="display:flex;"><span> ✓ Installing CNI 🔌
 </span></span><span style="display:flex;"><span> ✓ Installing StorageClass 💾
-</span></span><span style="display:flex;"><span>Set kubectl context to <span style="color:#e6db74">&#34;kind-kind&#34;</span>
+</span></span><span style="display:flex;"><span>Set kubectl context to <span style="color:#fc6a5d">&#34;kind-kind&#34;</span>
 </span></span><span style="display:flex;"><span>You can now use your cluster with:
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>kubectl cluster-info --context kind-kind
@@ -103,23 +103,23 @@ It was primarily designed for testing Kubernetes itself, but may be used for loc
 <hr>
 <p><a href="https://github.com/kubernetes/ingress-nginx">NGINX Ingress Controller</a> is one of the <a href="https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/#additional-controllers">many available Kubernetes Ingress Controllers</a>, which acts as a load balancer and satisfies routing rules specified in <a href="https://kubernetes.io/docs/concepts/services-networking/ingress/#what-is-ingress">Ingress</a> resources, using the <a href="https://nginx.org/en/">NGINX reverse proxy</a>.</p>
 <p>NGINX Ingress Controller can be installed via its <a href="https://github.com/kubernetes/ingress-nginx/tree/main/charts/ingress-nginx">Helm chart</a>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 </span></span><span style="display:flex;"><span>helm install ingress-nginx/ingress-nginx --name-template ingress-nginx --create-namespace -n ingress-nginx --values kind/ingress-nginx-values.yaml --version 4.8.3 --wait
 </span></span></code></pre></div><p>Now, if everything goes according to plan, you should be able to see the <strong>ingress-nginx-controller</strong> Deployment running.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get deploy -n ingress-nginx
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get deploy -n ingress-nginx
 </span></span><span style="display:flex;"><span>NAME                       READY   UP-TO-DATE   AVAILABLE   AGE
-</span></span><span style="display:flex;"><span>ingress-nginx-controller   1/1     <span style="color:#ae81ff">1</span>            <span style="color:#ae81ff">1</span>           4m35s
+</span></span><span style="display:flex;"><span>ingress-nginx-controller   1/1     <span style="color:#d0bf69">1</span>            <span style="color:#d0bf69">1</span>           4m35s
 </span></span></code></pre></div><h2 id="installing-prometheus">Installing Prometheus</h2>
 <hr>
 <p>Prometheus can be installed via its community <a href="https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack">Helm chart</a>, which also provides <a href="https://grafana.com/grafana/">Grafana</a> out of the box.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 </span></span><span style="display:flex;"><span>helm install prometheus-community/kube-prometheus-stack --name-template prometheus --create-namespace -n prometheus --version 54.2.2 --wait
 </span></span></code></pre></div><p>If everything went fine, you should be able to see three newly spawned deployments with the READY state!</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get deploy -n prometheus
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get deploy -n prometheus
 </span></span><span style="display:flex;"><span>NAME                                  READY   UP-TO-DATE   AVAILABLE   
-</span></span><span style="display:flex;"><span>prometheus-grafana                    1/1     <span style="color:#ae81ff">1</span>            <span style="color:#ae81ff">1</span>           
-</span></span><span style="display:flex;"><span>prometheus-kube-prometheus-operator   1/1     <span style="color:#ae81ff">1</span>            <span style="color:#ae81ff">1</span>           
-</span></span><span style="display:flex;"><span>prometheus-kube-state-metrics         1/1     <span style="color:#ae81ff">1</span>            <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>prometheus-grafana                    1/1     <span style="color:#d0bf69">1</span>            <span style="color:#d0bf69">1</span>           
+</span></span><span style="display:flex;"><span>prometheus-kube-prometheus-operator   1/1     <span style="color:#d0bf69">1</span>            <span style="color:#d0bf69">1</span>           
+</span></span><span style="display:flex;"><span>prometheus-kube-state-metrics         1/1     <span style="color:#d0bf69">1</span>            <span style="color:#d0bf69">1</span>
 </span></span></code></pre></div><h2 id="installing-prometheus-adapter">Installing Prometheus Adapter</h2>
 <hr>
 <p><a href="https://github.com/kubernetes-sigs/prometheus-adapter">Prometheus Adapter</a> is a source of custom metrics, which collects them from Prometheus and exposes them in Kubernetes API server through <a href="https://github.com/kubernetes/metrics">Metrics API</a> for use by <a href="https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/">Horizontal Pod Autoscaler</a> and <a href="https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler/">Vertical Pod Autoscaler</a>.</p>
@@ -128,26 +128,26 @@ It was primarily designed for testing Kubernetes itself, but may be used for loc
 <p><em>If you haven&rsquo;t already, go read <a href="/posts/simple-horizontal-autoscaling/">Horizontal Pod Autoscaler in Kubernetes (Part 1) - Simple Autoscaling using Metrics Server</a> and learn how to implement a Horizontal Pod Autoscaler using Metrics Server!</em></p>
 </blockquote>
 <p>Prometheus Adapter can be installed via its <a href="https://github.com/prometheus-community/helm-charts/tree/main/charts/prometheus-adapter">Helm chart</a>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>helm install prometheus-community/prometheus-adapter --name-template prometheus-adapter --create-namespace -n prometheus-adapter --values kind/prometheus-adapter-values.yaml --version 4.9.0 --wait
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>helm install prometheus-community/prometheus-adapter --name-template prometheus-adapter --create-namespace -n prometheus-adapter --values kind/prometheus-adapter-values.yaml --version 4.9.0 --wait
 </span></span></code></pre></div><p>Now, if all goes well, you should see the <strong>prometheus-adapter</strong> Deployment running with the READY state.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get deploy -n prometheus-adapter
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get deploy -n prometheus-adapter
 </span></span><span style="display:flex;"><span>NAME                 READY   UP-TO-DATE   AVAILABLE   AGE
-</span></span><span style="display:flex;"><span>prometheus-adapter   1/1     <span style="color:#ae81ff">1</span>            <span style="color:#ae81ff">1</span>           52s
+</span></span><span style="display:flex;"><span>prometheus-adapter   1/1     <span style="color:#d0bf69">1</span>            <span style="color:#d0bf69">1</span>           52s
 </span></span></code></pre></div><h2 id="autoscaling-services-based-on-prometheus-metrics">Autoscaling Services based on Prometheus Metrics</h2>
 <hr>
 <p>Now that Prometheus Adapter is up and running, let&rsquo;s get to it, shall we? 🧐</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>helm install golang-sample-app/helm-chart --name-template sample-app --create-namespace -n sample-app --set prometheus.enabled<span style="color:#f92672">=</span>true --wait
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>helm install golang-sample-app/helm-chart --name-template sample-app --create-namespace -n sample-app --set prometheus.enabled=<span style="color:#d0a8ff">true</span> --wait
 </span></span></code></pre></div><p>If everything goes fine, you should eventually see one Deployment with the READY state.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get deploy -n sample-app
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get deploy -n sample-app
 </span></span><span style="display:flex;"><span>NAME         READY   UP-TO-DATE   AVAILABLE   AGE
-</span></span><span style="display:flex;"><span>sample-app   2/2     <span style="color:#ae81ff">2</span>            <span style="color:#ae81ff">2</span>           28s
+</span></span><span style="display:flex;"><span>sample-app   2/2     <span style="color:#d0bf69">2</span>            <span style="color:#d0bf69">2</span>           28s
 </span></span></code></pre></div><p>Alright, now let&rsquo;s have a look at the HPA!</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl describe hpa -n sample-app
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl describe hpa -n sample-app
 </span></span><span style="display:flex;"><span>...
-</span></span><span style="display:flex;"><span>Metrics: <span style="color:#f92672">(</span> current / target <span style="color:#f92672">)</span>
-</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;golang_sample_app_requests_per_second&#34;</span> on pods:  &lt;unknown&gt; / <span style="color:#ae81ff">10</span>
-</span></span><span style="display:flex;"><span>Min replicas:                                       <span style="color:#ae81ff">2</span>
-</span></span><span style="display:flex;"><span>Max replicas:                                       <span style="color:#ae81ff">8</span>
+</span></span><span style="display:flex;"><span>Metrics: ( current / target )
+</span></span><span style="display:flex;"><span>  <span style="color:#fc6a5d">&#34;golang_sample_app_requests_per_second&#34;</span> on pods:  &lt;unknown&gt; / <span style="color:#d0bf69">10</span>
+</span></span><span style="display:flex;"><span>Min replicas:                                       <span style="color:#d0bf69">2</span>
+</span></span><span style="display:flex;"><span>Max replicas:                                       <span style="color:#d0bf69">8</span>
 </span></span></code></pre></div><p>As you can see, this HPA is configured to scale the service based on requests per second (rps), with an average of <strong>10</strong>.</p>
 <blockquote>
 <p><em>Note: as you probably have noticed, the current value for the request throughput is <strong>unknown</strong>, this is expected as the service hasn&rsquo;t served any requests yet, thus no timeseries for this metric are present in Prometheus.</em></p>
@@ -160,71 +160,71 @@ It was primarily designed for testing Kubernetes itself, but may be used for loc
 <p>Now, this is the moment you&rsquo;ve certainly expected… It&rsquo;s Load Testing time! 😎</p>
 <p>For Load Testing, I really recommend <a href="https://k6.io/docs/">k6</a> from the Grafana Labs team. It is a dead-simple yet super powerful tool with very extensive documentation.</p>
 <p>See for yourself!</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>k6 run k6/script.js
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>k6 run k6/script.js
 </span></span></code></pre></div><p>While the load test is running, I suggest watching the HPA in a separate tab.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>kubectl get hpa -n sample-app -w
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>kubectl get hpa -n sample-app -w
 </span></span></code></pre></div><p>As the load test progresses and the 2 starting Pods start to handle more than 10rps each, you should see the Prometheus metric&rsquo;s target increasing, and ultimately, the <strong>replica count reaching its maximum</strong>!</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>Deployment/sample-app   &lt;unknown&gt;/10   <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">2</span>
-</span></span><span style="display:flex;"><span>Deployment/sample-app   4360m/10       <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">2</span>
-</span></span><span style="display:flex;"><span>Deployment/sample-app   6236m/10       <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">2</span>
-</span></span><span style="display:flex;"><span>Deployment/sample-app   12471m/10      <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">2</span>
-</span></span><span style="display:flex;"><span>Deployment/sample-app   15577m/10      <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">3</span>
-</span></span><span style="display:flex;"><span>Deployment/sample-app   21231m/10      <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">3</span>
-</span></span><span style="display:flex;"><span>Deployment/sample-app   21231m/10      <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">5</span>
-</span></span><span style="display:flex;"><span>Deployment/sample-app   16752m/10      <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">5</span>
-</span></span><span style="display:flex;"><span>Deployment/sample-app   18362m/10      <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">5</span>
-</span></span><span style="display:flex;"><span>Deployment/sample-app   15921m/10      <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">6</span>
-</span></span><span style="display:flex;"><span>Deployment/sample-app   15543m/10      <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">6</span>
-</span></span><span style="display:flex;"><span>Deployment/sample-app   16530m/10      <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">8</span>
-</span></span><span style="display:flex;"><span>Deployment/sample-app   15397m/10      <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">8</span>
-</span></span><span style="display:flex;"><span>Deployment/sample-app   14428m/10      <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">8</span>
-</span></span><span style="display:flex;"><span>Deployment/sample-app   11897m/10      <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">8</span>
-</span></span><span style="display:flex;"><span>Deployment/sample-app   12370m/10      <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">8</span>
-</span></span><span style="display:flex;"><span>Deployment/sample-app   12423m/10      <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">8</span>
-</span></span><span style="display:flex;"><span>Deployment/sample-app   12414m/10      <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">8</span>
-</span></span><span style="display:flex;"><span>Deployment/sample-app   12423m/10      <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">8</span>
-</span></span><span style="display:flex;"><span>Deployment/sample-app   10962m/10      <span style="color:#ae81ff">2</span>         <span style="color:#ae81ff">8</span>         <span style="color:#ae81ff">8</span>
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>Deployment/sample-app   &lt;unknown&gt;/10   <span style="color:#d0bf69">2</span>         <span style="color:#d0bf69">8</span>         <span style="color:#d0bf69">2</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   4360m/10       <span style="color:#d0bf69">2</span>         <span style="color:#d0bf69">8</span>         <span style="color:#d0bf69">2</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   6236m/10       <span style="color:#d0bf69">2</span>         <span style="color:#d0bf69">8</span>         <span style="color:#d0bf69">2</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   12471m/10      <span style="color:#d0bf69">2</span>         <span style="color:#d0bf69">8</span>         <span style="color:#d0bf69">2</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   15577m/10      <span style="color:#d0bf69">2</span>         <span style="color:#d0bf69">8</span>         <span style="color:#d0bf69">3</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   21231m/10      <span style="color:#d0bf69">2</span>         <span style="color:#d0bf69">8</span>         <span style="color:#d0bf69">3</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   21231m/10      <span style="color:#d0bf69">2</span>         <span style="color:#d0bf69">8</span>         <span style="color:#d0bf69">5</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   16752m/10      <span style="color:#d0bf69">2</span>         <span style="color:#d0bf69">8</span>         <span style="color:#d0bf69">5</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   18362m/10      <span style="color:#d0bf69">2</span>         <span style="color:#d0bf69">8</span>         <span style="color:#d0bf69">5</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   15921m/10      <span style="color:#d0bf69">2</span>         <span style="color:#d0bf69">8</span>         <span style="color:#d0bf69">6</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   15543m/10      <span style="color:#d0bf69">2</span>         <span style="color:#d0bf69">8</span>         <span style="color:#d0bf69">6</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   16530m/10      <span style="color:#d0bf69">2</span>         <span style="color:#d0bf69">8</span>         <span style="color:#d0bf69">8</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   15397m/10      <span style="color:#d0bf69">2</span>         <span style="color:#d0bf69">8</span>         <span style="color:#d0bf69">8</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   14428m/10      <span style="color:#d0bf69">2</span>         <span style="color:#d0bf69">8</span>         <span style="color:#d0bf69">8</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   11897m/10      <span style="color:#d0bf69">2</span>         <span style="color:#d0bf69">8</span>         <span style="color:#d0bf69">8</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   12370m/10      <span style="color:#d0bf69">2</span>         <span style="color:#d0bf69">8</span>         <span style="color:#d0bf69">8</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   12423m/10      <span style="color:#d0bf69">2</span>         <span style="color:#d0bf69">8</span>         <span style="color:#d0bf69">8</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   12414m/10      <span style="color:#d0bf69">2</span>         <span style="color:#d0bf69">8</span>         <span style="color:#d0bf69">8</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   12423m/10      <span style="color:#d0bf69">2</span>         <span style="color:#d0bf69">8</span>         <span style="color:#d0bf69">8</span>
+</span></span><span style="display:flex;"><span>Deployment/sample-app   10962m/10      <span style="color:#d0bf69">2</span>         <span style="color:#d0bf69">8</span>         <span style="color:#d0bf69">8</span>
 </span></span></code></pre></div><p>Now, let&rsquo;s quickly have a look at the Load Test summary and the result of the <code>http_req_duration</code> metric in particular!</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>          /<span style="color:#ae81ff">\ </span>     |‾‾| /‾‾/   /‾‾/
-</span></span><span style="display:flex;"><span>     /<span style="color:#ae81ff">\ </span> /  <span style="color:#ae81ff">\ </span>    |  |/  /   /  /
-</span></span><span style="display:flex;"><span>    /  <span style="color:#ae81ff">\/</span>    <span style="color:#ae81ff">\ </span>   |     <span style="color:#f92672">(</span>   /   ‾‾<span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>   /          <span style="color:#ae81ff">\ </span>  |  |<span style="color:#ae81ff">\ </span> <span style="color:#ae81ff">\ </span>|  <span style="color:#f92672">(</span>‾<span style="color:#f92672">)</span>  |
-</span></span><span style="display:flex;"><span>  / __________ <span style="color:#ae81ff">\ </span> |__| <span style="color:#ae81ff">\_</span>_<span style="color:#ae81ff">\ \_</span>____/ .io
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>          /<span style="color:#fc6a5d">\ </span>     |‾‾| /‾‾/   /‾‾/
+</span></span><span style="display:flex;"><span>     /<span style="color:#fc6a5d">\ </span> /  <span style="color:#fc6a5d">\ </span>    |  |/  /   /  /
+</span></span><span style="display:flex;"><span>    /  <span style="color:#fc6a5d">\/</span>    <span style="color:#fc6a5d">\ </span>   |     (   /   ‾‾<span style="color:#fc6a5d">\
+</span></span></span><span style="display:flex;"><span><span style="color:#fc6a5d"></span>   /          <span style="color:#fc6a5d">\ </span>  |  |<span style="color:#fc6a5d">\ </span> <span style="color:#fc6a5d">\ </span>|  (‾)  |
+</span></span><span style="display:flex;"><span>  / __________ <span style="color:#fc6a5d">\ </span> |__| <span style="color:#fc6a5d">\_</span>_<span style="color:#fc6a5d">\ \_</span>____/ .io
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>  execution: local
+</span></span><span style="display:flex;"><span>  execution: <span style="color:#d0a8ff">local</span>
 </span></span><span style="display:flex;"><span>     script: k6/script.js
 </span></span><span style="display:flex;"><span>     output: -
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>  scenarios: <span style="color:#f92672">(</span>100.00%<span style="color:#f92672">)</span> <span style="color:#ae81ff">1</span> scenario, <span style="color:#ae81ff">100</span> max VUs, 5m30s max duration <span style="color:#f92672">(</span>incl. graceful stop<span style="color:#f92672">)</span>:
-</span></span><span style="display:flex;"><span>           * load: Up to 100.00 iterations/s <span style="color:#66d9ef">for</span> 5m0s over <span style="color:#ae81ff">2</span> stages <span style="color:#f92672">(</span>maxVUs: 100, gracefulStop: 30s<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>  scenarios: (100.00%) <span style="color:#d0bf69">1</span> scenario, <span style="color:#d0bf69">100</span> max VUs, 5m30s max duration (incl. graceful stop):
+</span></span><span style="display:flex;"><span>           * load: Up to 100.00 iterations/s <span style="color:#fc5fa3">for</span> 5m0s over <span style="color:#d0bf69">2</span> stages (maxVUs: 100, gracefulStop: 30s)
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>     ✓ status code is <span style="color:#ae81ff">200</span>
+</span></span><span style="display:flex;"><span>     ✓ status code is <span style="color:#d0bf69">200</span>
 </span></span><span style="display:flex;"><span>     ✓ node is kind-control-plane
 </span></span><span style="display:flex;"><span>     ✓ namespace is sample-app
 </span></span><span style="display:flex;"><span>     ✓ pod is sample-app-*
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>   ✓ checks.........................: 100.00% ✓ <span style="color:#ae81ff">60356</span>     ✗ <span style="color:#ae81ff">0</span>
-</span></span><span style="display:flex;"><span>     data_received..................: 3.5 MB  <span style="color:#ae81ff">12</span> kB/s
+</span></span><span style="display:flex;"><span>   ✓ checks.........................: 100.00% ✓ <span style="color:#d0bf69">60356</span>     ✗ <span style="color:#d0bf69">0</span>
+</span></span><span style="display:flex;"><span>     data_received..................: 3.5 MB  <span style="color:#d0bf69">12</span> kB/s
 </span></span><span style="display:flex;"><span>     data_sent......................: 1.7 MB  5.8 kB/s
-</span></span><span style="display:flex;"><span>     http_req_blocked...............: avg<span style="color:#f92672">=</span>18.43µs min<span style="color:#f92672">=</span>1µs     med<span style="color:#f92672">=</span>8µs    max<span style="color:#f92672">=</span>3.9ms  p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>17µs    p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>20µs
-</span></span><span style="display:flex;"><span>     http_req_connecting............: avg<span style="color:#f92672">=</span>5.41µs  min<span style="color:#f92672">=</span>0s      med<span style="color:#f92672">=</span>0s     max<span style="color:#f92672">=</span>3.7ms  p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>0s      p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>0s
-</span></span><span style="display:flex;"><span>   ✓ http_req_duration..............: avg<span style="color:#f92672">=</span>16.74ms min<span style="color:#f92672">=</span>498µs   med<span style="color:#f92672">=</span>2.77ms max<span style="color:#f92672">=</span>1.48s  p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>14.52ms p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>64.78ms
-</span></span><span style="display:flex;"><span>       <span style="color:#f92672">{</span> expected_response:true <span style="color:#f92672">}</span>...: avg<span style="color:#f92672">=</span>16.74ms min<span style="color:#f92672">=</span>498µs   med<span style="color:#f92672">=</span>2.77ms max<span style="color:#f92672">=</span>1.48s  p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>14.52ms p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>64.78ms
-</span></span><span style="display:flex;"><span>     http_req_failed................: 0.00%   ✓ <span style="color:#ae81ff">0</span>         ✗ <span style="color:#ae81ff">15089</span>
-</span></span><span style="display:flex;"><span>     http_req_receiving.............: avg<span style="color:#f92672">=</span>97.15µs min<span style="color:#f92672">=</span>9µs     med<span style="color:#f92672">=</span>74µs   max<span style="color:#f92672">=</span>3.33ms p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>151µs   p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>197µs
-</span></span><span style="display:flex;"><span>     http_req_sending...............: avg<span style="color:#f92672">=</span>48.11µs min<span style="color:#f92672">=</span>6µs     med<span style="color:#f92672">=</span>34µs   max<span style="color:#f92672">=</span>3.12ms p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>69µs    p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>86µs
-</span></span><span style="display:flex;"><span>     http_req_tls_handshaking.......: avg<span style="color:#f92672">=</span>0s      min<span style="color:#f92672">=</span>0s      med<span style="color:#f92672">=</span>0s     max<span style="color:#f92672">=</span>0s     p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>0s      p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>0s
-</span></span><span style="display:flex;"><span>     http_req_waiting...............: avg<span style="color:#f92672">=</span>16.59ms min<span style="color:#f92672">=</span>452µs   med<span style="color:#f92672">=</span>2.61ms max<span style="color:#f92672">=</span>1.48s  p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>14.32ms p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>64.69ms
-</span></span><span style="display:flex;"><span>     http_reqs......................: <span style="color:#ae81ff">15089</span>   50.297179/s
-</span></span><span style="display:flex;"><span>     iteration_duration.............: avg<span style="color:#f92672">=</span>17.18ms min<span style="color:#f92672">=</span>610.5µs med<span style="color:#f92672">=</span>3.21ms max<span style="color:#f92672">=</span>1.48s  p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>15.08ms p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>65.33ms
-</span></span><span style="display:flex;"><span>     iterations.....................: <span style="color:#ae81ff">15089</span>   50.297179/s
-</span></span><span style="display:flex;"><span>     vus............................: <span style="color:#ae81ff">0</span>       min<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>       max<span style="color:#f92672">=</span><span style="color:#ae81ff">18</span>
-</span></span><span style="display:flex;"><span>     vus_max........................: <span style="color:#ae81ff">100</span>     min<span style="color:#f92672">=</span><span style="color:#ae81ff">100</span>     max<span style="color:#f92672">=</span><span style="color:#ae81ff">100</span>
+</span></span><span style="display:flex;"><span>     http_req_blocked...............: <span style="color:#41a1c0">avg</span>=18.43µs <span style="color:#41a1c0">min</span>=1µs     <span style="color:#41a1c0">med</span>=8µs    <span style="color:#41a1c0">max</span>=3.9ms  p(90)=17µs    p(95)=20µs
+</span></span><span style="display:flex;"><span>     http_req_connecting............: <span style="color:#41a1c0">avg</span>=5.41µs  <span style="color:#41a1c0">min</span>=0s      <span style="color:#41a1c0">med</span>=0s     <span style="color:#41a1c0">max</span>=3.7ms  p(90)=0s      p(95)=0s
+</span></span><span style="display:flex;"><span>   ✓ http_req_duration..............: <span style="color:#41a1c0">avg</span>=16.74ms <span style="color:#41a1c0">min</span>=498µs   <span style="color:#41a1c0">med</span>=2.77ms <span style="color:#41a1c0">max</span>=1.48s  p(90)=14.52ms p(95)=64.78ms
+</span></span><span style="display:flex;"><span>       { expected_response:true }...: <span style="color:#41a1c0">avg</span>=16.74ms <span style="color:#41a1c0">min</span>=498µs   <span style="color:#41a1c0">med</span>=2.77ms <span style="color:#41a1c0">max</span>=1.48s  p(90)=14.52ms p(95)=64.78ms
+</span></span><span style="display:flex;"><span>     http_req_failed................: 0.00%   ✓ <span style="color:#d0bf69">0</span>         ✗ <span style="color:#d0bf69">15089</span>
+</span></span><span style="display:flex;"><span>     http_req_receiving.............: <span style="color:#41a1c0">avg</span>=97.15µs <span style="color:#41a1c0">min</span>=9µs     <span style="color:#41a1c0">med</span>=74µs   <span style="color:#41a1c0">max</span>=3.33ms p(90)=151µs   p(95)=197µs
+</span></span><span style="display:flex;"><span>     http_req_sending...............: <span style="color:#41a1c0">avg</span>=48.11µs <span style="color:#41a1c0">min</span>=6µs     <span style="color:#41a1c0">med</span>=34µs   <span style="color:#41a1c0">max</span>=3.12ms p(90)=69µs    p(95)=86µs
+</span></span><span style="display:flex;"><span>     http_req_tls_handshaking.......: <span style="color:#41a1c0">avg</span>=0s      <span style="color:#41a1c0">min</span>=0s      <span style="color:#41a1c0">med</span>=0s     <span style="color:#41a1c0">max</span>=0s     p(90)=0s      p(95)=0s
+</span></span><span style="display:flex;"><span>     http_req_waiting...............: <span style="color:#41a1c0">avg</span>=16.59ms <span style="color:#41a1c0">min</span>=452µs   <span style="color:#41a1c0">med</span>=2.61ms <span style="color:#41a1c0">max</span>=1.48s  p(90)=14.32ms p(95)=64.69ms
+</span></span><span style="display:flex;"><span>     http_reqs......................: <span style="color:#d0bf69">15089</span>   50.297179/s
+</span></span><span style="display:flex;"><span>     iteration_duration.............: <span style="color:#41a1c0">avg</span>=17.18ms <span style="color:#41a1c0">min</span>=610.5µs <span style="color:#41a1c0">med</span>=3.21ms <span style="color:#41a1c0">max</span>=1.48s  p(90)=15.08ms p(95)=65.33ms
+</span></span><span style="display:flex;"><span>     iterations.....................: <span style="color:#d0bf69">15089</span>   50.297179/s
+</span></span><span style="display:flex;"><span>     vus............................: <span style="color:#d0bf69">0</span>       <span style="color:#41a1c0">min</span>=<span style="color:#d0bf69">0</span>       <span style="color:#41a1c0">max</span>=<span style="color:#d0bf69">18</span>
+</span></span><span style="display:flex;"><span>     vus_max........................: <span style="color:#d0bf69">100</span>     <span style="color:#41a1c0">min</span>=<span style="color:#d0bf69">100</span>     <span style="color:#41a1c0">max</span>=<span style="color:#d0bf69">100</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>running <span style="color:#f92672">(</span>5m00.0s<span style="color:#f92672">)</span>, 000/100 VUs, <span style="color:#ae81ff">15089</span> complete and <span style="color:#ae81ff">0</span> interrupted iterations
-</span></span><span style="display:flex;"><span>load ✓ <span style="color:#f92672">[======================================]</span> 000/100 VUs  5m0s  000.65 iters/s
+</span></span><span style="display:flex;"><span>running (5m00.0s), 000/100 VUs, <span style="color:#d0bf69">15089</span> <span style="color:#d0a8ff">complete</span> and <span style="color:#d0bf69">0</span> interrupted iterations
+</span></span><span style="display:flex;"><span>load ✓ [======================================] 000/100 VUs  5m0s  000.65 iters/s
 </span></span></code></pre></div><p>As you can observe, our service has performed very well under heavy load, with a Success Share of 100%, a median latency of ~3ms, and a 95th percentile latency of ~50ms!</p>
 <p>We have the HPA to thank for that, as it scaled the Deployment from 2 to 8 Pods swiftly and automatically, based on request throughput!</p>
 <p>We definitely would not have had the same results without an HPA… Actually, why don&rsquo;t you try it yourself? 😉</p>
@@ -232,7 +232,7 @@ It was primarily designed for testing Kubernetes itself, but may be used for loc
 <h2 id="wrapping-up">Wrapping up</h2>
 <hr>
 <p>That&rsquo;s it! You can now stop and delete your Kind cluster.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>kind delete cluster
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>kind delete cluster
 </span></span></code></pre></div><p>To summarize, using Prometheus Adapter we were able to:</p>
 <ul>
 <li>Autoscale horizontally our service, based on Prometheus metrics.</li>

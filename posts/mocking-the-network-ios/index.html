@@ -63,42 +63,42 @@ But first, we need to prepare our <em>Network</em> layer for this kind of mockin
 See my article <a href="/posts/observer-design-pattern-ios/">Lightweight Design Patterns in iOS (Part 1) - Observer</a> for more details on how I like to build my Network layer! 😃</p>
 <p>Alright, alright, I’m gonna explain it to you! 😜<br>
 But first, let’s create a protocol (<em>URLSessionProtocol</em>) abstracting Foundation’s <em>URLSession</em>. 👌</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">Foundation</span>
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">import</span> <span style="color:#5dd8ff">Foundation</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">protocol</span> <span style="color:#a6e22e">URLSessionProtocol</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">dataTask</span>(with request: URLRequest, completionHandler: @escaping (Data?, URLResponse?, Error?) -&gt; Void) -&gt; URLSessionDataTaskProtocol
+</span></span><span style="display:flex;"><span><span style="color:#fc5fa3">protocol</span> <span style="color:#5dd8ff">URLSessionProtocol</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">dataTask</span>(with request: URLRequest, completionHandler: @escaping (Data?, URLResponse?, Error?) -&gt; <span style="color:#d0a8ff">Void</span>) -&gt; URLSessionDataTaskProtocol
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">URLSession</span>: URLSessionProtocol {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">dataTask</span>(with request: URLRequest, completionHandler: @escaping (Data?, URLResponse?, Error?) -&gt; Void) -&gt; URLSessionDataTaskProtocol {
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> dataTask(with: request, completionHandler: completionHandler) <span style="color:#66d9ef">as</span> URLSessionDataTask
+</span></span><span style="display:flex;"><span><span style="color:#fc5fa3">extension</span> <span style="color:#5dd8ff">URLSession</span>: URLSessionProtocol {
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">dataTask</span>(with request: URLRequest, completionHandler: @escaping (Data?, URLResponse?, Error?) -&gt; <span style="color:#d0a8ff">Void</span>) -&gt; URLSessionDataTaskProtocol {
+</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">return</span> dataTask(with: request, completionHandler: completionHandler) <span style="color:#fc5fa3">as</span> URLSessionDataTask
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Now, as you can see, we also need a protocol for the <em>URLSessionDataTask</em>, so we can also make a mock implementation of the data task! 😃<br>
 Right on, let’s write our <em>URLSessionDataTaskProtocol</em>! ✍️</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">Foundation</span>
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">import</span> <span style="color:#5dd8ff">Foundation</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">protocol</span> <span style="color:#a6e22e">URLSessionDataTaskProtocol</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">resume</span>()
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">cancel</span>()
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">suspend</span>()
+</span></span><span style="display:flex;"><span><span style="color:#fc5fa3">protocol</span> <span style="color:#5dd8ff">URLSessionDataTaskProtocol</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">resume</span>()
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">cancel</span>()
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">suspend</span>()
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">URLSessionDataTask</span>: URLSessionDataTaskProtocol {}
+</span></span><span style="display:flex;"><span><span style="color:#fc5fa3">extension</span> <span style="color:#5dd8ff">URLSessionDataTask</span>: URLSessionDataTaskProtocol {}
 </span></span></code></pre></div><p>OK! 👌 That’s all the abstraction we need, for now at least. 😉<br>
 At this time, we can already inject it in our NetworkManager and see how it plays out! 👍</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">NetworkManager</span> {
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">final</span> <span style="color:#fc5fa3">class</span> <span style="color:#5dd8ff">NetworkManager</span> {
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">var</span> session: URLSessionProtocol
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">private</span> <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">session</span>: URLSessionProtocol
 </span></span><span style="display:flex;"><span>    ...
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">init</span>(session: URLSessionProtocol = URLSession(configuration: .<span style="color:#66d9ef">default</span>), ...) {
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">self</span>.session = session
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">init</span>(session: URLSessionProtocol = URLSession(configuration: .<span style="color:#fc5fa3">default</span>), ...) {
+</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">self</span>.session = session
 </span></span><span style="display:flex;"><span>        ...
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>    ...
 </span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">dataTask</span>(with urlRequest: URLRequest, ...) {
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">dataTask</span>(with urlRequest: URLRequest, ...) {
 </span></span><span style="display:flex;"><span>        session.dataTask(with: urlRequest) { ...
 </span></span><span style="display:flex;"><span>            ...
 </span></span><span style="display:flex;"><span>        }
@@ -110,45 +110,45 @@ At this time, we can already inject it in our NetworkManager and see how it play
 All we did was abstract the session with a protocol to allow a different implementation of it! 🚀</p>
 <p>Before we get to the mocking part, we first need to define the way we are going to mock the responses. 📄<br>
 Let’s start with the <em>Response</em> struct! 👍</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">Foundation</span>
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">import</span> <span style="color:#5dd8ff">Foundation</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Response</span>: Codable {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> file: File?
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> error: NetworkError?
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> dataTask: URLSessionDataTaskMock
+</span></span><span style="display:flex;"><span><span style="color:#fc5fa3">struct</span> <span style="color:#5dd8ff">Response</span>: Codable {
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">file</span>: File?
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">error</span>: NetworkError?
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">dataTask</span>: URLSessionDataTaskMock
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">init</span>(<span style="color:#66d9ef">_</span> file: File? = <span style="color:#66d9ef">nil</span>, error: NetworkError? = <span style="color:#66d9ef">nil</span>, dataTask: URLSessionDataTaskMock = URLSessionDataTaskMock()) {
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">self</span>.file = file
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">self</span>.error = error
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">self</span>.dataTask = dataTask
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">init</span>(<span style="color:#fc5fa3">_</span> file: File? = <span style="color:#fc5fa3">nil</span>, error: NetworkError? = <span style="color:#fc5fa3">nil</span>, dataTask: URLSessionDataTaskMock = URLSessionDataTaskMock()) {
+</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">self</span>.file = file
+</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">self</span>.error = error
+</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">self</span>.dataTask = dataTask
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>As defined above, a Response can take a File (JSON or image) an <em>Error</em> and a <em>URLSessionDataTaskMock</em>.</p>
 <p>Before going any further, let’s see what a File is actually about. 👀</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">Foundation</span>
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">import</span> <span style="color:#5dd8ff">Foundation</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">File</span>: Codable {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> name: String
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> `<span style="color:#66d9ef">extension</span>`: Extension
+</span></span><span style="display:flex;"><span><span style="color:#fc5fa3">final</span> <span style="color:#fc5fa3">class</span> <span style="color:#5dd8ff">File</span>: Codable {
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">name</span>: <span style="color:#d0a8ff">String</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">var</span> `<span style="color:#fc5fa3">extension</span>`: Extension
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">enum</span> <span style="color:#a6e22e">Extension</span>: String, Codable {
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">case</span> json
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">case</span> jpg
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">enum</span> <span style="color:#5dd8ff">Extension</span>: <span style="color:#d0a8ff">String</span>, Codable {
+</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">case</span> json
+</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">case</span> jpg
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">init</span>(<span style="color:#66d9ef">_</span> name: String, <span style="color:#66d9ef">_</span> <span style="color:#66d9ef">extension</span>: Extension) {
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">self</span>.name = name
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">self</span>.`<span style="color:#66d9ef">extension</span>` = `<span style="color:#66d9ef">extension</span>`
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">init</span>(<span style="color:#fc5fa3">_</span> name: <span style="color:#d0a8ff">String</span>, <span style="color:#fc5fa3">_</span> <span style="color:#fc5fa3">extension</span>: Extension) {
+</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">self</span>.name = name
+</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">self</span>.`<span style="color:#fc5fa3">extension</span>` = `<span style="color:#fc5fa3">extension</span>`
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> data: Data? {
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">guard</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">let</span> url = Bundle(<span style="color:#66d9ef">for</span>: type(of: <span style="color:#66d9ef">self</span>)).url(forResource: name, withExtension: `<span style="color:#66d9ef">extension</span>`.rawValue),
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">let</span> data = <span style="color:#66d9ef">try</span>? Data(contentsOf: url) <span style="color:#66d9ef">else</span> {
-</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">nil</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">data</span>: Data? {
+</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">guard</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">url</span> = Bundle(<span style="color:#fc5fa3">for</span>: type(of: <span style="color:#fc5fa3">self</span>)).url(forResource: name, withExtension: `<span style="color:#fc5fa3">extension</span>`.rawValue),
+</span></span><span style="display:flex;"><span>            <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">data</span> = <span style="color:#fc5fa3">try</span>? Data(contentsOf: url) <span style="color:#fc5fa3">else</span> {
+</span></span><span style="display:flex;"><span>                <span style="color:#fc5fa3">return</span> <span style="color:#fc5fa3">nil</span>
 </span></span><span style="display:flex;"><span>        }
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> data
+</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">return</span> data
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Thus, the <em>File</em> is the entity where we <strong>encode the responses to be injected in the launch environment</strong>, at runtime. 📁</p>
@@ -156,225 +156,225 @@ Let’s start with the <em>Response</em> struct! 👍</p>
 Now we have the mock <em>Responses</em> as well as the protocols ready, mocking is very easy. 😃<br>
 All we need is making our own implementation of <em>URLSessionProtocol</em> and <em>URLSessionDataTaskProtocol</em> for testing purposes! 💯</p>
 <p>But first, let’s define our <em>Request</em> enum! ✅</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">enum</span> <span style="color:#a6e22e">Request</span>: Hashable {
-</span></span><span style="display:flex;"><span>   <span style="color:#66d9ef">case</span> fetchSomething
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">enum</span> <span style="color:#5dd8ff">Request</span>: <span style="color:#d0a8ff">Hashable</span> {
+</span></span><span style="display:flex;"><span>   <span style="color:#fc5fa3">case</span> fetchSomething
 </span></span><span style="display:flex;"><span>   
-</span></span><span style="display:flex;"><span>   <span style="color:#66d9ef">var</span> url: String {
-</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">switch</span> <span style="color:#66d9ef">self</span> {
-</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">case</span> .fetchSomething:
-</span></span><span style="display:flex;"><span>         <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;https://api.com/something&#34;</span>
+</span></span><span style="display:flex;"><span>   <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">url</span>: <span style="color:#d0a8ff">String</span> {
+</span></span><span style="display:flex;"><span>      <span style="color:#fc5fa3">switch</span> <span style="color:#fc5fa3">self</span> {
+</span></span><span style="display:flex;"><span>      <span style="color:#fc5fa3">case</span> .fetchSomething:
+</span></span><span style="display:flex;"><span>         <span style="color:#fc5fa3">return</span> <span style="color:#fc6a5d">&#34;https://api.com/something&#34;</span>
 </span></span><span style="display:flex;"><span>      }
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> method: HTTPMethod {
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">switch</span> <span style="color:#66d9ef">self</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">case</span> .fetchSomething
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> .<span style="color:#66d9ef">get</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">method</span>: HTTPMethod {
+</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">switch</span> <span style="color:#fc5fa3">self</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">case</span> .fetchSomething
+</span></span><span style="display:flex;"><span>            <span style="color:#fc5fa3">return</span> .<span style="color:#fc5fa3">get</span>
 </span></span><span style="display:flex;"><span>        }
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> parameters: Parameters {
-</span></span><span style="display:flex;"><span>       <span style="color:#66d9ef">switch</span> <span style="color:#66d9ef">self</span> {
-</span></span><span style="display:flex;"><span>       <span style="color:#66d9ef">case</span> .fetchSomething:
-</span></span><span style="display:flex;"><span>          <span style="color:#66d9ef">return</span> .url([<span style="color:#e6db74">&#34;api-key&#34;</span>: <span style="color:#e6db74">&#34;abcd1234&#34;</span>])
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">parameters</span>: Parameters {
+</span></span><span style="display:flex;"><span>       <span style="color:#fc5fa3">switch</span> <span style="color:#fc5fa3">self</span> {
+</span></span><span style="display:flex;"><span>       <span style="color:#fc5fa3">case</span> .fetchSomething:
+</span></span><span style="display:flex;"><span>          <span style="color:#fc5fa3">return</span> .url([<span style="color:#fc6a5d">&#34;api-key&#34;</span>: <span style="color:#fc6a5d">&#34;abcd1234&#34;</span>])
 </span></span><span style="display:flex;"><span>       }
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Now, because we are going to use the <em>Request</em> as <strong>key</strong> to our responses <strong>Dictionary</strong>, we are going to map it to an absolute URL. 🗺</p>
 <p>For this purpose, let’s first create an extension on <em>Parameters</em> for getting a <strong>String</strong> representation of a <strong>query</strong> out of it. 👌</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">Parameters</span> {
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">extension</span> <span style="color:#5dd8ff">Parameters</span> {
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> query: String? {
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">switch</span> <span style="color:#66d9ef">self</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">case</span> .url(<span style="color:#66d9ef">let</span> url):
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">guard</span> <span style="color:#f92672">!</span>url.isEmpty <span style="color:#66d9ef">else</span> {
-</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">nil</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">query</span>: <span style="color:#d0a8ff">String</span>? {
+</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">switch</span> <span style="color:#fc5fa3">self</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">case</span> .url(<span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">url</span>):
+</span></span><span style="display:flex;"><span>            <span style="color:#fc5fa3">guard</span> !url.<span style="color:#a167e6">isEmpty</span> <span style="color:#fc5fa3">else</span> {
+</span></span><span style="display:flex;"><span>                <span style="color:#fc5fa3">return</span> <span style="color:#fc5fa3">nil</span>
 </span></span><span style="display:flex;"><span>            }
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> url
-</span></span><span style="display:flex;"><span>                .map { key, value <span style="color:#66d9ef">in</span>
-</span></span><span style="display:flex;"><span>                    <span style="color:#66d9ef">guard</span> <span style="color:#66d9ef">let</span> value = value <span style="color:#66d9ef">else</span> {
-</span></span><span style="display:flex;"><span>                        <span style="color:#66d9ef">return</span> key
+</span></span><span style="display:flex;"><span>            <span style="color:#fc5fa3">return</span> url
+</span></span><span style="display:flex;"><span>                .<span style="color:#a167e6">map</span> { key, value <span style="color:#fc5fa3">in</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#fc5fa3">guard</span> <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">value</span> = value <span style="color:#fc5fa3">else</span> {
+</span></span><span style="display:flex;"><span>                        <span style="color:#fc5fa3">return</span> key
 </span></span><span style="display:flex;"><span>                    }
-</span></span><span style="display:flex;"><span>                    <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">\(</span>key<span style="color:#e6db74">)</span><span style="color:#e6db74">=</span><span style="color:#e6db74">\(</span>value<span style="color:#e6db74">)</span><span style="color:#e6db74">&#34;</span>
-</span></span><span style="display:flex;"><span>                }.joined(separator: <span style="color:#e6db74">&#34;&amp;&#34;</span>)
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">default</span>:
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">nil</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#fc5fa3">return</span> <span style="color:#fc6a5d">&#34;</span><span style="color:#fc6a5d">\(</span>key<span style="color:#fc6a5d">)</span><span style="color:#fc6a5d">=</span><span style="color:#fc6a5d">\(</span>value<span style="color:#fc6a5d">)</span><span style="color:#fc6a5d">&#34;</span>
+</span></span><span style="display:flex;"><span>                }.joined(separator: <span style="color:#fc6a5d">&#34;&amp;&#34;</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">default</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#fc5fa3">return</span> <span style="color:#fc5fa3">nil</span>
 </span></span><span style="display:flex;"><span>        }
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>And now we’ll create an extension on <em>Request</em> to get a <strong>String</strong> representation of an <strong>absolute URL</strong> from it. 👍</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">Request</span> {
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">extension</span> <span style="color:#5dd8ff">Request</span> {
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> absoluteUrl: String {
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">guard</span> <span style="color:#66d9ef">let</span> query = parameters.query <span style="color:#66d9ef">else</span> {
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> url
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">absoluteUrl</span>: <span style="color:#d0a8ff">String</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">guard</span> <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">query</span> = parameters.query <span style="color:#fc5fa3">else</span> {
+</span></span><span style="display:flex;"><span>            <span style="color:#fc5fa3">return</span> url
 </span></span><span style="display:flex;"><span>        }
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">\(</span>url<span style="color:#e6db74">)</span><span style="color:#e6db74">?</span><span style="color:#e6db74">\(</span>query<span style="color:#e6db74">)</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">return</span> <span style="color:#fc6a5d">&#34;</span><span style="color:#fc6a5d">\(</span>url<span style="color:#fc6a5d">)</span><span style="color:#fc6a5d">?</span><span style="color:#fc6a5d">\(</span>query<span style="color:#fc6a5d">)</span><span style="color:#fc6a5d">&#34;</span>
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Alright, we are good to go! 🎉<br>
 Let’s get started with the <em>URLSessionMock</em> then! 💪<br>
 All it needs is a <strong>mutable Dictionary</strong> of <em>Requests</em> (<strong>keys</strong>) and <em>Responses</em> (<strong>values</strong>) as well as conforming to our <em>URLSessionProtocol</em>. 👌<br>
 The <em>Responses</em> <strong>Array</strong> inside the <strong>Dictionary</strong> will behave like a <strong>Queue</strong> (FIFO — First In First Out), meaning that they will be consumed just like a real network would! 😮 Simple! 🙌</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">Foundation</span>
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">import</span> <span style="color:#5dd8ff">Foundation</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">URLSessionMock</span>: Codable {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span>(<span style="color:#66d9ef">set</span>) <span style="color:#66d9ef">var</span> responses: [String: [Response]]
+</span></span><span style="display:flex;"><span><span style="color:#fc5fa3">final</span> <span style="color:#fc5fa3">class</span> <span style="color:#5dd8ff">URLSessionMock</span>: Codable {
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">private</span>(<span style="color:#fc5fa3">set</span>) <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">responses</span>: [<span style="color:#d0a8ff">String</span>: [Response]]
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">init</span>(responses: [Request: [Response]] = [:]) {
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">self</span>.responses = Dictionary( uniqueKeysWithValues:
-</span></span><span style="display:flex;"><span>            responses.map { request, responses <span style="color:#66d9ef">in</span>
-</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span> (key: request.absoluteUrl, value: responses.reversed())
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">init</span>(responses: [Request: [Response]] = [:]) {
+</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">self</span>.responses = <span style="color:#d0a8ff">Dictionary</span>( uniqueKeysWithValues:
+</span></span><span style="display:flex;"><span>            responses.<span style="color:#a167e6">map</span> { request, responses <span style="color:#fc5fa3">in</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#fc5fa3">return</span> (key: request.absoluteUrl, value: responses.reversed())
 </span></span><span style="display:flex;"><span>            }
 </span></span><span style="display:flex;"><span>        )
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">URLSessionMock</span>: URLSessionProtocol {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">dataTask</span>(with request: URLRequest, completionHandler: @escaping (Data?, URLResponse?, Error?) -&gt; Void) -&gt; URLSessionDataTaskProtocol {
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">guard</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">let</span> url = request.url?.absoluteString,
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">let</span> response = responses[url]?.popLast() <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span><span style="color:#fc5fa3">extension</span> <span style="color:#5dd8ff">URLSessionMock</span>: URLSessionProtocol {
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">dataTask</span>(with request: URLRequest, completionHandler: @escaping (Data?, URLResponse?, Error?) -&gt; <span style="color:#d0a8ff">Void</span>) -&gt; URLSessionDataTaskProtocol {
+</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">guard</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">url</span> = request.url?.absoluteString,
+</span></span><span style="display:flex;"><span>            <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">response</span> = responses[url]?.popLast() <span style="color:#fc5fa3">else</span> {
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>                completionHandler(<span style="color:#66d9ef">nil</span>, <span style="color:#66d9ef">nil</span>, NetworkError.invalidRequest)
-</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span> URLSessionDataTaskMock()
+</span></span><span style="display:flex;"><span>                completionHandler(<span style="color:#fc5fa3">nil</span>, <span style="color:#fc5fa3">nil</span>, NetworkError.invalidRequest)
+</span></span><span style="display:flex;"><span>                <span style="color:#fc5fa3">return</span> URLSessionDataTaskMock()
 </span></span><span style="display:flex;"><span>        }
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        completionHandler(response.file?.data, <span style="color:#66d9ef">nil</span>, response.error)
+</span></span><span style="display:flex;"><span>        completionHandler(response.file?.data, <span style="color:#fc5fa3">nil</span>, response.error)
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> response.dataTask
+</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">return</span> response.dataTask
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>With this implementation, we have complete control over the requests being made. 👮<br>
 We can decide which <em>Response</em> to return depending on the <em>Request</em> and even stub on the data task! 🤯<br>
 Speaking of which, here is the mock implementation of the <em>URLSessionDataTaskProtocol</em>. 😉</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">URLSessionDataTaskMock</span>: Codable {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span>(<span style="color:#66d9ef">set</span>) <span style="color:#66d9ef">var</span> isResumed = <span style="color:#66d9ef">false</span>
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">final</span> <span style="color:#fc5fa3">class</span> <span style="color:#5dd8ff">URLSessionDataTaskMock</span>: Codable {
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">private</span>(<span style="color:#fc5fa3">set</span>) <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">isResumed</span> = <span style="color:#fc5fa3">false</span>
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">URLSessionDataTaskMock</span>: URLSessionDataTaskProtocol {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">cancel</span>() {
-</span></span><span style="display:flex;"><span>        isResumed = <span style="color:#66d9ef">false</span>
+</span></span><span style="display:flex;"><span><span style="color:#fc5fa3">extension</span> <span style="color:#5dd8ff">URLSessionDataTaskMock</span>: URLSessionDataTaskProtocol {
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">cancel</span>() {
+</span></span><span style="display:flex;"><span>        isResumed = <span style="color:#fc5fa3">false</span>
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">suspend</span>() {
-</span></span><span style="display:flex;"><span>        isResumed = <span style="color:#66d9ef">false</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">suspend</span>() {
+</span></span><span style="display:flex;"><span>        isResumed = <span style="color:#fc5fa3">false</span>
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">resume</span>() {
-</span></span><span style="display:flex;"><span>        isResumed = <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">resume</span>() {
+</span></span><span style="display:flex;"><span>        isResumed = <span style="color:#fc5fa3">true</span>
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Almost there! ☝️<br>
 Before writing our tests, let’s add some helper functions/variables! 👍</p>
 <p>To avoid making use of hardcoded strings, let’s create an <em>Identifiable</em> protocol which will provide an <em>identifier</em> to any class that conforms to it! 💪<br>
 That way, when injecting the <em>URLSessionMock</em> in the launch environment dictionary, we can use the <em>identifier</em> variable as the key. 🔑</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">Foundation</span>
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">import</span> <span style="color:#5dd8ff">Foundation</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">protocol</span> <span style="color:#a6e22e">Identifiable</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">var</span> identifier: String { <span style="color:#66d9ef">get</span> }
+</span></span><span style="display:flex;"><span><span style="color:#fc5fa3">protocol</span> <span style="color:#5dd8ff">Identifiable</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">static</span> <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">identifier</span>: <span style="color:#d0a8ff">String</span> { <span style="color:#fc5fa3">get</span> }
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">Identifiable</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">var</span> identifier: String {
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> String(describing: <span style="color:#66d9ef">self</span>)
+</span></span><span style="display:flex;"><span><span style="color:#fc5fa3">extension</span> <span style="color:#5dd8ff">Identifiable</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">static</span> <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">identifier</span>: <span style="color:#d0a8ff">String</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">return</span> <span style="color:#d0a8ff">String</span>(describing: <span style="color:#fc5fa3">self</span>)
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">URLSessionMock</span>: Identifiable {}
+</span></span><span style="display:flex;"><span><span style="color:#fc5fa3">extension</span> <span style="color:#5dd8ff">URLSessionMock</span>: Identifiable {}
 </span></span></code></pre></div><p>And finally, here are some small extension functions/variables for encoding/decoding our mock from the environment! 💯</p>
 <p>Let’s start with an extension on <em>ProcessInfo</em> to decode any <em>Identifiable</em>…</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">Foundation</span>
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">import</span> <span style="color:#5dd8ff">Foundation</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">ProcessInfo</span> {
+</span></span><span style="display:flex;"><span><span style="color:#fc5fa3">extension</span> <span style="color:#5dd8ff">ProcessInfo</span> {
 </span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">decode</span>&lt;T: Identifiable <span style="color:#f92672">&amp;</span> Decodable&gt;(<span style="color:#66d9ef">_</span>: T.<span style="color:#66d9ef">Type</span>) -&gt; T? {
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">guard</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">let</span> environment = environment[T.identifier],
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">let</span> codable = T.decode(from: environment) <span style="color:#66d9ef">else</span> {
-</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">nil</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">decode</span>&lt;T: Identifiable &amp; Decodable&gt;(<span style="color:#fc5fa3">_</span>: T.<span style="color:#fc5fa3">Type</span>) -&gt; T? {
+</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">guard</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">environment</span> = environment[T.identifier],
+</span></span><span style="display:flex;"><span>            <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">codable</span> = T.decode(from: environment) <span style="color:#fc5fa3">else</span> {
+</span></span><span style="display:flex;"><span>                <span style="color:#fc5fa3">return</span> <span style="color:#fc5fa3">nil</span>
 </span></span><span style="display:flex;"><span>        }
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> codable
+</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">return</span> codable
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Then, make an extension on <em>Decodable</em> to decode from any <em>String</em>…</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">Foundation</span>
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">import</span> <span style="color:#5dd8ff">Foundation</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">Decodable</span> {
+</span></span><span style="display:flex;"><span><span style="color:#fc5fa3">extension</span> <span style="color:#5dd8ff">Decodable</span> {
 </span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">decode</span>(from json: String) -&gt; <span style="color:#66d9ef">Self</span>? {
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">guard</span> <span style="color:#66d9ef">let</span> data = json.data(using: .utf8) <span style="color:#66d9ef">else</span> {
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">nil</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">static</span> <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">decode</span>(from json: <span style="color:#d0a8ff">String</span>) -&gt; <span style="color:#fc5fa3">Self</span>? {
+</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">guard</span> <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">data</span> = json.data(using: .utf8) <span style="color:#fc5fa3">else</span> {
+</span></span><span style="display:flex;"><span>            <span style="color:#fc5fa3">return</span> <span style="color:#fc5fa3">nil</span>
 </span></span><span style="display:flex;"><span>        }
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">try</span>? JSONDecoder().decode(<span style="color:#66d9ef">self</span>, from: data)
+</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">return</span> <span style="color:#fc5fa3">try</span>? JSONDecoder().decode(<span style="color:#fc5fa3">self</span>, from: data)
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Lastly, write an extension on <em>Encodable</em> to encode to either String or Data! ✅</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">Foundation</span>
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">import</span> <span style="color:#5dd8ff">Foundation</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">Encodable</span> {
+</span></span><span style="display:flex;"><span><span style="color:#fc5fa3">extension</span> <span style="color:#5dd8ff">Encodable</span> {
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> json: String? {
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">guard</span> <span style="color:#66d9ef">let</span> data = data <span style="color:#66d9ef">else</span> {
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">nil</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">json</span>: <span style="color:#d0a8ff">String</span>? {
+</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">guard</span> <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">data</span> = data <span style="color:#fc5fa3">else</span> {
+</span></span><span style="display:flex;"><span>            <span style="color:#fc5fa3">return</span> <span style="color:#fc5fa3">nil</span>
 </span></span><span style="display:flex;"><span>        }
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> String(data: data, encoding: .utf8)
+</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">return</span> <span style="color:#d0a8ff">String</span>(data: data, encoding: .utf8)
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> data: Data? {
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">try</span>? JSONEncoder().encode(<span style="color:#66d9ef">self</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">data</span>: Data? {
+</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">return</span> <span style="color:#fc5fa3">try</span>? JSONEncoder().encode(<span style="color:#fc5fa3">self</span>)
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Finally! 🏁<br>
 We are done with preparations! 🎉</p>
 <p>Now, we need to inject the <em>URLSessionMock</em> in the launch environment so it can be received in the <em>AppDelegate</em>! 💉<br>
 Let’s create a nice extension function on <em>XCUIApplication</em> to help us achieve that. 💪</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">XCTest</span>
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">import</span> <span style="color:#5dd8ff">XCTest</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">XCUIApplication</span> {
+</span></span><span style="display:flex;"><span><span style="color:#fc5fa3">extension</span> <span style="color:#5dd8ff">XCUIApplication</span> {
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">launch</span>(with sessionMock: URLSessionMock = URLSessionMock()) {
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">launch</span>(with sessionMock: URLSessionMock = URLSessionMock()) {
 </span></span><span style="display:flex;"><span>        launchEnvironment[URLSessionMock.identifier] = sessionMock.json
 </span></span><span style="display:flex;"><span>        launch()
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>And last but not least, the <em>AppDelegate</em> is now able to decode the <em>URLSessionMock</em> from the <em>ProcessInfo</em> and pass it to the <em>NetworkManager</em>! 👌<br>
 Yes, that’s all. 😎</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">UIKit</span>
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">import</span> <span style="color:#5dd8ff">UIKit</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">@UIApplicationMain</span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">AppDelegate</span>: UIResponder, UIApplicationDelegate {
+</span></span><span style="display:flex;"><span><span style="color:#fc5fa3">@UIApplicationMain</span>
+</span></span><span style="display:flex;"><span><span style="color:#fc5fa3">class</span> <span style="color:#5dd8ff">AppDelegate</span>: UIResponder, UIApplicationDelegate {
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">application</span>(<span style="color:#66d9ef">_</span> application: UIApplication, willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = <span style="color:#66d9ef">nil</span>) -&gt; Bool {
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">let</span> session: URLSessionProtocol = ProcessInfo.processInfo.decode(URLSessionMock.<span style="color:#66d9ef">self</span>) ?? URLSession(configuration: .<span style="color:#66d9ef">default</span>)
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">let</span> networkManager = NetworkManager(session: session)
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">application</span>(<span style="color:#fc5fa3">_</span> application: UIApplication, willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: <span style="color:#d0a8ff">Any</span>]? = <span style="color:#fc5fa3">nil</span>) -&gt; <span style="color:#d0a8ff">Bool</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">session</span>: URLSessionProtocol = ProcessInfo.processInfo.decode(URLSessionMock.<span style="color:#fc5fa3">self</span>) ?? URLSession(configuration: .<span style="color:#fc5fa3">default</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">networkManager</span> = NetworkManager(session: session)
 </span></span><span style="display:flex;"><span>        ...
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">return</span> <span style="color:#fc5fa3">true</span>
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>All set! ✊<br>
 Now, look how simple and elegant UI testing is! 😮</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">XCTest</span>
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">import</span> <span style="color:#5dd8ff">XCTest</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SomethingUITest</span>: XCTestCase {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">lazy</span> <span style="color:#66d9ef">var</span> app = XCUIApplication()
+</span></span><span style="display:flex;"><span><span style="color:#fc5fa3">final</span> <span style="color:#fc5fa3">class</span> <span style="color:#5dd8ff">SomethingUITest</span>: XCTestCase {
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">private</span> <span style="color:#fc5fa3">lazy</span> <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">app</span> = XCUIApplication()
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">override</span> <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">setUp</span>() {
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">super</span>.setUp()
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">override</span> <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">setUp</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">super</span>.setUp()
 </span></span><span style="display:flex;"><span>        ...
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">testSomething</span>() {
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">let</span> sessionMock = URLSessionMock(
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">testSomething</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">sessionMock</span> = URLSessionMock(
 </span></span><span style="display:flex;"><span>            responses: [
 </span></span><span style="display:flex;"><span>                .fetchSomething: [
-</span></span><span style="display:flex;"><span>                    Response(File(<span style="color:#e6db74">&#34;something_response&#34;</span>, .json)),
+</span></span><span style="display:flex;"><span>                    Response(File(<span style="color:#fc6a5d">&#34;something_response&#34;</span>, .json)),
 </span></span><span style="display:flex;"><span>                    Response(error: .invalidResponse)
 </span></span><span style="display:flex;"><span>                ]
 </span></span><span style="display:flex;"><span>            ]

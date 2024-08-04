@@ -84,18 +84,18 @@
 <p><a href="https://kind.sigs.k8s.io/">Kind</a> is a tool for running local Kubernetes clusters using Docker container “nodes”.
 It was primarily designed for testing Kubernetes itself, but may be used for local development or CI.</p>
 <p>I don’t expect you to have a demo project in handy, so <a href="https://github.com/jhandguy/canary-deployment">I built one</a> for you.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>git clone https://github.com/jhandguy/vertical-pod-autoscaler.git
-</span></span><span style="display:flex;"><span>cd vertical-pod-autoscaler
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>git clone https://github.com/jhandguy/vertical-pod-autoscaler.git
+</span></span><span style="display:flex;"><span><span style="color:#d0a8ff">cd</span> vertical-pod-autoscaler
 </span></span></code></pre></div><p>Alright, let&rsquo;s spin up our Kind cluster! 🚀</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kind create cluster --image kindest/node:v1.27.3 --config<span style="color:#f92672">=</span>kind/cluster.yaml
-</span></span><span style="display:flex;"><span>Creating cluster <span style="color:#e6db74">&#34;kind&#34;</span> ...
-</span></span><span style="display:flex;"><span> ✓ Ensuring node image <span style="color:#f92672">(</span>kindest/node:v1.27.3<span style="color:#f92672">)</span> 🖼
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kind create cluster --image kindest/node:v1.27.3 --config=kind/cluster.yaml
+</span></span><span style="display:flex;"><span>Creating cluster <span style="color:#fc6a5d">&#34;kind&#34;</span> ...
+</span></span><span style="display:flex;"><span> ✓ Ensuring node image (kindest/node:v1.27.3) 🖼
 </span></span><span style="display:flex;"><span> ✓ Preparing nodes 📦
 </span></span><span style="display:flex;"><span> ✓ Writing configuration 📜
 </span></span><span style="display:flex;"><span> ✓ Starting control-plane 🕹️
 </span></span><span style="display:flex;"><span> ✓ Installing CNI 🔌
 </span></span><span style="display:flex;"><span> ✓ Installing StorageClass 💾
-</span></span><span style="display:flex;"><span>Set kubectl context to <span style="color:#e6db74">&#34;kind-kind&#34;</span>
+</span></span><span style="display:flex;"><span>Set kubectl context to <span style="color:#fc6a5d">&#34;kind-kind&#34;</span>
 </span></span><span style="display:flex;"><span>You can now use your cluster with:
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>kubectl cluster-info --context kind-kind
@@ -104,34 +104,34 @@ It was primarily designed for testing Kubernetes itself, but may be used for loc
 </span></span></code></pre></div><h2 id="installing-cert-manager">Installing cert-manager</h2>
 <p><a href="https://github.com/cert-manager/cert-manager">cert-manager</a> is a Kubernetes addon that automates the management and issuance of TLS certificates from various issuing sources. It ensures certificates are valid and up to date periodically, and attempts to renew certificates at an appropriate time before expiry.</p>
 <p>cert-manager can be installed via its <a href="https://github.com/cert-manager/cert-manager/tree/master/deploy/charts/cert-manager">Helm chart</a>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>helm repo add jetstack https://charts.jetstack.io
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>helm repo add jetstack https://charts.jetstack.io
 </span></span><span style="display:flex;"><span>helm install jetstack/cert-manager --name-template cert-manager --create-namespace -n cert-manager --values kind/cert-manager-values.yaml --version 1.13.2 --wait
 </span></span></code></pre></div><p>If everything went fine, you should be able to see three newly spawned Deployments with the READY state!</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get deploy -n cert-manager
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get deploy -n cert-manager
 </span></span><span style="display:flex;"><span>NAME                      READY   UP-TO-DATE   AVAILABLE   AGE
-</span></span><span style="display:flex;"><span>cert-manager              1/1     <span style="color:#ae81ff">1</span>            <span style="color:#ae81ff">1</span>           6m27m
-</span></span><span style="display:flex;"><span>cert-manager-cainjector   1/1     <span style="color:#ae81ff">1</span>            <span style="color:#ae81ff">1</span>           6m27m
-</span></span><span style="display:flex;"><span>cert-manager-webhook      1/1     <span style="color:#ae81ff">1</span>            <span style="color:#ae81ff">1</span>           6m27m
+</span></span><span style="display:flex;"><span>cert-manager              1/1     <span style="color:#d0bf69">1</span>            <span style="color:#d0bf69">1</span>           6m27m
+</span></span><span style="display:flex;"><span>cert-manager-cainjector   1/1     <span style="color:#d0bf69">1</span>            <span style="color:#d0bf69">1</span>           6m27m
+</span></span><span style="display:flex;"><span>cert-manager-webhook      1/1     <span style="color:#d0bf69">1</span>            <span style="color:#d0bf69">1</span>           6m27m
 </span></span></code></pre></div><h2 id="installing-nginx-ingress-controller">Installing NGINX Ingress Controller</h2>
 <hr>
 <p><a href="https://github.com/kubernetes/ingress-nginx">NGINX Ingress Controller</a> is one of the <a href="https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/#additional-controllers">many available Kubernetes Ingress Controllers</a>, which acts as a load balancer and satisfies routing rules specified in <a href="https://kubernetes.io/docs/concepts/services-networking/ingress/#what-is-ingress">Ingress</a> resources, using the <a href="https://nginx.org/en/">NGINX reverse proxy</a>.</p>
 <p>NGINX Ingress Controller can be installed via its <a href="https://github.com/kubernetes/ingress-nginx/tree/main/charts/ingress-nginx">Helm chart</a>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 </span></span><span style="display:flex;"><span>helm install ingress-nginx/ingress-nginx --name-template ingress-nginx --create-namespace -n ingress-nginx --values kind/ingress-nginx-values.yaml --version 4.8.3 --wait
 </span></span></code></pre></div><p>Now, if everything goes according to plan, you should be able to see the <strong>ingress-nginx-controller</strong> Deployment running.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get deploy -n ingress-nginx
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get deploy -n ingress-nginx
 </span></span><span style="display:flex;"><span>NAME                       READY   UP-TO-DATE   AVAILABLE   AGE
-</span></span><span style="display:flex;"><span>ingress-nginx-controller   1/1     <span style="color:#ae81ff">1</span>            <span style="color:#ae81ff">1</span>           4m35s
+</span></span><span style="display:flex;"><span>ingress-nginx-controller   1/1     <span style="color:#d0bf69">1</span>            <span style="color:#d0bf69">1</span>           4m35s
 </span></span></code></pre></div><h2 id="installing-metrics-server">Installing Metrics Server</h2>
 <hr>
 <p><a href="https://github.com/kubernetes-sigs/metrics-server">Metrics Server</a> is a source of container resource metrics, which collects them from Kubelets and exposes them in Kubernetes API server through <a href="https://github.com/kubernetes/metrics">Metrics API</a> for use by <a href="https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/">Horizontal Pod Autoscaler</a> and <a href="https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler/">Vertical Pod Autoscaler</a>.</p>
 <p>Metrics Server can be installed via its <a href="https://github.com/kubernetes-sigs/metrics-server/tree/master/charts/metrics-server">Helm chart</a>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server
 </span></span><span style="display:flex;"><span>helm install metrics-server/metrics-server --name-template metrics-server --create-namespace -n metrics-server --values kind/metrics-server-values.yaml --version 3.11.0 --wait
 </span></span></code></pre></div><p>Now, if everything goes according to plan, you should be able to see the <strong>metrics-server</strong> Deployment running.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get deploy -n metrics-server
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get deploy -n metrics-server
 </span></span><span style="display:flex;"><span>NAME             READY   UP-TO-DATE   AVAILABLE   AGE
-</span></span><span style="display:flex;"><span>metrics-server   1/1     <span style="color:#ae81ff">1</span>            <span style="color:#ae81ff">1</span>           38s
+</span></span><span style="display:flex;"><span>metrics-server   1/1     <span style="color:#d0bf69">1</span>            <span style="color:#d0bf69">1</span>           38s
 </span></span></code></pre></div><h2 id="installing-vertical-pod-autoscaler">Installing Vertical Pod Autoscaler</h2>
 <hr>
 <p><a href="https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler">Vertical Pod Autoscaler</a> (VPA) is a component of the <a href="https://github.com/kubernetes/autoscaler">Kubernetes Autoscaler</a> that frees users from the necessity of setting up-to-date resource limits and requests for the containers in their pods.</p>
@@ -142,13 +142,13 @@ It will also maintain ratios between limits and requests that were specified in 
 <p><em>Note: VPA is still in its beta phase, using it for production is at your own risk.</em></p>
 </blockquote>
 <p>As of this writing, Kubernetes  does not provide an official Helm chart, so I went ahead and built one!</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>helm install helm-chart --name-template vertical-pod-autoscaler --create-namespace -n vertical-pod-autoscaler --wait
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>helm install helm-chart --name-template vertical-pod-autoscaler --create-namespace -n vertical-pod-autoscaler --wait
 </span></span></code></pre></div><p>If everything goes fine, you should eventually see three Deployments with the READY state!</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get deploy -n vertical-pod-autoscaler
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get deploy -n vertical-pod-autoscaler
 </span></span><span style="display:flex;"><span>NAME                               READY UP-TO-DATE AVAILABLE AGE
-</span></span><span style="display:flex;"><span>vert...scaler-admission-controller 1/1   <span style="color:#ae81ff">1</span>          <span style="color:#ae81ff">1</span>         2m32s
-</span></span><span style="display:flex;"><span>vert...scaler-recommender          1/1   <span style="color:#ae81ff">1</span>          <span style="color:#ae81ff">1</span>         2m32s
-</span></span><span style="display:flex;"><span>vert...scaler-updater              1/1   <span style="color:#ae81ff">1</span>          <span style="color:#ae81ff">1</span>         2m32s
+</span></span><span style="display:flex;"><span>vert...scaler-admission-controller 1/1   <span style="color:#d0bf69">1</span>          <span style="color:#d0bf69">1</span>         2m32s
+</span></span><span style="display:flex;"><span>vert...scaler-recommender          1/1   <span style="color:#d0bf69">1</span>          <span style="color:#d0bf69">1</span>         2m32s
+</span></span><span style="display:flex;"><span>vert...scaler-updater              1/1   <span style="color:#d0bf69">1</span>          <span style="color:#d0bf69">1</span>         2m32s
 </span></span></code></pre></div><p>As you can observe, the VPA is split into 3 separate components:</p>
 <ul>
 <li>The <a href="https://github.com/kubernetes/autoscaler/blob/master/vertical-pod-autoscaler/pkg/recommender">Recommender</a> computes the recommended resource requests for pods based on historical and current usage of the resources. The current recommendations are then put in the status of the VPA resource, where they can be inspected;</li>
@@ -158,13 +158,13 @@ It will also maintain ratios between limits and requests that were specified in 
 <h2 id="configuring-vertical-pod-autoscaler">Configuring Vertical Pod Autoscaler</h2>
 <hr>
 <p>Now that the Vertical Pod Autoscaler is up and running, let&rsquo;s get to it, shall we? 🧐</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>helm install sample-app/helm-chart --name-template sample-app --create-namespace -n sample-app --wait
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>helm install sample-app/helm-chart --name-template sample-app --create-namespace -n sample-app --wait
 </span></span></code></pre></div><p>If everything goes fine, you should eventually see one Deployment with the READY state.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get deploy -n sample-app
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get deploy -n sample-app
 </span></span><span style="display:flex;"><span>NAME         READY   UP-TO-DATE   AVAILABLE   AGE
-</span></span><span style="display:flex;"><span>sample-app   3/3     <span style="color:#ae81ff">3</span>            <span style="color:#ae81ff">3</span>           58s
+</span></span><span style="display:flex;"><span>sample-app   3/3     <span style="color:#d0bf69">3</span>            <span style="color:#d0bf69">3</span>           58s
 </span></span></code></pre></div><p>Alright, now let&rsquo;s have a look at the VPA!</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl describe vpa -n sample-app
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl describe vpa -n sample-app
 </span></span><span style="display:flex;"><span>...
 </span></span><span style="display:flex;"><span>Spec:
 </span></span><span style="display:flex;"><span>  Resource Policy:
@@ -189,7 +189,7 @@ It will also maintain ratios between limits and requests that were specified in 
 Its <strong>spec</strong> states that the minimum allowed CPU/memory is <em>10m/20Mi</em> and the maximum is <em>100m/200Mi</em>.</p>
 <p>Finally, its <strong>update policy</strong> is in &ldquo;Auto&rdquo; mode, meaning that VPA assigns resource requests on pod creation as well as updates them on existing pods using the preferred update mechanism.</p>
 <p>Currently, both the resource requests and limits are matching the VPA&rsquo;s minimum allowance.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get pods -n sample-app -o yaml | grep -A <span style="color:#ae81ff">6</span> <span style="color:#e6db74">&#39;resources:&#39;</span>
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get pods -n sample-app -o yaml | grep -A <span style="color:#d0bf69">6</span> <span style="color:#fc6a5d">&#39;resources:&#39;</span>
 </span></span><span style="display:flex;"><span>      resources:
 </span></span><span style="display:flex;"><span>        limits:
 </span></span><span style="display:flex;"><span>          cpu: 10m
@@ -216,83 +216,83 @@ Its <strong>spec</strong> states that the minimum allowed CPU/memory is <em>10m/
 </span></span></code></pre></div><p>Now, let&rsquo;s give some load to our service and see what happens!</p>
 <p>For Load Testing, I really recommend <a href="https://k6.io/docs/">k6</a> from the Grafana Labs team. It is a dead-simple yet super powerful tool with very extensive documentation.</p>
 <p>See for yourself!</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>k6 run k6/script.js
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>k6 run k6/script.js
 </span></span></code></pre></div><p>While k6 is gradually increasing strain on the pods&rsquo; CPU usage, let&rsquo;s watch out for any <code>EvictedByVPA</code> events in a second tab: eventually, you should see all 3 pods get evicted simultaneously!</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get events -n sample-app -w | grep EvictedByVPA
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get events -n sample-app -w | grep EvictedByVPA
 </span></span><span style="display:flex;"><span>... Pod was evicted by VPA Updater to apply resource recommendation.
 </span></span><span style="display:flex;"><span>... Pod was evicted by VPA Updater to apply resource recommendation.
 </span></span><span style="display:flex;"><span>... Pod was evicted by VPA Updater to apply resource recommendation.
 </span></span></code></pre></div><p>As soon as this happens, have a look at the updated pods&rsquo; resource requests and limits: the CPU/memory requests/limits should have doubled in value (CPU from 10m to 20m and memory from 10Mi to 20Mi).</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get pods -n sample-app -o yaml | grep -A <span style="color:#ae81ff">6</span> <span style="color:#e6db74">&#39;resources:&#39;</span>
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get pods -n sample-app -o yaml | grep -A <span style="color:#d0bf69">6</span> <span style="color:#fc6a5d">&#39;resources:&#39;</span>
 </span></span><span style="display:flex;"><span>      resources:
 </span></span><span style="display:flex;"><span>        limits:
 </span></span><span style="display:flex;"><span>          cpu: 20m
-</span></span><span style="display:flex;"><span>          memory: <span style="color:#e6db74">&#34;20971520&#34;</span>
+</span></span><span style="display:flex;"><span>          memory: <span style="color:#fc6a5d">&#34;20971520&#34;</span>
 </span></span><span style="display:flex;"><span>        requests:
 </span></span><span style="display:flex;"><span>          cpu: 20m
-</span></span><span style="display:flex;"><span>          memory: <span style="color:#e6db74">&#34;20971520&#34;</span>
+</span></span><span style="display:flex;"><span>          memory: <span style="color:#fc6a5d">&#34;20971520&#34;</span>
 </span></span><span style="display:flex;"><span>--
 </span></span><span style="display:flex;"><span>      resources:
 </span></span><span style="display:flex;"><span>        limits:
 </span></span><span style="display:flex;"><span>          cpu: 20m
-</span></span><span style="display:flex;"><span>          memory: <span style="color:#e6db74">&#34;20971520&#34;</span>
+</span></span><span style="display:flex;"><span>          memory: <span style="color:#fc6a5d">&#34;20971520&#34;</span>
 </span></span><span style="display:flex;"><span>        requests:
 </span></span><span style="display:flex;"><span>          cpu: 20m
-</span></span><span style="display:flex;"><span>          memory: <span style="color:#e6db74">&#34;20971520&#34;</span>
+</span></span><span style="display:flex;"><span>          memory: <span style="color:#fc6a5d">&#34;20971520&#34;</span>
 </span></span><span style="display:flex;"><span>--
 </span></span><span style="display:flex;"><span>      resources:
 </span></span><span style="display:flex;"><span>        limits:
 </span></span><span style="display:flex;"><span>          cpu: 20m
-</span></span><span style="display:flex;"><span>          memory: <span style="color:#e6db74">&#34;20971520&#34;</span>
+</span></span><span style="display:flex;"><span>          memory: <span style="color:#fc6a5d">&#34;20971520&#34;</span>
 </span></span><span style="display:flex;"><span>        requests:
 </span></span><span style="display:flex;"><span>          cpu: 20m
-</span></span><span style="display:flex;"><span>          memory: <span style="color:#e6db74">&#34;20971520&#34;</span>
+</span></span><span style="display:flex;"><span>          memory: <span style="color:#fc6a5d">&#34;20971520&#34;</span>
 </span></span></code></pre></div><p>This means Vertical Pod Autoscaler successfully evicted the pods in order to increase their resource requests and limits! 🎉</p>
 <p>Once k6 is done, have a look at the Load Test summary and the result of the <code>status code</code> counter metric in particular.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>          /<span style="color:#ae81ff">\ </span>     |‾‾| /‾‾/   /‾‾/
-</span></span><span style="display:flex;"><span>     /<span style="color:#ae81ff">\ </span> /  <span style="color:#ae81ff">\ </span>    |  |/  /   /  /
-</span></span><span style="display:flex;"><span>    /  <span style="color:#ae81ff">\/</span>    <span style="color:#ae81ff">\ </span>   |     <span style="color:#f92672">(</span>   /   ‾‾<span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>   /          <span style="color:#ae81ff">\ </span>  |  |<span style="color:#ae81ff">\ </span> <span style="color:#ae81ff">\ </span>|  <span style="color:#f92672">(</span>‾<span style="color:#f92672">)</span>  |
-</span></span><span style="display:flex;"><span>  / __________ <span style="color:#ae81ff">\ </span> |__| <span style="color:#ae81ff">\_</span>_<span style="color:#ae81ff">\ \_</span>____/ .io
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>          /<span style="color:#fc6a5d">\ </span>     |‾‾| /‾‾/   /‾‾/
+</span></span><span style="display:flex;"><span>     /<span style="color:#fc6a5d">\ </span> /  <span style="color:#fc6a5d">\ </span>    |  |/  /   /  /
+</span></span><span style="display:flex;"><span>    /  <span style="color:#fc6a5d">\/</span>    <span style="color:#fc6a5d">\ </span>   |     (   /   ‾‾<span style="color:#fc6a5d">\
+</span></span></span><span style="display:flex;"><span><span style="color:#fc6a5d"></span>   /          <span style="color:#fc6a5d">\ </span>  |  |<span style="color:#fc6a5d">\ </span> <span style="color:#fc6a5d">\ </span>|  (‾)  |
+</span></span><span style="display:flex;"><span>  / __________ <span style="color:#fc6a5d">\ </span> |__| <span style="color:#fc6a5d">\_</span>_<span style="color:#fc6a5d">\ \_</span>____/ .io
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>  execution: local
+</span></span><span style="display:flex;"><span>  execution: <span style="color:#d0a8ff">local</span>
 </span></span><span style="display:flex;"><span>     script: k6/script.js
 </span></span><span style="display:flex;"><span>     output: -
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>  scenarios: <span style="color:#f92672">(</span>100.00%<span style="color:#f92672">)</span> <span style="color:#ae81ff">1</span> scenario, <span style="color:#ae81ff">200</span> max VUs, 10m30s max duration <span style="color:#f92672">(</span>incl. graceful stop<span style="color:#f92672">)</span>:
-</span></span><span style="display:flex;"><span>           * load: Up to 40.00 iterations/s <span style="color:#66d9ef">for</span> 10m0s over <span style="color:#ae81ff">3</span> stages <span style="color:#f92672">(</span>maxVUs: 200, gracefulStop: 30s<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>  scenarios: (100.00%) <span style="color:#d0bf69">1</span> scenario, <span style="color:#d0bf69">200</span> max VUs, 10m30s max duration (incl. graceful stop):
+</span></span><span style="display:flex;"><span>           * load: Up to 40.00 iterations/s <span style="color:#fc5fa3">for</span> 10m0s over <span style="color:#d0bf69">3</span> stages (maxVUs: 200, gracefulStop: 30s)
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>     ✗ status code is <span style="color:#ae81ff">200</span>
-</span></span><span style="display:flex;"><span>      ↳  97% — ✓ <span style="color:#ae81ff">17724</span> / ✗ <span style="color:#ae81ff">365</span>
+</span></span><span style="display:flex;"><span>     ✗ status code is <span style="color:#d0bf69">200</span>
+</span></span><span style="display:flex;"><span>      ↳  97% — ✓ <span style="color:#d0bf69">17724</span> / ✗ <span style="color:#d0bf69">365</span>
 </span></span><span style="display:flex;"><span>     ✗ node is kind-control-plane
-</span></span><span style="display:flex;"><span>      ↳  97% — ✓ <span style="color:#ae81ff">17724</span> / ✗ <span style="color:#ae81ff">365</span>
+</span></span><span style="display:flex;"><span>      ↳  97% — ✓ <span style="color:#d0bf69">17724</span> / ✗ <span style="color:#d0bf69">365</span>
 </span></span><span style="display:flex;"><span>     ✗ namespace is sample-app
-</span></span><span style="display:flex;"><span>      ↳  97% — ✓ <span style="color:#ae81ff">17724</span> / ✗ <span style="color:#ae81ff">365</span>
+</span></span><span style="display:flex;"><span>      ↳  97% — ✓ <span style="color:#d0bf69">17724</span> / ✗ <span style="color:#d0bf69">365</span>
 </span></span><span style="display:flex;"><span>     ✗ pod is sample-app-*
-</span></span><span style="display:flex;"><span>      ↳  97% — ✓ <span style="color:#ae81ff">17724</span> / ✗ <span style="color:#ae81ff">365</span>
+</span></span><span style="display:flex;"><span>      ↳  97% — ✓ <span style="color:#d0bf69">17724</span> / ✗ <span style="color:#d0bf69">365</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>   ✓ checks.........................: 97.98% ✓ <span style="color:#ae81ff">70896</span>     ✗ <span style="color:#ae81ff">1460</span>
+</span></span><span style="display:flex;"><span>   ✓ checks.........................: 97.98% ✓ <span style="color:#d0bf69">70896</span>     ✗ <span style="color:#d0bf69">1460</span>
 </span></span><span style="display:flex;"><span>     data_received..................: 4.2 MB 7.1 kB/s
 </span></span><span style="display:flex;"><span>     data_sent......................: 2.1 MB 3.5 kB/s
-</span></span><span style="display:flex;"><span>     http_req_blocked...............: avg<span style="color:#f92672">=</span>18.39µs  min<span style="color:#f92672">=</span>2µs   med<span style="color:#f92672">=</span>8µs    max<span style="color:#f92672">=</span>2.93ms  p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>17µs     p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>20µs
-</span></span><span style="display:flex;"><span>     http_req_connecting............: avg<span style="color:#f92672">=</span>5.71µs   min<span style="color:#f92672">=</span>0s    med<span style="color:#f92672">=</span>0s     max<span style="color:#f92672">=</span>2.74ms  p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>0s       p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>0s
-</span></span><span style="display:flex;"><span>   ✓ http_req_duration..............: avg<span style="color:#f92672">=</span>188.13ms min<span style="color:#f92672">=</span>491µs med<span style="color:#f92672">=</span>4.57ms max<span style="color:#f92672">=</span>59.99s  p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>269.43ms p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>646.78ms
-</span></span><span style="display:flex;"><span>       <span style="color:#f92672">{</span> expected_response:true <span style="color:#f92672">}</span>...: avg<span style="color:#f92672">=</span>129.55ms min<span style="color:#f92672">=</span>491µs med<span style="color:#f92672">=</span>4.62ms max<span style="color:#f92672">=</span>7.3s    p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>261.24ms p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>602.03ms
-</span></span><span style="display:flex;"><span>     http_req_failed................: 2.01%  ✓ <span style="color:#ae81ff">365</span>       ✗ <span style="color:#ae81ff">17724</span>
-</span></span><span style="display:flex;"><span>     http_req_receiving.............: avg<span style="color:#f92672">=</span>98.96µs  min<span style="color:#f92672">=</span>0s    med<span style="color:#f92672">=</span>75µs   max<span style="color:#f92672">=</span>4.27ms  p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>159µs    p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>209µs
-</span></span><span style="display:flex;"><span>     http_req_sending...............: avg<span style="color:#f92672">=</span>49.92µs  min<span style="color:#f92672">=</span>7µs   med<span style="color:#f92672">=</span>34µs   max<span style="color:#f92672">=</span>14.39ms p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>72µs     p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>93µs
-</span></span><span style="display:flex;"><span>     http_req_tls_handshaking.......: avg<span style="color:#f92672">=</span>0s       min<span style="color:#f92672">=</span>0s    med<span style="color:#f92672">=</span>0s     max<span style="color:#f92672">=</span>0s      p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>0s       p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>0s
-</span></span><span style="display:flex;"><span>     http_req_waiting...............: avg<span style="color:#f92672">=</span>187.99ms min<span style="color:#f92672">=</span>451µs med<span style="color:#f92672">=</span>4.38ms max<span style="color:#f92672">=</span>59.99s  p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>269.31ms p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>646.69ms
-</span></span><span style="display:flex;"><span>     http_reqs......................: <span style="color:#ae81ff">18089</span>  30.147771/s
-</span></span><span style="display:flex;"><span>     iteration_duration.............: avg<span style="color:#f92672">=</span>188.59ms min<span style="color:#f92672">=</span>666µs med<span style="color:#f92672">=</span>5.11ms max<span style="color:#f92672">=</span>1m0s    p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>270.13ms p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>647.49ms
-</span></span><span style="display:flex;"><span>     iterations.....................: <span style="color:#ae81ff">18089</span>  30.147771/s
-</span></span><span style="display:flex;"><span>     vus............................: <span style="color:#ae81ff">0</span>      min<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>       max<span style="color:#f92672">=</span><span style="color:#ae81ff">145</span>
-</span></span><span style="display:flex;"><span>     vus_max........................: <span style="color:#ae81ff">200</span>    min<span style="color:#f92672">=</span><span style="color:#ae81ff">200</span>     max<span style="color:#f92672">=</span><span style="color:#ae81ff">200</span>
+</span></span><span style="display:flex;"><span>     http_req_blocked...............: <span style="color:#41a1c0">avg</span>=18.39µs  <span style="color:#41a1c0">min</span>=2µs   <span style="color:#41a1c0">med</span>=8µs    <span style="color:#41a1c0">max</span>=2.93ms  p(90)=17µs     p(95)=20µs
+</span></span><span style="display:flex;"><span>     http_req_connecting............: <span style="color:#41a1c0">avg</span>=5.71µs   <span style="color:#41a1c0">min</span>=0s    <span style="color:#41a1c0">med</span>=0s     <span style="color:#41a1c0">max</span>=2.74ms  p(90)=0s       p(95)=0s
+</span></span><span style="display:flex;"><span>   ✓ http_req_duration..............: <span style="color:#41a1c0">avg</span>=188.13ms <span style="color:#41a1c0">min</span>=491µs <span style="color:#41a1c0">med</span>=4.57ms <span style="color:#41a1c0">max</span>=59.99s  p(90)=269.43ms p(95)=646.78ms
+</span></span><span style="display:flex;"><span>       { expected_response:true }...: <span style="color:#41a1c0">avg</span>=129.55ms <span style="color:#41a1c0">min</span>=491µs <span style="color:#41a1c0">med</span>=4.62ms <span style="color:#41a1c0">max</span>=7.3s    p(90)=261.24ms p(95)=602.03ms
+</span></span><span style="display:flex;"><span>     http_req_failed................: 2.01%  ✓ <span style="color:#d0bf69">365</span>       ✗ <span style="color:#d0bf69">17724</span>
+</span></span><span style="display:flex;"><span>     http_req_receiving.............: <span style="color:#41a1c0">avg</span>=98.96µs  <span style="color:#41a1c0">min</span>=0s    <span style="color:#41a1c0">med</span>=75µs   <span style="color:#41a1c0">max</span>=4.27ms  p(90)=159µs    p(95)=209µs
+</span></span><span style="display:flex;"><span>     http_req_sending...............: <span style="color:#41a1c0">avg</span>=49.92µs  <span style="color:#41a1c0">min</span>=7µs   <span style="color:#41a1c0">med</span>=34µs   <span style="color:#41a1c0">max</span>=14.39ms p(90)=72µs     p(95)=93µs
+</span></span><span style="display:flex;"><span>     http_req_tls_handshaking.......: <span style="color:#41a1c0">avg</span>=0s       <span style="color:#41a1c0">min</span>=0s    <span style="color:#41a1c0">med</span>=0s     <span style="color:#41a1c0">max</span>=0s      p(90)=0s       p(95)=0s
+</span></span><span style="display:flex;"><span>     http_req_waiting...............: <span style="color:#41a1c0">avg</span>=187.99ms <span style="color:#41a1c0">min</span>=451µs <span style="color:#41a1c0">med</span>=4.38ms <span style="color:#41a1c0">max</span>=59.99s  p(90)=269.31ms p(95)=646.69ms
+</span></span><span style="display:flex;"><span>     http_reqs......................: <span style="color:#d0bf69">18089</span>  30.147771/s
+</span></span><span style="display:flex;"><span>     iteration_duration.............: <span style="color:#41a1c0">avg</span>=188.59ms <span style="color:#41a1c0">min</span>=666µs <span style="color:#41a1c0">med</span>=5.11ms <span style="color:#41a1c0">max</span>=1m0s    p(90)=270.13ms p(95)=647.49ms
+</span></span><span style="display:flex;"><span>     iterations.....................: <span style="color:#d0bf69">18089</span>  30.147771/s
+</span></span><span style="display:flex;"><span>     vus............................: <span style="color:#d0bf69">0</span>      <span style="color:#41a1c0">min</span>=<span style="color:#d0bf69">0</span>       <span style="color:#41a1c0">max</span>=<span style="color:#d0bf69">145</span>
+</span></span><span style="display:flex;"><span>     vus_max........................: <span style="color:#d0bf69">200</span>    <span style="color:#41a1c0">min</span>=<span style="color:#d0bf69">200</span>     <span style="color:#41a1c0">max</span>=<span style="color:#d0bf69">200</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>running <span style="color:#f92672">(</span>10m00.0s<span style="color:#f92672">)</span>, 000/200 VUs, <span style="color:#ae81ff">18089</span> complete and <span style="color:#ae81ff">0</span> interrupted iterations
-</span></span><span style="display:flex;"><span>load ✓ <span style="color:#f92672">[======================================]</span> 000/200 VUs  10m0s  00.41 iters/s
+</span></span><span style="display:flex;"><span>running (10m00.0s), 000/200 VUs, <span style="color:#d0bf69">18089</span> <span style="color:#d0a8ff">complete</span> and <span style="color:#d0bf69">0</span> interrupted iterations
+</span></span><span style="display:flex;"><span>load ✓ [======================================] 000/200 VUs  10m0s  00.41 iters/s
 </span></span></code></pre></div><p>Uh-oh… It looks like we had some downtime! 😱</p>
 <p>Thankfully, our service was able to restart relatively fast and <strong>365</strong> out of <strong>17724</strong> requests failed. But for a service with a slower startup time, this could have led to an incident! 🚨</p>
 <p>This is due to the fact that vertical scaling, in essence, cannot happen without a restart: a pod&rsquo;s CPU and/or memory cannot be increased in place. Instead, the pod must be terminated and a new one created with increased resources.</p>
@@ -301,77 +301,77 @@ Its <strong>spec</strong> states that the minimum allowed CPU/memory is <em>10m/
 <p>This is where the Pod Disruption Budget (PDB) comes in!</p>
 </blockquote>
 <p>We&rsquo;ll get to that in a minute, let&rsquo;s uninstall our Helm release first! (we won&rsquo;t be needing this one anymore)</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>helm uninstall sample-app -n sample-app
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>helm uninstall sample-app -n sample-app
 </span></span></code></pre></div><h2 id="configuring-pod-disruption-budget">Configuring Pod Disruption Budget</h2>
 <hr>
 <p>To prevent downtimes during pod disruption such as the one we previously experienced, a Pod Disruption Budget (PDB) can be configured.</p>
 <p>A PDB limits the number of pods that are down simultaneously from voluntary disruptions. It can be configured to sustain either a minimum amount of available pods (<code>minAvailable</code>), or a maximum amount of unavailable pods (<code>maxUnavailable</code>).</p>
 <p>Let&rsquo;s see what happens if we try to autoscale vertically the same application but with a Pod Disruption Budget with <code>maxUnavailable: 1</code>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>helm install sample-app/helm-chart --name-template sample-app --set podDisruptionBudget.enabled<span style="color:#f92672">=</span>true --create-namespace -n sample-app --wait
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>helm install sample-app/helm-chart --name-template sample-app --set podDisruptionBudget.enabled=<span style="color:#d0a8ff">true</span> --create-namespace -n sample-app --wait
 </span></span></code></pre></div><p>Once again, you should eventually see one Deployment with the READY state.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get deploy -n sample-app
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get deploy -n sample-app
 </span></span><span style="display:flex;"><span>NAME         READY   UP-TO-DATE   AVAILABLE   AGE
-</span></span><span style="display:flex;"><span>sample-app   3/3     <span style="color:#ae81ff">3</span>            <span style="color:#ae81ff">3</span>           32s
+</span></span><span style="display:flex;"><span>sample-app   3/3     <span style="color:#d0bf69">3</span>            <span style="color:#d0bf69">3</span>           32s
 </span></span></code></pre></div><p>Alright, now let&rsquo;s have a look at the PDB!</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl describe pdb -n sample-app
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl describe pdb -n sample-app
 </span></span><span style="display:flex;"><span>Name:             sample-app
 </span></span><span style="display:flex;"><span>Namespace:        sample-app
-</span></span><span style="display:flex;"><span>Max unavailable:  <span style="color:#ae81ff">1</span>
-</span></span><span style="display:flex;"><span>Selector:         app<span style="color:#f92672">=</span>sample-app
+</span></span><span style="display:flex;"><span>Max unavailable:  <span style="color:#d0bf69">1</span>
+</span></span><span style="display:flex;"><span>Selector:         <span style="color:#41a1c0">app</span>=sample-app
 </span></span><span style="display:flex;"><span>Status:
-</span></span><span style="display:flex;"><span>    Allowed disruptions:  <span style="color:#ae81ff">1</span>
-</span></span><span style="display:flex;"><span>    Current:              <span style="color:#ae81ff">3</span>
-</span></span><span style="display:flex;"><span>    Desired:              <span style="color:#ae81ff">2</span>
-</span></span><span style="display:flex;"><span>    Total:                <span style="color:#ae81ff">3</span>
+</span></span><span style="display:flex;"><span>    Allowed disruptions:  <span style="color:#d0bf69">1</span>
+</span></span><span style="display:flex;"><span>    Current:              <span style="color:#d0bf69">3</span>
+</span></span><span style="display:flex;"><span>    Desired:              <span style="color:#d0bf69">2</span>
+</span></span><span style="display:flex;"><span>    Total:                <span style="color:#d0bf69">3</span>
 </span></span></code></pre></div><p>As you can see, this PDB is configured to prevent more than 1 pod to be unavailable during a voluntary pod disruption (such as pod eviction by VPA).</p>
 <p>Now, let&rsquo;s see how our service is going to behave under load with a PDB!</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>k6 run k6/script.js
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>k6 run k6/script.js
 </span></span></code></pre></div><p>Once again, while k6 is gradually increasing strain on the pods&rsquo; CPU usage, let&rsquo;s watch out for any <code>EvictedByVPA</code> events in a second tab: eventually, you should see all 3 pods get evicted but this time, only one by one!</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get events -n sample-app -w | grep EvictedByVPA
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get events -n sample-app -w | grep EvictedByVPA
 </span></span><span style="display:flex;"><span>... Pod was evicted by VPA Updater to apply resource recommendation.
 </span></span><span style="display:flex;"><span>... Pod was evicted by VPA Updater to apply resource recommendation.
 </span></span><span style="display:flex;"><span>... Pod was evicted by VPA Updater to apply resource recommendation.
 </span></span></code></pre></div><p>Once k6 is done, have a look at the Load Test summary and the result of the <code>status code</code> counter metric in particular.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>          /<span style="color:#ae81ff">\ </span>     |‾‾| /‾‾/   /‾‾/
-</span></span><span style="display:flex;"><span>     /<span style="color:#ae81ff">\ </span> /  <span style="color:#ae81ff">\ </span>    |  |/  /   /  /
-</span></span><span style="display:flex;"><span>    /  <span style="color:#ae81ff">\/</span>    <span style="color:#ae81ff">\ </span>   |     <span style="color:#f92672">(</span>   /   ‾‾<span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>   /          <span style="color:#ae81ff">\ </span>  |  |<span style="color:#ae81ff">\ </span> <span style="color:#ae81ff">\ </span>|  <span style="color:#f92672">(</span>‾<span style="color:#f92672">)</span>  |
-</span></span><span style="display:flex;"><span>  / __________ <span style="color:#ae81ff">\ </span> |__| <span style="color:#ae81ff">\_</span>_<span style="color:#ae81ff">\ \_</span>____/ .io
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>          /<span style="color:#fc6a5d">\ </span>     |‾‾| /‾‾/   /‾‾/
+</span></span><span style="display:flex;"><span>     /<span style="color:#fc6a5d">\ </span> /  <span style="color:#fc6a5d">\ </span>    |  |/  /   /  /
+</span></span><span style="display:flex;"><span>    /  <span style="color:#fc6a5d">\/</span>    <span style="color:#fc6a5d">\ </span>   |     (   /   ‾‾<span style="color:#fc6a5d">\
+</span></span></span><span style="display:flex;"><span><span style="color:#fc6a5d"></span>   /          <span style="color:#fc6a5d">\ </span>  |  |<span style="color:#fc6a5d">\ </span> <span style="color:#fc6a5d">\ </span>|  (‾)  |
+</span></span><span style="display:flex;"><span>  / __________ <span style="color:#fc6a5d">\ </span> |__| <span style="color:#fc6a5d">\_</span>_<span style="color:#fc6a5d">\ \_</span>____/ .io
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>  execution: local
+</span></span><span style="display:flex;"><span>  execution: <span style="color:#d0a8ff">local</span>
 </span></span><span style="display:flex;"><span>     script: k6/script.js
 </span></span><span style="display:flex;"><span>     output: -
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>  scenarios: <span style="color:#f92672">(</span>100.00%<span style="color:#f92672">)</span> <span style="color:#ae81ff">1</span> scenario, <span style="color:#ae81ff">200</span> max VUs, 10m30s max duration <span style="color:#f92672">(</span>incl. graceful stop<span style="color:#f92672">)</span>:
-</span></span><span style="display:flex;"><span>           * load: Up to 40.00 iterations/s <span style="color:#66d9ef">for</span> 10m0s over <span style="color:#ae81ff">3</span> stages <span style="color:#f92672">(</span>maxVUs: 200, gracefulStop: 30s<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>  scenarios: (100.00%) <span style="color:#d0bf69">1</span> scenario, <span style="color:#d0bf69">200</span> max VUs, 10m30s max duration (incl. graceful stop):
+</span></span><span style="display:flex;"><span>           * load: Up to 40.00 iterations/s <span style="color:#fc5fa3">for</span> 10m0s over <span style="color:#d0bf69">3</span> stages (maxVUs: 200, gracefulStop: 30s)
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>     ✓ status code is <span style="color:#ae81ff">200</span>
+</span></span><span style="display:flex;"><span>     ✓ status code is <span style="color:#d0bf69">200</span>
 </span></span><span style="display:flex;"><span>     ✓ node is kind-control-plane
 </span></span><span style="display:flex;"><span>     ✓ namespace is sample-app
 </span></span><span style="display:flex;"><span>     ✓ pod is sample-app-*
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>   ✓ checks.........................: 100.00% ✓ <span style="color:#ae81ff">72356</span>     ✗ <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>   ✓ checks.........................: 100.00% ✓ <span style="color:#d0bf69">72356</span>     ✗ <span style="color:#d0bf69">0</span>
 </span></span><span style="display:flex;"><span>     data_received..................: 4.2 MB  7.0 kB/s
 </span></span><span style="display:flex;"><span>     data_sent......................: 2.1 MB  3.5 kB/s
-</span></span><span style="display:flex;"><span>     http_req_blocked...............: avg<span style="color:#f92672">=</span>19.7µs   min<span style="color:#f92672">=</span>2µs      med<span style="color:#f92672">=</span>7µs    max<span style="color:#f92672">=</span>2.95ms  p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>16µs     p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>21µs
-</span></span><span style="display:flex;"><span>     http_req_connecting............: avg<span style="color:#f92672">=</span>6.86µs   min<span style="color:#f92672">=</span>0s       med<span style="color:#f92672">=</span>0s     max<span style="color:#f92672">=</span>2.24ms  p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>0s       p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>0s
-</span></span><span style="display:flex;"><span>   ✓ http_req_duration..............: avg<span style="color:#f92672">=</span>103.43ms min<span style="color:#f92672">=</span>452µs    med<span style="color:#f92672">=</span>6.4ms  max<span style="color:#f92672">=</span>5.29s   p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>259.88ms p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>484.22ms
-</span></span><span style="display:flex;"><span>       <span style="color:#f92672">{</span> expected_response:true <span style="color:#f92672">}</span>...: avg<span style="color:#f92672">=</span>103.43ms min<span style="color:#f92672">=</span>452µs    med<span style="color:#f92672">=</span>6.4ms  max<span style="color:#f92672">=</span>5.29s   p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>259.88ms p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>484.22ms
-</span></span><span style="display:flex;"><span>     http_req_failed................: 0.00%   ✓ <span style="color:#ae81ff">0</span>         ✗ <span style="color:#ae81ff">18089</span>
-</span></span><span style="display:flex;"><span>     http_req_receiving.............: avg<span style="color:#f92672">=</span>99.34µs  min<span style="color:#f92672">=</span>8µs      med<span style="color:#f92672">=</span>77µs   max<span style="color:#f92672">=</span>5.42ms  p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>166µs    p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>212µs
-</span></span><span style="display:flex;"><span>     http_req_sending...............: avg<span style="color:#f92672">=</span>51.86µs  min<span style="color:#f92672">=</span>9µs      med<span style="color:#f92672">=</span>33µs   max<span style="color:#f92672">=</span>18.76ms p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>71µs     p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>96.59µs
-</span></span><span style="display:flex;"><span>     http_req_tls_handshaking.......: avg<span style="color:#f92672">=</span>0s       min<span style="color:#f92672">=</span>0s       med<span style="color:#f92672">=</span>0s     max<span style="color:#f92672">=</span>0s      p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>0s       p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>0s
-</span></span><span style="display:flex;"><span>     http_req_waiting...............: avg<span style="color:#f92672">=</span>103.28ms min<span style="color:#f92672">=</span>418µs    med<span style="color:#f92672">=</span>6.2ms  max<span style="color:#f92672">=</span>5.29s   p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>259.8ms  p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>483.99ms
-</span></span><span style="display:flex;"><span>     http_reqs......................: <span style="color:#ae81ff">18089</span>   30.148343/s
-</span></span><span style="display:flex;"><span>     iteration_duration.............: avg<span style="color:#f92672">=</span>103.9ms  min<span style="color:#f92672">=</span>625.62µs med<span style="color:#f92672">=</span>6.98ms max<span style="color:#f92672">=</span>5.29s   p<span style="color:#f92672">(</span>90<span style="color:#f92672">)=</span>260.24ms p<span style="color:#f92672">(</span>95<span style="color:#f92672">)=</span>485.04ms
-</span></span><span style="display:flex;"><span>     iterations.....................: <span style="color:#ae81ff">18089</span>   30.148343/s
-</span></span><span style="display:flex;"><span>     vus............................: <span style="color:#ae81ff">0</span>       min<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>       max<span style="color:#f92672">=</span><span style="color:#ae81ff">69</span>
-</span></span><span style="display:flex;"><span>     vus_max........................: <span style="color:#ae81ff">200</span>     min<span style="color:#f92672">=</span><span style="color:#ae81ff">200</span>     max<span style="color:#f92672">=</span><span style="color:#ae81ff">200</span>
+</span></span><span style="display:flex;"><span>     http_req_blocked...............: <span style="color:#41a1c0">avg</span>=19.7µs   <span style="color:#41a1c0">min</span>=2µs      <span style="color:#41a1c0">med</span>=7µs    <span style="color:#41a1c0">max</span>=2.95ms  p(90)=16µs     p(95)=21µs
+</span></span><span style="display:flex;"><span>     http_req_connecting............: <span style="color:#41a1c0">avg</span>=6.86µs   <span style="color:#41a1c0">min</span>=0s       <span style="color:#41a1c0">med</span>=0s     <span style="color:#41a1c0">max</span>=2.24ms  p(90)=0s       p(95)=0s
+</span></span><span style="display:flex;"><span>   ✓ http_req_duration..............: <span style="color:#41a1c0">avg</span>=103.43ms <span style="color:#41a1c0">min</span>=452µs    <span style="color:#41a1c0">med</span>=6.4ms  <span style="color:#41a1c0">max</span>=5.29s   p(90)=259.88ms p(95)=484.22ms
+</span></span><span style="display:flex;"><span>       { expected_response:true }...: <span style="color:#41a1c0">avg</span>=103.43ms <span style="color:#41a1c0">min</span>=452µs    <span style="color:#41a1c0">med</span>=6.4ms  <span style="color:#41a1c0">max</span>=5.29s   p(90)=259.88ms p(95)=484.22ms
+</span></span><span style="display:flex;"><span>     http_req_failed................: 0.00%   ✓ <span style="color:#d0bf69">0</span>         ✗ <span style="color:#d0bf69">18089</span>
+</span></span><span style="display:flex;"><span>     http_req_receiving.............: <span style="color:#41a1c0">avg</span>=99.34µs  <span style="color:#41a1c0">min</span>=8µs      <span style="color:#41a1c0">med</span>=77µs   <span style="color:#41a1c0">max</span>=5.42ms  p(90)=166µs    p(95)=212µs
+</span></span><span style="display:flex;"><span>     http_req_sending...............: <span style="color:#41a1c0">avg</span>=51.86µs  <span style="color:#41a1c0">min</span>=9µs      <span style="color:#41a1c0">med</span>=33µs   <span style="color:#41a1c0">max</span>=18.76ms p(90)=71µs     p(95)=96.59µs
+</span></span><span style="display:flex;"><span>     http_req_tls_handshaking.......: <span style="color:#41a1c0">avg</span>=0s       <span style="color:#41a1c0">min</span>=0s       <span style="color:#41a1c0">med</span>=0s     <span style="color:#41a1c0">max</span>=0s      p(90)=0s       p(95)=0s
+</span></span><span style="display:flex;"><span>     http_req_waiting...............: <span style="color:#41a1c0">avg</span>=103.28ms <span style="color:#41a1c0">min</span>=418µs    <span style="color:#41a1c0">med</span>=6.2ms  <span style="color:#41a1c0">max</span>=5.29s   p(90)=259.8ms  p(95)=483.99ms
+</span></span><span style="display:flex;"><span>     http_reqs......................: <span style="color:#d0bf69">18089</span>   30.148343/s
+</span></span><span style="display:flex;"><span>     iteration_duration.............: <span style="color:#41a1c0">avg</span>=103.9ms  <span style="color:#41a1c0">min</span>=625.62µs <span style="color:#41a1c0">med</span>=6.98ms <span style="color:#41a1c0">max</span>=5.29s   p(90)=260.24ms p(95)=485.04ms
+</span></span><span style="display:flex;"><span>     iterations.....................: <span style="color:#d0bf69">18089</span>   30.148343/s
+</span></span><span style="display:flex;"><span>     vus............................: <span style="color:#d0bf69">0</span>       <span style="color:#41a1c0">min</span>=<span style="color:#d0bf69">0</span>       <span style="color:#41a1c0">max</span>=<span style="color:#d0bf69">69</span>
+</span></span><span style="display:flex;"><span>     vus_max........................: <span style="color:#d0bf69">200</span>     <span style="color:#41a1c0">min</span>=<span style="color:#d0bf69">200</span>     <span style="color:#41a1c0">max</span>=<span style="color:#d0bf69">200</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>running <span style="color:#f92672">(</span>10m00.0s<span style="color:#f92672">)</span>, 000/200 VUs, <span style="color:#ae81ff">18089</span> complete and <span style="color:#ae81ff">0</span> interrupted iterations
-</span></span><span style="display:flex;"><span>load ✓ <span style="color:#f92672">[======================================]</span> 000/200 VUs  10m0s  00.41 iters/s
+</span></span><span style="display:flex;"><span>running (10m00.0s), 000/200 VUs, <span style="color:#d0bf69">18089</span> <span style="color:#d0a8ff">complete</span> and <span style="color:#d0bf69">0</span> interrupted iterations
+</span></span><span style="display:flex;"><span>load ✓ [======================================] 000/200 VUs  10m0s  00.41 iters/s
 </span></span></code></pre></div><p>Yay! 🎉<br>
 This time, our service handled pod disruption beautifully and not a single request failed!</p>
 <p>Thanks to the Pod Disruption Budget, a pod can only be evicted if all other pods are up, ensuring that at least 2 pods are available to handle the traffic.</p>
@@ -379,7 +379,7 @@ This time, our service handled pod disruption beautifully and not a single reque
 <h2 id="wrapping-up">Wrapping up</h2>
 <hr>
 <p>That&rsquo;s it! You can now stop and delete your Kind cluster.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>kind delete cluster
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>kind delete cluster
 </span></span></code></pre></div><p>To summarize, using Vertical Pod Autoscaler (VPA) we were able to:</p>
 <ul>
 <li>Autoscale vertically our service, based on resource metrics;</li>

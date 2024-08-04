@@ -63,44 +63,44 @@ Also, the <strong>Factory Pattern</strong> gives us a really nice way to define 
 <hr>
 <p>We have an app, which displays a list of “things” preceded by a picture. Easy. 👍</p>
 <p>In order to keep all our dependencies centralized, let’s first create a <em>DependencyManager</em>! This dependency manager will contain by essence a <em>NetworkManager</em> for the network calls. 👌</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">DependencyManager</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> networkManager: NetworkManagerProtocol
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">struct</span> <span style="color:#5dd8ff">DependencyManager</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">networkManager</span>: NetworkManagerProtocol
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Now, from this NetworkManager, we might want to fetch different kinds of Data, it could be an Image, or a Something… it doesn’t matter: we will implement a new <strong>Manager</strong>, responsible for the parsing logic, for each use case. ✅</p>
 <p>Looking at an <em>ImageManager</em> for instance, this would mean creating an <strong>extension</strong> on <em>DependencyManager</em> in order to <strong>make</strong> an <em>ImageManager</em>, by <strong>injecting</strong> the <em>NetworkManager</em> in it! 💉</p>
 <p>And here is our first <strong>Factory</strong>: <em>ImageFactory</em>! 🏭</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">protocol</span> <span style="color:#a6e22e">ImageFactory</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">makeImageManager</span>() -&gt; ImageManagerProtocol
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">protocol</span> <span style="color:#5dd8ff">ImageFactory</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">makeImageManager</span>() -&gt; ImageManagerProtocol
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">DependencyManager</span>: ImageFactory {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">makeImageManager</span>() -&gt; ImageManagerProtocol {
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> ImageManager(networkManager: networkManager)
+</span></span><span style="display:flex;"><span><span style="color:#fc5fa3">extension</span> <span style="color:#5dd8ff">DependencyManager</span>: ImageFactory {
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">makeImageManager</span>() -&gt; ImageManagerProtocol {
+</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">return</span> ImageManager(networkManager: networkManager)
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Extending it to the use case of fetching “Something”, we would make the <em>SomethingManager</em> the exact same way: <em>SomethingFactory</em> is born! 👶</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">protocol</span> <span style="color:#a6e22e">SomethingFactory</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">makeSomethingManager</span>() -&gt; SomethingManagerProtocol
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">protocol</span> <span style="color:#5dd8ff">SomethingFactory</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">makeSomethingManager</span>() -&gt; SomethingManagerProtocol
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">DependencyManager</span>: SomethingFactory {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">makeSomethingManager</span>() -&gt; SomethingManagerProtocol {
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> SomethingManager(networkManager: networkManager)
+</span></span><span style="display:flex;"><span><span style="color:#fc5fa3">extension</span> <span style="color:#5dd8ff">DependencyManager</span>: SomethingFactory {
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">makeSomethingManager</span>() -&gt; SomethingManagerProtocol {
+</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">return</span> SomethingManager(networkManager: networkManager)
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Looking fit! 💪</p>
 <p>Now, a Factory does not have to limit itself to instantiating <strong>Managers</strong>; <strong>ViewControllers</strong> are great candidates too! 🚀</p>
 <p>Going back to the example, making a <em>SomethingViewController</em> would be as simple as <strong>instantiating</strong> it from a <strong>StoryBoard</strong> or a <strong>XIB</strong> first, and then <strong>injecting</strong> the necessary <strong>dependencies</strong> (i.e. a ViewModel) through the attributes! 💉</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">protocol</span> <span style="color:#a6e22e">ViewControllerFactory</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">makeSomethingViewController</span>() -&gt; SomethingViewController
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">protocol</span> <span style="color:#5dd8ff">ViewControllerFactory</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">makeSomethingViewController</span>() -&gt; SomethingViewController
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">extension</span> <span style="color:#a6e22e">DependencyManager</span>: ViewControllerFactory {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">makeSomethingViewController</span>() -&gt; SomethingViewController {
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">let</span> viewController = SomethingViewController.storyBoardInstance
-</span></span><span style="display:flex;"><span>        viewController.viewModel = SomethingViewModel(factory: <span style="color:#66d9ef">self</span>)
+</span></span><span style="display:flex;"><span><span style="color:#fc5fa3">extension</span> <span style="color:#5dd8ff">DependencyManager</span>: ViewControllerFactory {
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">makeSomethingViewController</span>() -&gt; SomethingViewController {
+</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">viewController</span> = SomethingViewController.storyBoardInstance
+</span></span><span style="display:flex;"><span>        viewController.viewModel = SomethingViewModel(factory: <span style="color:#fc5fa3">self</span>)
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> viewController
+</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">return</span> viewController
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Now, if you pay attention to the way the <strong>ViewModel</strong> has been instantiated above, you’ll realize that the <strong>Managers</strong> are not injected directly, but the <strong>Factory</strong> itself is! 🤯</p>
@@ -109,16 +109,16 @@ That way, when a refactor happens and a new <strong>Dependency</strong> needs to
 More separation of concerns = less problems 😉</p>
 <p>Now, looking back at our <em>SomethingViewModel</em>, we can use the famous <strong>Protocol Composition</strong> trick to define exactly which use case the factory should have access to! 👮<br>
 In our case, we define the <strong>typealias</strong> <em>Factory</em> as being an <em>ImageFactory</em> and <em>SomethingFactory</em>. That way, injecting the <strong>Managers</strong> can be done very elegantly and in a lazy manner! 💉</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SomethingViewModel</span> {
+<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">final</span> <span style="color:#fc5fa3">class</span> <span style="color:#5dd8ff">SomethingViewModel</span> {
 </span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">typealias</span> Factory = ImageFactory <span style="color:#f92672">&amp;</span> SomethingFactory
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">let</span> factory: Factory
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">typealias</span> Factory = ImageFactory &amp; SomethingFactory
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">private</span> <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">factory</span>: Factory
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">lazy</span> <span style="color:#66d9ef">var</span> imageManager: ImageManagerProtocol = factory.makeImageManager()
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">lazy</span> <span style="color:#66d9ef">var</span> somethingManager: SomethingManagerProtocol = factory.makeSomethingManager()
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">private</span> <span style="color:#fc5fa3">lazy</span> <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">imageManager</span>: ImageManagerProtocol = factory.makeImageManager()
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">private</span> <span style="color:#fc5fa3">lazy</span> <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">somethingManager</span>: SomethingManagerProtocol = factory.makeSomethingManager()
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">init</span>(factory: Factory) {
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">self</span>.factory = factory
+</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">init</span>(factory: Factory) {
+</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">self</span>.factory = factory
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>  
 </span></span><span style="display:flex;"><span>    ...
