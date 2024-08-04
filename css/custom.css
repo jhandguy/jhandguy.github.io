@@ -8,11 +8,6 @@
   padding-right: 1.5em;
 }
 
-/* prevent code resizing on mobile */
-.highlight * {
-  font-size: 1em !important;
-}
-
 /* reduce top margin on first child in table of contents */
 #TableOfContents ul:not(:first-child) {
   margin-top: .25em;
