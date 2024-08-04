@@ -3,6 +3,12 @@
   margin-bottom: 1em;
 }
 
+/* prevent code resizing and add small end of line space */
+.highlight pre code span {
+  font-size: 1em;
+  padding-right: 1.5em;
+}
+
 /* reduce top margin on first child in table of contents */
 #TableOfContents ul:not(:first-child) {
   margin-top: .25em;
