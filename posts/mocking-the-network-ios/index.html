@@ -6,7 +6,6 @@
     <title>Painless UI Testing in iOS (Part 1) - Mocking the Network</title>
     <link rel="stylesheet" href="/css/bulma.min.css">
     <link rel="stylesheet" href="/css/custom.css">
-    <link rel="stylesheet" href="/css/hugo.css">
 </head>
 
 <body>
@@ -64,330 +63,347 @@ But first, we need to prepare our <em>Network</em> layer for this kind of mockin
 See my article <a href="/posts/observer-design-pattern-ios/">Lightweight Design Patterns in iOS (Part 1) - Observer</a> for more details on how I like to build my Network layer! 😃</p>
 <p>Alright, alright, I’m gonna explain it to you! 😜<br>
 But first, let’s create a protocol (<em>URLSessionProtocol</em>) abstracting Foundation’s <em>URLSession</em>. 👌</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">import</span> <span class="nc">Foundation</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">protocol</span> <span class="nc">URLSessionProtocol</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">dataTask</span><span class="p">(</span><span class="n">with</span> <span class="n">request</span><span class="p">:</span> <span class="n">URLRequest</span><span class="p">,</span> <span class="n">completionHandler</span><span class="p">:</span> <span class="p">@</span><span class="n">escaping</span> <span class="p">(</span><span class="n">Data</span><span class="p">?,</span> <span class="n">URLResponse</span><span class="p">?,</span> <span class="n">Error</span><span class="p">?)</span> <span class="p">-&gt;</span> <span class="nb">Void</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">URLSessionDataTaskProtocol</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">extension</span> <span class="nc">URLSession</span><span class="p">:</span> <span class="n">URLSessionProtocol</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">dataTask</span><span class="p">(</span><span class="n">with</span> <span class="n">request</span><span class="p">:</span> <span class="n">URLRequest</span><span class="p">,</span> <span class="n">completionHandler</span><span class="p">:</span> <span class="p">@</span><span class="n">escaping</span> <span class="p">(</span><span class="n">Data</span><span class="p">?,</span> <span class="n">URLResponse</span><span class="p">?,</span> <span class="n">Error</span><span class="p">?)</span> <span class="p">-&gt;</span> <span class="nb">Void</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">URLSessionDataTaskProtocol</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">dataTask</span><span class="p">(</span><span class="n">with</span><span class="p">:</span> <span class="n">request</span><span class="p">,</span> <span class="n">completionHandler</span><span class="p">:</span> <span class="n">completionHandler</span><span class="p">)</span> <span class="k">as</span> <span class="n">URLSessionDataTask</span>
-</span></span><span class="line"><span class="cl">    <span class="p">}</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></div><p>Now, as you can see, we also need a protocol for the <em>URLSessionDataTask</em>, so we can also make a mock implementation of the data task! 😃<br>
+<pre><code class="language-swift">import Foundation
+
+protocol URLSessionProtocol {
+    func dataTask(with request: URLRequest, completionHandler: @escaping (Data?, URLResponse?, Error?) -&gt; Void) -&gt; URLSessionDataTaskProtocol
+}
+
+extension URLSession: URLSessionProtocol {
+    func dataTask(with request: URLRequest, completionHandler: @escaping (Data?, URLResponse?, Error?) -&gt; Void) -&gt; URLSessionDataTaskProtocol {
+        return dataTask(with: request, completionHandler: completionHandler) as URLSessionDataTask
+    }
+}
+</code></pre>
+<p>Now, as you can see, we also need a protocol for the <em>URLSessionDataTask</em>, so we can also make a mock implementation of the data task! 😃<br>
 Right on, let’s write our <em>URLSessionDataTaskProtocol</em>! ✍️</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">import</span> <span class="nc">Foundation</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">protocol</span> <span class="nc">URLSessionDataTaskProtocol</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">resume</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">cancel</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">suspend</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">extension</span> <span class="nc">URLSessionDataTask</span><span class="p">:</span> <span class="n">URLSessionDataTaskProtocol</span> <span class="p">{}</span>
-</span></span></code></pre></div><p>OK! 👌 That’s all the abstraction we need, for now at least. 😉<br>
+<pre><code class="language-swift">import Foundation
+
+protocol URLSessionDataTaskProtocol {
+    func resume()
+    func cancel()
+    func suspend()
+}
+
+extension URLSessionDataTask: URLSessionDataTaskProtocol {}
+</code></pre>
+<p>OK! 👌 That’s all the abstraction we need, for now at least. 😉<br>
 At this time, we can already inject it in our NetworkManager and see how it plays out! 👍</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kr">final</span> <span class="kd">class</span> <span class="nc">NetworkManager</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="kd">var</span> <span class="nv">session</span><span class="p">:</span> <span class="n">URLSessionProtocol</span>
-</span></span><span class="line"><span class="cl">    <span class="p">...</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="kd">init</span><span class="p">(</span><span class="n">session</span><span class="p">:</span> <span class="n">URLSessionProtocol</span> <span class="p">=</span> <span class="n">URLSession</span><span class="p">(</span><span class="n">configuration</span><span class="p">:</span> <span class="p">.</span><span class="k">default</span><span class="p">),</span> <span class="p">...)</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">        <span class="kc">self</span><span class="p">.</span><span class="n">session</span> <span class="p">=</span> <span class="n">session</span>
-</span></span><span class="line"><span class="cl">        <span class="p">...</span>
-</span></span><span class="line"><span class="cl">    <span class="p">}</span>
-</span></span><span class="line"><span class="cl">    <span class="p">...</span>
-</span></span><span class="line"><span class="cl">    
-</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">dataTask</span><span class="p">(</span><span class="n">with</span> <span class="n">urlRequest</span><span class="p">:</span> <span class="n">URLRequest</span><span class="p">,</span> <span class="p">...)</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">        <span class="n">session</span><span class="p">.</span><span class="n">dataTask</span><span class="p">(</span><span class="n">with</span><span class="p">:</span> <span class="n">urlRequest</span><span class="p">)</span> <span class="p">{</span> <span class="p">...</span>
-</span></span><span class="line"><span class="cl">            <span class="p">...</span>
-</span></span><span class="line"><span class="cl">        <span class="p">}</span>
-</span></span><span class="line"><span class="cl">        <span class="p">...</span>
-</span></span><span class="line"><span class="cl">    <span class="p">}</span>
-</span></span><span class="line"><span class="cl">    <span class="p">...</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></div><p>The really good thing about it is that, there is no “test code” in the <em>NetworkManager</em>, it almost looks unchanged. 💯<br>
+<pre><code class="language-swift">final class NetworkManager {
+
+    private var session: URLSessionProtocol
+    ...
+
+    init(session: URLSessionProtocol = URLSession(configuration: .default), ...) {
+        self.session = session
+        ...
+    }
+    ...
+    
+    func dataTask(with urlRequest: URLRequest, ...) {
+        session.dataTask(with: urlRequest) { ...
+            ...
+        }
+        ...
+    }
+    ...
+}
+</code></pre>
+<p>The really good thing about it is that, there is no “test code” in the <em>NetworkManager</em>, it almost looks unchanged. 💯<br>
 All we did was abstract the session with a protocol to allow a different implementation of it! 🚀</p>
 <p>Before we get to the mocking part, we first need to define the way we are going to mock the responses. 📄<br>
 Let’s start with the <em>Response</em> struct! 👍</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">import</span> <span class="nc">Foundation</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">struct</span> <span class="nc">Response</span><span class="p">:</span> <span class="n">Codable</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">    <span class="kd">var</span> <span class="nv">file</span><span class="p">:</span> <span class="n">File</span><span class="p">?</span>
-</span></span><span class="line"><span class="cl">    <span class="kd">var</span> <span class="nv">error</span><span class="p">:</span> <span class="n">NetworkError</span><span class="p">?</span>
-</span></span><span class="line"><span class="cl">    <span class="kd">var</span> <span class="nv">dataTask</span><span class="p">:</span> <span class="n">URLSessionDataTaskMock</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="kd">init</span><span class="p">(</span><span class="kc">_</span> <span class="n">file</span><span class="p">:</span> <span class="n">File</span><span class="p">?</span> <span class="p">=</span> <span class="kc">nil</span><span class="p">,</span> <span class="n">error</span><span class="p">:</span> <span class="n">NetworkError</span><span class="p">?</span> <span class="p">=</span> <span class="kc">nil</span><span class="p">,</span> <span class="n">dataTask</span><span class="p">:</span> <span class="n">URLSessionDataTaskMock</span> <span class="p">=</span> <span class="n">URLSessionDataTaskMock</span><span class="p">())</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">        <span class="kc">self</span><span class="p">.</span><span class="n">file</span> <span class="p">=</span> <span class="n">file</span>
-</span></span><span class="line"><span class="cl">        <span class="kc">self</span><span class="p">.</span><span class="n">error</span> <span class="p">=</span> <span class="n">error</span>
-</span></span><span class="line"><span class="cl">        <span class="kc">self</span><span class="p">.</span><span class="n">dataTask</span> <span class="p">=</span> <span class="n">dataTask</span>
-</span></span><span class="line"><span class="cl">    <span class="p">}</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></div><p>As defined above, a Response can take a File (JSON or image) an <em>Error</em> and a <em>URLSessionDataTaskMock</em>.</p>
+<pre><code class="language-swift">import Foundation
+
+struct Response: Codable {
+    var file: File?
+    var error: NetworkError?
+    var dataTask: URLSessionDataTaskMock
+
+    init(_ file: File? = nil, error: NetworkError? = nil, dataTask: URLSessionDataTaskMock = URLSessionDataTaskMock()) {
+        self.file = file
+        self.error = error
+        self.dataTask = dataTask
+    }
+}
+</code></pre>
+<p>As defined above, a Response can take a File (JSON or image) an <em>Error</em> and a <em>URLSessionDataTaskMock</em>.</p>
 <p>Before going any further, let’s see what a File is actually about. 👀</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">import</span> <span class="nc">Foundation</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kr">final</span> <span class="kd">class</span> <span class="nc">File</span><span class="p">:</span> <span class="n">Codable</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">    <span class="kd">var</span> <span class="nv">name</span><span class="p">:</span> <span class="nb">String</span>
-</span></span><span class="line"><span class="cl">    <span class="kd">var</span> <span class="p">`</span><span class="kd">extension</span><span class="p">`:</span> <span class="n">Extension</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="kd">enum</span> <span class="nc">Extension</span><span class="p">:</span> <span class="nb">String</span><span class="p">,</span> <span class="n">Codable</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">        <span class="k">case</span> <span class="n">json</span>
-</span></span><span class="line"><span class="cl">        <span class="k">case</span> <span class="n">jpg</span>
-</span></span><span class="line"><span class="cl">    <span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="kd">init</span><span class="p">(</span><span class="kc">_</span> <span class="n">name</span><span class="p">:</span> <span class="nb">String</span><span class="p">,</span> <span class="kc">_</span> <span class="kd">extension</span><span class="p">:</span> <span class="n">Extension</span><span class="p">)</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">        <span class="kc">self</span><span class="p">.</span><span class="n">name</span> <span class="p">=</span> <span class="n">name</span>
-</span></span><span class="line"><span class="cl">        <span class="kc">self</span><span class="p">.`</span><span class="kd">extension</span><span class="p">`</span> <span class="p">=</span> <span class="p">`</span><span class="kd">extension</span><span class="p">`</span>
-</span></span><span class="line"><span class="cl">    <span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="kd">var</span> <span class="nv">data</span><span class="p">:</span> <span class="n">Data</span><span class="p">?</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">        <span class="k">guard</span>
-</span></span><span class="line"><span class="cl">            <span class="kd">let</span> <span class="nv">url</span> <span class="p">=</span> <span class="n">Bundle</span><span class="p">(</span><span class="k">for</span><span class="p">:</span> <span class="n">type</span><span class="p">(</span><span class="n">of</span><span class="p">:</span> <span class="kc">self</span><span class="p">)).</span><span class="n">url</span><span class="p">(</span><span class="n">forResource</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span> <span class="n">withExtension</span><span class="p">:</span> <span class="p">`</span><span class="kd">extension</span><span class="p">`.</span><span class="n">rawValue</span><span class="p">),</span>
-</span></span><span class="line"><span class="cl">            <span class="kd">let</span> <span class="nv">data</span> <span class="p">=</span> <span class="k">try</span><span class="p">?</span> <span class="n">Data</span><span class="p">(</span><span class="n">contentsOf</span><span class="p">:</span> <span class="n">url</span><span class="p">)</span> <span class="k">else</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">                <span class="k">return</span> <span class="kc">nil</span>
-</span></span><span class="line"><span class="cl">        <span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">data</span>
-</span></span><span class="line"><span class="cl">    <span class="p">}</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></div><p>Thus, the <em>File</em> is the entity where we <strong>encode the responses to be injected in the launch environment</strong>, at runtime. 📁</p>
+<pre><code class="language-swift">import Foundation
+
+final class File: Codable {
+    var name: String
+    var `extension`: Extension
+
+    enum Extension: String, Codable {
+        case json
+        case jpg
+    }
+
+    init(_ name: String, _ extension: Extension) {
+        self.name = name
+        self.`extension` = `extension`
+    }
+
+    var data: Data? {
+        guard
+            let url = Bundle(for: type(of: self)).url(forResource: name, withExtension: `extension`.rawValue),
+            let data = try? Data(contentsOf: url) else {
+                return nil
+        }
+
+        return data
+    }
+}
+</code></pre>
+<p>Thus, the <em>File</em> is the entity where we <strong>encode the responses to be injected in the launch environment</strong>, at runtime. 📁</p>
 <p>Nice! 😎<br>
 Now we have the mock <em>Responses</em> as well as the protocols ready, mocking is very easy. 😃<br>
 All we need is making our own implementation of <em>URLSessionProtocol</em> and <em>URLSessionDataTaskProtocol</em> for testing purposes! 💯</p>
 <p>But first, let’s define our <em>Request</em> enum! ✅</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">enum</span> <span class="nc">Request</span><span class="p">:</span> <span class="nb">Hashable</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">   <span class="k">case</span> <span class="n">fetchSomething</span>
-</span></span><span class="line"><span class="cl">   
-</span></span><span class="line"><span class="cl">   <span class="kd">var</span> <span class="nv">url</span><span class="p">:</span> <span class="nb">String</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">      <span class="k">switch</span> <span class="kc">self</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">      <span class="k">case</span> <span class="p">.</span><span class="n">fetchSomething</span><span class="p">:</span>
-</span></span><span class="line"><span class="cl">         <span class="k">return</span> <span class="s">&#34;https://api.com/something&#34;</span>
-</span></span><span class="line"><span class="cl">      <span class="p">}</span>
-</span></span><span class="line"><span class="cl">    <span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="kd">var</span> <span class="nv">method</span><span class="p">:</span> <span class="n">HTTPMethod</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">        <span class="k">switch</span> <span class="kc">self</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">        <span class="k">case</span> <span class="p">.</span><span class="n">fetchSomething</span>
-</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="p">.</span><span class="kr">get</span>
-</span></span><span class="line"><span class="cl">        <span class="p">}</span>
-</span></span><span class="line"><span class="cl">    <span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="kd">var</span> <span class="nv">parameters</span><span class="p">:</span> <span class="n">Parameters</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">       <span class="k">switch</span> <span class="kc">self</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">       <span class="k">case</span> <span class="p">.</span><span class="n">fetchSomething</span><span class="p">:</span>
-</span></span><span class="line"><span class="cl">          <span class="k">return</span> <span class="p">.</span><span class="n">url</span><span class="p">([</span><span class="s">&#34;api-key&#34;</span><span class="p">:</span> <span class="s">&#34;abcd1234&#34;</span><span class="p">])</span>
-</span></span><span class="line"><span class="cl">       <span class="p">}</span>
-</span></span><span class="line"><span class="cl">    <span class="p">}</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></div><p>Now, because we are going to use the <em>Request</em> as <strong>key</strong> to our responses <strong>Dictionary</strong>, we are going to map it to an absolute URL. 🗺</p>
+<pre><code class="language-swift">enum Request: Hashable {
+   case fetchSomething
+   
+   var url: String {
+      switch self {
+      case .fetchSomething:
+         return &quot;https://api.com/something&quot;
+      }
+    }
+
+    var method: HTTPMethod {
+        switch self {
+        case .fetchSomething
+            return .get
+        }
+    }
+
+    var parameters: Parameters {
+       switch self {
+       case .fetchSomething:
+          return .url([&quot;api-key&quot;: &quot;abcd1234&quot;])
+       }
+    }
+}
+</code></pre>
+<p>Now, because we are going to use the <em>Request</em> as <strong>key</strong> to our responses <strong>Dictionary</strong>, we are going to map it to an absolute URL. 🗺</p>
 <p>For this purpose, let’s first create an extension on <em>Parameters</em> for getting a <strong>String</strong> representation of a <strong>query</strong> out of it. 👌</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">extension</span> <span class="nc">Parameters</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="kd">var</span> <span class="nv">query</span><span class="p">:</span> <span class="nb">String</span><span class="p">?</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">        <span class="k">switch</span> <span class="kc">self</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">        <span class="k">case</span> <span class="p">.</span><span class="n">url</span><span class="p">(</span><span class="kd">let</span> <span class="nv">url</span><span class="p">):</span>
-</span></span><span class="line"><span class="cl">            <span class="k">guard</span> <span class="o">!</span><span class="n">url</span><span class="p">.</span><span class="bp">isEmpty</span> <span class="k">else</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">                <span class="k">return</span> <span class="kc">nil</span>
-</span></span><span class="line"><span class="cl">            <span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="n">url</span>
-</span></span><span class="line"><span class="cl">                <span class="p">.</span><span class="bp">map</span> <span class="p">{</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="k">in</span>
-</span></span><span class="line"><span class="cl">                    <span class="k">guard</span> <span class="kd">let</span> <span class="nv">value</span> <span class="p">=</span> <span class="n">value</span> <span class="k">else</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">                        <span class="k">return</span> <span class="n">key</span>
-</span></span><span class="line"><span class="cl">                    <span class="p">}</span>
-</span></span><span class="line"><span class="cl">                    <span class="k">return</span> <span class="s">&#34;</span><span class="si">\(</span><span class="n">key</span><span class="si">)</span><span class="s">=</span><span class="si">\(</span><span class="n">value</span><span class="si">)</span><span class="s">&#34;</span>
-</span></span><span class="line"><span class="cl">                <span class="p">}.</span><span class="n">joined</span><span class="p">(</span><span class="n">separator</span><span class="p">:</span> <span class="s">&#34;&amp;&#34;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">        <span class="k">default</span><span class="p">:</span>
-</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="kc">nil</span>
-</span></span><span class="line"><span class="cl">        <span class="p">}</span>
-</span></span><span class="line"><span class="cl">    <span class="p">}</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></div><p>And now we’ll create an extension on <em>Request</em> to get a <strong>String</strong> representation of an <strong>absolute URL</strong> from it. 👍</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">extension</span> <span class="nc">Request</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="kd">var</span> <span class="nv">absoluteUrl</span><span class="p">:</span> <span class="nb">String</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">        <span class="k">guard</span> <span class="kd">let</span> <span class="nv">query</span> <span class="p">=</span> <span class="n">parameters</span><span class="p">.</span><span class="n">query</span> <span class="k">else</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="n">url</span>
-</span></span><span class="line"><span class="cl">        <span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="s">&#34;</span><span class="si">\(</span><span class="n">url</span><span class="si">)</span><span class="s">?</span><span class="si">\(</span><span class="n">query</span><span class="si">)</span><span class="s">&#34;</span>
-</span></span><span class="line"><span class="cl">    <span class="p">}</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></div><p>Alright, we are good to go! 🎉<br>
+<pre><code class="language-swift">extension Parameters {
+
+    var query: String? {
+        switch self {
+        case .url(let url):
+            guard !url.isEmpty else {
+                return nil
+            }
+
+            return url
+                .map { key, value in
+                    guard let value = value else {
+                        return key
+                    }
+                    return &quot;\(key)=\(value)&quot;
+                }.joined(separator: &quot;&amp;&quot;)
+        default:
+            return nil
+        }
+    }
+}
+</code></pre>
+<p>And now we’ll create an extension on <em>Request</em> to get a <strong>String</strong> representation of an <strong>absolute URL</strong> from it. 👍</p>
+<pre><code class="language-swift">extension Request {
+
+    var absoluteUrl: String {
+        guard let query = parameters.query else {
+            return url
+        }
+
+        return &quot;\(url)?\(query)&quot;
+    }
+}
+</code></pre>
+<p>Alright, we are good to go! 🎉<br>
 Let’s get started with the <em>URLSessionMock</em> then! 💪<br>
 All it needs is a <strong>mutable Dictionary</strong> of <em>Requests</em> (<strong>keys</strong>) and <em>Responses</em> (<strong>values</strong>) as well as conforming to our <em>URLSessionProtocol</em>. 👌<br>
 The <em>Responses</em> <strong>Array</strong> inside the <strong>Dictionary</strong> will behave like a <strong>Queue</strong> (FIFO — First In First Out), meaning that they will be consumed just like a real network would! 😮 Simple! 🙌</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">import</span> <span class="nc">Foundation</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kr">final</span> <span class="kd">class</span> <span class="nc">URLSessionMock</span><span class="p">:</span> <span class="n">Codable</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">    <span class="kd">private</span><span class="p">(</span><span class="kr">set</span><span class="p">)</span> <span class="kd">var</span> <span class="nv">responses</span><span class="p">:</span> <span class="p">[</span><span class="nb">String</span><span class="p">:</span> <span class="p">[</span><span class="n">Response</span><span class="p">]]</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="kd">init</span><span class="p">(</span><span class="n">responses</span><span class="p">:</span> <span class="p">[</span><span class="n">Request</span><span class="p">:</span> <span class="p">[</span><span class="n">Response</span><span class="p">]]</span> <span class="p">=</span> <span class="p">[:])</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">        <span class="kc">self</span><span class="p">.</span><span class="n">responses</span> <span class="p">=</span> <span class="nb">Dictionary</span><span class="p">(</span> <span class="n">uniqueKeysWithValues</span><span class="p">:</span>
-</span></span><span class="line"><span class="cl">            <span class="n">responses</span><span class="p">.</span><span class="bp">map</span> <span class="p">{</span> <span class="n">request</span><span class="p">,</span> <span class="n">responses</span> <span class="k">in</span>
-</span></span><span class="line"><span class="cl">                <span class="k">return</span> <span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="n">request</span><span class="p">.</span><span class="n">absoluteUrl</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">responses</span><span class="p">.</span><span class="n">reversed</span><span class="p">())</span>
-</span></span><span class="line"><span class="cl">            <span class="p">}</span>
-</span></span><span class="line"><span class="cl">        <span class="p">)</span>
-</span></span><span class="line"><span class="cl">    <span class="p">}</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">extension</span> <span class="nc">URLSessionMock</span><span class="p">:</span> <span class="n">URLSessionProtocol</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">dataTask</span><span class="p">(</span><span class="n">with</span> <span class="n">request</span><span class="p">:</span> <span class="n">URLRequest</span><span class="p">,</span> <span class="n">completionHandler</span><span class="p">:</span> <span class="p">@</span><span class="n">escaping</span> <span class="p">(</span><span class="n">Data</span><span class="p">?,</span> <span class="n">URLResponse</span><span class="p">?,</span> <span class="n">Error</span><span class="p">?)</span> <span class="p">-&gt;</span> <span class="nb">Void</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">URLSessionDataTaskProtocol</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">        <span class="k">guard</span>
-</span></span><span class="line"><span class="cl">            <span class="kd">let</span> <span class="nv">url</span> <span class="p">=</span> <span class="n">request</span><span class="p">.</span><span class="n">url</span><span class="p">?.</span><span class="n">absoluteString</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">            <span class="kd">let</span> <span class="nv">response</span> <span class="p">=</span> <span class="n">responses</span><span class="p">[</span><span class="n">url</span><span class="p">]?.</span><span class="n">popLast</span><span class="p">()</span> <span class="k">else</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">                <span class="n">completionHandler</span><span class="p">(</span><span class="kc">nil</span><span class="p">,</span> <span class="kc">nil</span><span class="p">,</span> <span class="n">NetworkError</span><span class="p">.</span><span class="n">invalidRequest</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">                <span class="k">return</span> <span class="n">URLSessionDataTaskMock</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">        <span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">        <span class="n">completionHandler</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">file</span><span class="p">?.</span><span class="n">data</span><span class="p">,</span> <span class="kc">nil</span><span class="p">,</span> <span class="n">response</span><span class="p">.</span><span class="n">error</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">response</span><span class="p">.</span><span class="n">dataTask</span>
-</span></span><span class="line"><span class="cl">    <span class="p">}</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></div><p>With this implementation, we have complete control over the requests being made. 👮<br>
+<pre><code class="language-swift">import Foundation
+
+final class URLSessionMock: Codable {
+    private(set) var responses: [String: [Response]]
+
+    init(responses: [Request: [Response]] = [:]) {
+        self.responses = Dictionary( uniqueKeysWithValues:
+            responses.map { request, responses in
+                return (key: request.absoluteUrl, value: responses.reversed())
+            }
+        )
+    }
+}
+
+extension URLSessionMock: URLSessionProtocol {
+    func dataTask(with request: URLRequest, completionHandler: @escaping (Data?, URLResponse?, Error?) -&gt; Void) -&gt; URLSessionDataTaskProtocol {
+        guard
+            let url = request.url?.absoluteString,
+            let response = responses[url]?.popLast() else {
+
+                completionHandler(nil, nil, NetworkError.invalidRequest)
+                return URLSessionDataTaskMock()
+        }
+
+        completionHandler(response.file?.data, nil, response.error)
+
+        return response.dataTask
+    }
+}
+</code></pre>
+<p>With this implementation, we have complete control over the requests being made. 👮<br>
 We can decide which <em>Response</em> to return depending on the <em>Request</em> and even stub on the data task! 🤯<br>
 Speaking of which, here is the mock implementation of the <em>URLSessionDataTaskProtocol</em>. 😉</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kr">final</span> <span class="kd">class</span> <span class="nc">URLSessionDataTaskMock</span><span class="p">:</span> <span class="n">Codable</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">    <span class="kd">private</span><span class="p">(</span><span class="kr">set</span><span class="p">)</span> <span class="kd">var</span> <span class="nv">isResumed</span> <span class="p">=</span> <span class="kc">false</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">extension</span> <span class="nc">URLSessionDataTaskMock</span><span class="p">:</span> <span class="n">URLSessionDataTaskProtocol</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">cancel</span><span class="p">()</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">        <span class="n">isResumed</span> <span class="p">=</span> <span class="kc">false</span>
-</span></span><span class="line"><span class="cl">    <span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">suspend</span><span class="p">()</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">        <span class="n">isResumed</span> <span class="p">=</span> <span class="kc">false</span>
-</span></span><span class="line"><span class="cl">    <span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">resume</span><span class="p">()</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">        <span class="n">isResumed</span> <span class="p">=</span> <span class="kc">true</span>
-</span></span><span class="line"><span class="cl">    <span class="p">}</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></div><p>Almost there! ☝️<br>
+<pre><code class="language-swift">final class URLSessionDataTaskMock: Codable {
+    private(set) var isResumed = false
+}
+
+extension URLSessionDataTaskMock: URLSessionDataTaskProtocol {
+    func cancel() {
+        isResumed = false
+    }
+
+    func suspend() {
+        isResumed = false
+    }
+
+    func resume() {
+        isResumed = true
+    }
+}
+</code></pre>
+<p>Almost there! ☝️<br>
 Before writing our tests, let’s add some helper functions/variables! 👍</p>
 <p>To avoid making use of hardcoded strings, let’s create an <em>Identifiable</em> protocol which will provide an <em>identifier</em> to any class that conforms to it! 💪<br>
 That way, when injecting the <em>URLSessionMock</em> in the launch environment dictionary, we can use the <em>identifier</em> variable as the key. 🔑</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">import</span> <span class="nc">Foundation</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">protocol</span> <span class="nc">Identifiable</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">    <span class="kd">static</span> <span class="kd">var</span> <span class="nv">identifier</span><span class="p">:</span> <span class="nb">String</span> <span class="p">{</span> <span class="kr">get</span> <span class="p">}</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">extension</span> <span class="nc">Identifiable</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">    <span class="kd">static</span> <span class="kd">var</span> <span class="nv">identifier</span><span class="p">:</span> <span class="nb">String</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="nb">String</span><span class="p">(</span><span class="n">describing</span><span class="p">:</span> <span class="kc">self</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">    <span class="p">}</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">extension</span> <span class="nc">URLSessionMock</span><span class="p">:</span> <span class="n">Identifiable</span> <span class="p">{}</span>
-</span></span></code></pre></div><p>And finally, here are some small extension functions/variables for encoding/decoding our mock from the environment! 💯</p>
+<pre><code class="language-swift">import Foundation
+
+protocol Identifiable {
+    static var identifier: String { get }
+}
+
+extension Identifiable {
+    static var identifier: String {
+        return String(describing: self)
+    }
+}
+
+extension URLSessionMock: Identifiable {}
+</code></pre>
+<p>And finally, here are some small extension functions/variables for encoding/decoding our mock from the environment! 💯</p>
 <p>Let’s start with an extension on <em>ProcessInfo</em> to decode any <em>Identifiable</em>…</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">import</span> <span class="nc">Foundation</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">extension</span> <span class="nc">ProcessInfo</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">    
-</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">decode</span><span class="p">&lt;</span><span class="n">T</span><span class="p">:</span> <span class="n">Identifiable</span> <span class="o">&amp;</span> <span class="n">Decodable</span><span class="p">&gt;(</span><span class="kc">_</span><span class="p">:</span> <span class="n">T</span><span class="p">.</span><span class="kr">Type</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">T</span><span class="p">?</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">        <span class="k">guard</span>
-</span></span><span class="line"><span class="cl">            <span class="kd">let</span> <span class="nv">environment</span> <span class="p">=</span> <span class="n">environment</span><span class="p">[</span><span class="n">T</span><span class="p">.</span><span class="n">identifier</span><span class="p">],</span>
-</span></span><span class="line"><span class="cl">            <span class="kd">let</span> <span class="nv">codable</span> <span class="p">=</span> <span class="n">T</span><span class="p">.</span><span class="n">decode</span><span class="p">(</span><span class="n">from</span><span class="p">:</span> <span class="n">environment</span><span class="p">)</span> <span class="k">else</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">                <span class="k">return</span> <span class="kc">nil</span>
-</span></span><span class="line"><span class="cl">        <span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">codable</span>
-</span></span><span class="line"><span class="cl">    <span class="p">}</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></div><p>Then, make an extension on <em>Decodable</em> to decode from any <em>String</em>…</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">import</span> <span class="nc">Foundation</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">extension</span> <span class="nc">Decodable</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">    
-</span></span><span class="line"><span class="cl">    <span class="kd">static</span> <span class="kd">func</span> <span class="nf">decode</span><span class="p">(</span><span class="n">from</span> <span class="n">json</span><span class="p">:</span> <span class="nb">String</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="kc">Self</span><span class="p">?</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">        <span class="k">guard</span> <span class="kd">let</span> <span class="nv">data</span> <span class="p">=</span> <span class="n">json</span><span class="p">.</span><span class="n">data</span><span class="p">(</span><span class="n">using</span><span class="p">:</span> <span class="p">.</span><span class="n">utf8</span><span class="p">)</span> <span class="k">else</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="kc">nil</span>
-</span></span><span class="line"><span class="cl">        <span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="k">try</span><span class="p">?</span> <span class="n">JSONDecoder</span><span class="p">().</span><span class="n">decode</span><span class="p">(</span><span class="kc">self</span><span class="p">,</span> <span class="n">from</span><span class="p">:</span> <span class="n">data</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">    <span class="p">}</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></div><p>Lastly, write an extension on <em>Encodable</em> to encode to either String or Data! ✅</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">import</span> <span class="nc">Foundation</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">extension</span> <span class="nc">Encodable</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="kd">var</span> <span class="nv">json</span><span class="p">:</span> <span class="nb">String</span><span class="p">?</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">        <span class="k">guard</span> <span class="kd">let</span> <span class="nv">data</span> <span class="p">=</span> <span class="n">data</span> <span class="k">else</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="kc">nil</span>
-</span></span><span class="line"><span class="cl">        <span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="nb">String</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">data</span><span class="p">,</span> <span class="n">encoding</span><span class="p">:</span> <span class="p">.</span><span class="n">utf8</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">    <span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="kd">var</span> <span class="nv">data</span><span class="p">:</span> <span class="n">Data</span><span class="p">?</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="k">try</span><span class="p">?</span> <span class="n">JSONEncoder</span><span class="p">().</span><span class="n">encode</span><span class="p">(</span><span class="kc">self</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">    <span class="p">}</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></div><p>Finally! 🏁<br>
+<pre><code class="language-swift">import Foundation
+
+extension ProcessInfo {
+    
+    func decode&lt;T: Identifiable &amp; Decodable&gt;(_: T.Type) -&gt; T? {
+        guard
+            let environment = environment[T.identifier],
+            let codable = T.decode(from: environment) else {
+                return nil
+        }
+
+        return codable
+    }
+}
+</code></pre>
+<p>Then, make an extension on <em>Decodable</em> to decode from any <em>String</em>…</p>
+<pre><code class="language-swift">import Foundation
+
+extension Decodable {
+    
+    static func decode(from json: String) -&gt; Self? {
+        guard let data = json.data(using: .utf8) else {
+            return nil
+        }
+
+        return try? JSONDecoder().decode(self, from: data)
+    }
+}
+</code></pre>
+<p>Lastly, write an extension on <em>Encodable</em> to encode to either String or Data! ✅</p>
+<pre><code class="language-swift">import Foundation
+
+extension Encodable {
+
+    var json: String? {
+        guard let data = data else {
+            return nil
+        }
+
+        return String(data: data, encoding: .utf8)
+    }
+
+    var data: Data? {
+        return try? JSONEncoder().encode(self)
+    }
+}
+</code></pre>
+<p>Finally! 🏁<br>
 We are done with preparations! 🎉</p>
 <p>Now, we need to inject the <em>URLSessionMock</em> in the launch environment so it can be received in the <em>AppDelegate</em>! 💉<br>
 Let’s create a nice extension function on <em>XCUIApplication</em> to help us achieve that. 💪</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">import</span> <span class="nc">XCTest</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">extension</span> <span class="nc">XCUIApplication</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">launch</span><span class="p">(</span><span class="n">with</span> <span class="n">sessionMock</span><span class="p">:</span> <span class="n">URLSessionMock</span> <span class="p">=</span> <span class="n">URLSessionMock</span><span class="p">())</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">        <span class="n">launchEnvironment</span><span class="p">[</span><span class="n">URLSessionMock</span><span class="p">.</span><span class="n">identifier</span><span class="p">]</span> <span class="p">=</span> <span class="n">sessionMock</span><span class="p">.</span><span class="n">json</span>
-</span></span><span class="line"><span class="cl">        <span class="n">launch</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">    <span class="p">}</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></div><p>And last but not least, the <em>AppDelegate</em> is now able to decode the <em>URLSessionMock</em> from the <em>ProcessInfo</em> and pass it to the <em>NetworkManager</em>! 👌<br>
+<pre><code class="language-swift">import XCTest
+
+extension XCUIApplication {
+
+    func launch(with sessionMock: URLSessionMock = URLSessionMock()) {
+        launchEnvironment[URLSessionMock.identifier] = sessionMock.json
+        launch()
+    }
+}
+</code></pre>
+<p>And last but not least, the <em>AppDelegate</em> is now able to decode the <em>URLSessionMock</em> from the <em>ProcessInfo</em> and pass it to the <em>NetworkManager</em>! 👌<br>
 Yes, that’s all. 😎</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">import</span> <span class="nc">UIKit</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kr">@UIApplicationMain</span>
-</span></span><span class="line"><span class="cl"><span class="kd">class</span> <span class="nc">AppDelegate</span><span class="p">:</span> <span class="n">UIResponder</span><span class="p">,</span> <span class="n">UIApplicationDelegate</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">application</span><span class="p">(</span><span class="kc">_</span> <span class="n">application</span><span class="p">:</span> <span class="n">UIApplication</span><span class="p">,</span> <span class="n">willFinishLaunchingWithOptions</span> <span class="n">launchOptions</span><span class="p">:</span> <span class="p">[</span><span class="n">UIApplication</span><span class="p">.</span><span class="n">LaunchOptionsKey</span><span class="p">:</span> <span class="nb">Any</span><span class="p">]?</span> <span class="p">=</span> <span class="kc">nil</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="nb">Bool</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">        <span class="kd">let</span> <span class="nv">session</span><span class="p">:</span> <span class="n">URLSessionProtocol</span> <span class="p">=</span> <span class="n">ProcessInfo</span><span class="p">.</span><span class="n">processInfo</span><span class="p">.</span><span class="n">decode</span><span class="p">(</span><span class="n">URLSessionMock</span><span class="p">.</span><span class="kc">self</span><span class="p">)</span> <span class="p">??</span> <span class="n">URLSession</span><span class="p">(</span><span class="n">configuration</span><span class="p">:</span> <span class="p">.</span><span class="k">default</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">        <span class="kd">let</span> <span class="nv">networkManager</span> <span class="p">=</span> <span class="n">NetworkManager</span><span class="p">(</span><span class="n">session</span><span class="p">:</span> <span class="n">session</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">        <span class="p">...</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="kc">true</span>
-</span></span><span class="line"><span class="cl">    <span class="p">}</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></div><p>All set! ✊<br>
+<pre><code class="language-swift">import UIKit
+
+@UIApplicationMain
+class AppDelegate: UIResponder, UIApplicationDelegate {
+
+    func application(_ application: UIApplication, willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -&gt; Bool {
+        let session: URLSessionProtocol = ProcessInfo.processInfo.decode(URLSessionMock.self) ?? URLSession(configuration: .default)
+        let networkManager = NetworkManager(session: session)
+        ...
+
+        return true
+    }
+}
+</code></pre>
+<p>All set! ✊<br>
 Now, look how simple and elegant UI testing is! 😮</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">import</span> <span class="nc">XCTest</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kr">final</span> <span class="kd">class</span> <span class="nc">SomethingUITest</span><span class="p">:</span> <span class="n">XCTestCase</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="kr">lazy</span> <span class="kd">var</span> <span class="nv">app</span> <span class="p">=</span> <span class="n">XCUIApplication</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="kr">override</span> <span class="kd">func</span> <span class="nf">setUp</span><span class="p">()</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">        <span class="kc">super</span><span class="p">.</span><span class="n">setUp</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">        <span class="p">...</span>
-</span></span><span class="line"><span class="cl">    <span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">testSomething</span><span class="p">()</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">        <span class="kd">let</span> <span class="nv">sessionMock</span> <span class="p">=</span> <span class="n">URLSessionMock</span><span class="p">(</span>
-</span></span><span class="line"><span class="cl">            <span class="n">responses</span><span class="p">:</span> <span class="p">[</span>
-</span></span><span class="line"><span class="cl">                <span class="p">.</span><span class="n">fetchSomething</span><span class="p">:</span> <span class="p">[</span>
-</span></span><span class="line"><span class="cl">                    <span class="n">Response</span><span class="p">(</span><span class="n">File</span><span class="p">(</span><span class="s">&#34;something_response&#34;</span><span class="p">,</span> <span class="p">.</span><span class="n">json</span><span class="p">)),</span>
-</span></span><span class="line"><span class="cl">                    <span class="n">Response</span><span class="p">(</span><span class="n">error</span><span class="p">:</span> <span class="p">.</span><span class="n">invalidResponse</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">                <span class="p">]</span>
-</span></span><span class="line"><span class="cl">            <span class="p">]</span>
-</span></span><span class="line"><span class="cl">        <span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">        <span class="n">app</span><span class="p">.</span><span class="n">launch</span><span class="p">(</span><span class="n">with</span><span class="p">:</span> <span class="n">sessionMock</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">        <span class="p">...</span>
-</span></span><span class="line"><span class="cl">    <span class="p">}</span>
-</span></span><span class="line"><span class="cl">    
-</span></span><span class="line"><span class="cl">    <span class="p">...</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></div><p>Boom! 💥<br>
+<pre><code class="language-swift">import XCTest
+
+final class SomethingUITest: XCTestCase {
+    private lazy var app = XCUIApplication()
+
+    override func setUp() {
+        super.setUp()
+        ...
+    }
+
+    func testSomething() {
+        let sessionMock = URLSessionMock(
+            responses: [
+                .fetchSomething: [
+                    Response(File(&quot;something_response&quot;, .json)),
+                    Response(error: .invalidResponse)
+                ]
+            ]
+        )
+
+        app.launch(with: sessionMock)
+        ...
+    }
+    
+    ...
+}
+</code></pre>
+<p>Boom! 💥<br>
 The Network layer is now completely under our control and can be mocked with the snap of a finger! 👍<br>
 We can specify at runtime, on a per-test basis, which <em>Responses</em> to return, just by defining a <strong>Dictionary</strong> of <em>Requests</em> and <em>Responses</em>. 🗃</p>
 <p>Was it worth it? Did that help you overcome the problems of UI Testing, starting with <strong>Mocking the Network</strong>? Are you now feeling more confident about writing UI Tests?</p>

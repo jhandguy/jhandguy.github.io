@@ -6,7 +6,6 @@
     <title>Canary Deployment in Kubernetes (Part 3) — Smart Canary Deployment using Argo Rollouts and Prometheus</title>
     <link rel="stylesheet" href="/css/bulma.min.css">
     <link rel="stylesheet" href="/css/custom.css">
-    <link rel="stylesheet" href="/css/hugo.css">
 </head>
 
 <body>
@@ -90,24 +89,26 @@ Well, that, my friend, is what Canary Deployment is all about!</p>
 <p><a href="https://kind.sigs.k8s.io/">Kind</a> is a tool for running local Kubernetes clusters using Docker container “nodes”.
 It was primarily designed for testing Kubernetes itself, but may be used for local development or CI.</p>
 <p>I don’t expect you to have a demo project in handy, so <a href="https://github.com/jhandguy/canary-deployment">I built one</a> for you.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">git clone https://github.com/jhandguy/canary-deployment.git
-</span></span><span class="line"><span class="cl"><span class="nb">cd</span> canary-deployment
-</span></span></code></pre></div><p>Alright, let&rsquo;s spin up our Kind cluster! 🚀</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">➜ kind create cluster --image kindest/node:v1.27.3 --config<span class="o">=</span>kind/cluster.yaml
-</span></span><span class="line"><span class="cl">Creating cluster <span class="s2">&#34;kind&#34;</span> ...
-</span></span><span class="line"><span class="cl"> ✓ Ensuring node image <span class="o">(</span>kindest/node:v1.27.3<span class="o">)</span> 🖼
-</span></span><span class="line"><span class="cl"> ✓ Preparing nodes 📦
-</span></span><span class="line"><span class="cl"> ✓ Writing configuration 📜
-</span></span><span class="line"><span class="cl"> ✓ Starting control-plane 🕹️
-</span></span><span class="line"><span class="cl"> ✓ Installing CNI 🔌
-</span></span><span class="line"><span class="cl"> ✓ Installing StorageClass 💾
-</span></span><span class="line"><span class="cl">Set kubectl context to <span class="s2">&#34;kind-kind&#34;</span>
-</span></span><span class="line"><span class="cl">You can now use your cluster with:
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">kubectl cluster-info --context kind-kind
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">Have a question, bug, or feature request? Let us know! https://kind.sigs.k8s.io/#community 🙂
-</span></span></code></pre></div><h2 id="using-argo-rollouts-with-prometheus">Using Argo Rollouts with Prometheus</h2>
+<pre><code class="language-shell">git clone https://github.com/jhandguy/canary-deployment.git
+cd canary-deployment
+</code></pre>
+<p>Alright, let&rsquo;s spin up our Kind cluster! 🚀</p>
+<pre><code class="language-shell">➜ kind create cluster --image kindest/node:v1.27.3 --config=kind/cluster.yaml
+Creating cluster &quot;kind&quot; ...
+ ✓ Ensuring node image (kindest/node:v1.27.3) 🖼
+ ✓ Preparing nodes 📦
+ ✓ Writing configuration 📜
+ ✓ Starting control-plane 🕹️
+ ✓ Installing CNI 🔌
+ ✓ Installing StorageClass 💾
+Set kubectl context to &quot;kind-kind&quot;
+You can now use your cluster with:
+
+kubectl cluster-info --context kind-kind
+
+Have a question, bug, or feature request? Let us know! https://kind.sigs.k8s.io/#community 🙂
+</code></pre>
+<h2 id="using-argo-rollouts-with-prometheus">Using Argo Rollouts with Prometheus</h2>
 <hr>
 <p><a href="https://argoproj.github.io/argo-rollouts/">Argo Rollouts</a> is a <a href="https://kubernetes.io/docs/concepts/architecture/controller/">Kubernetes controller</a> and set of <a href="https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/">CRDs</a> which provide advanced deployment capabilities to Kubernetes such as blue-green, canary, canary analysis, experimentation, and progressive delivery.</p>
 <p>In combination with <a href="https://prometheus.io/">Prometheus</a>, Argo Rollouts can automatically roll back a Canary Deployment based on Prometheus metrics, which means it can theoretically handle an incremental rollout without human intervention.</p>
@@ -118,83 +119,93 @@ It was primarily designed for testing Kubernetes itself, but may be used for loc
 </blockquote>
 <p><a href="https://github.com/kubernetes/ingress-nginx">NGINX Ingress Controller</a> is one of the <a href="https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/#additional-controllers">many available Kubernetes Ingress Controllers</a>, which acts as a load balancer and satisfies routing rules specified in <a href="https://kubernetes.io/docs/concepts/services-networking/ingress/#what-is-ingress">Ingress</a> resources, using the <a href="https://nginx.org/en/">NGINX reverse proxy</a>.</p>
 <p>NGINX Ingress Controller can be installed via its <a href="https://github.com/kubernetes/ingress-nginx/tree/main/charts/ingress-nginx">Helm chart</a>.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-</span></span><span class="line"><span class="cl">helm install ingress-nginx/ingress-nginx --name-template ingress-nginx --create-namespace -n ingress-nginx --values kind/ingress-nginx-values.yaml --version 4.8.3 --wait
-</span></span></code></pre></div><p>Now, if everything goes according to plan, you should be able to see the <strong>ingress-nginx-controller</strong> Deployment running.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">➜ kubectl get deploy -n ingress-nginx
-</span></span><span class="line"><span class="cl">NAME                       READY   UP-TO-DATE   AVAILABLE   AGE
-</span></span><span class="line"><span class="cl">ingress-nginx-controller   1/1     <span class="m">1</span>            <span class="m">1</span>           4m35s
-</span></span></code></pre></div><h3 id="installing-argo-rollouts">Installing Argo Rollouts</h3>
+<pre><code class="language-shell">helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+helm install ingress-nginx/ingress-nginx --name-template ingress-nginx --create-namespace -n ingress-nginx --values kind/ingress-nginx-values.yaml --version 4.8.3 --wait
+</code></pre>
+<p>Now, if everything goes according to plan, you should be able to see the <strong>ingress-nginx-controller</strong> Deployment running.</p>
+<pre><code class="language-shell">➜ kubectl get deploy -n ingress-nginx
+NAME                       READY   UP-TO-DATE   AVAILABLE   AGE
+ingress-nginx-controller   1/1     1            1           4m35s
+</code></pre>
+<h3 id="installing-argo-rollouts">Installing Argo Rollouts</h3>
 <hr>
 <blockquote>
 <p><em>If you haven’t already, go read <a href="/posts/automated-canary-deployment/">Canary Deployment in Kubernetes (Part 2) — Automated Canary Deployment using Argo Rollouts</a> and learn how to implement a Canary Deployment using Argo Rollouts!</em></p>
 </blockquote>
 <p>Argo Rollouts can be installed via its <a href="https://github.com/argoproj/argo-helm/tree/master/charts/argo-rollouts">Helm chart</a>.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">helm repo add argo https://argoproj.github.io/argo-helm
-</span></span><span class="line"><span class="cl">helm install argo/argo-rollouts --name-template argo-rollouts --create-namespace -n argo-rollouts --set dashboard.enabled<span class="o">=</span><span class="nb">true</span> --version 2.32.5 --wait
-</span></span></code></pre></div><p>If all goes well, you should see two newly spawned Deployments with the READY state.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">➜ kubectl get deploy -n argo-rollouts
-</span></span><span class="line"><span class="cl">NAME                      READY   UP-TO-DATE   AVAILABLE   AGE
-</span></span><span class="line"><span class="cl">argo-rollouts             1/1     <span class="m">1</span>            <span class="m">1</span>           13m
-</span></span><span class="line"><span class="cl">argo-rollouts-dashboard   1/1     <span class="m">1</span>            <span class="m">1</span>           13m
-</span></span></code></pre></div><h3 id="installing-prometheus">Installing Prometheus</h3>
+<pre><code class="language-shell">helm repo add argo https://argoproj.github.io/argo-helm
+helm install argo/argo-rollouts --name-template argo-rollouts --create-namespace -n argo-rollouts --set dashboard.enabled=true --version 2.32.5 --wait
+</code></pre>
+<p>If all goes well, you should see two newly spawned Deployments with the READY state.</p>
+<pre><code class="language-shell">➜ kubectl get deploy -n argo-rollouts
+NAME                      READY   UP-TO-DATE   AVAILABLE   AGE
+argo-rollouts             1/1     1            1           13m
+argo-rollouts-dashboard   1/1     1            1           13m
+</code></pre>
+<h3 id="installing-prometheus">Installing Prometheus</h3>
 <hr>
 <p>Prometheus can be installed via its community <a href="https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack">Helm chart</a>, which also provides <a href="https://grafana.com/grafana/">Grafana</a> out of the box.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-</span></span><span class="line"><span class="cl">helm install prometheus-community/kube-prometheus-stack --name-template prometheus --create-namespace -n prometheus --version 54.2.2 --wait
-</span></span></code></pre></div><p>If everything went fine, you should be able to see three newly spawned deployments with the READY state!</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">➜ kubectl get deploy -n prometheus
-</span></span><span class="line"><span class="cl">NAME                                  READY   UP-TO-DATE   AVAILABLE   
-</span></span><span class="line"><span class="cl">prometheus-grafana                    1/1     <span class="m">1</span>            <span class="m">1</span>           
-</span></span><span class="line"><span class="cl">prometheus-kube-prometheus-operator   1/1     <span class="m">1</span>            <span class="m">1</span>           
-</span></span><span class="line"><span class="cl">prometheus-kube-state-metrics         1/1     <span class="m">1</span>            <span class="m">1</span>  
-</span></span></code></pre></div><h2 id="automating-rollbacks-using-analysistemplates">Automating Rollbacks using AnalysisTemplates</h2>
+<pre><code class="language-shell">helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm install prometheus-community/kube-prometheus-stack --name-template prometheus --create-namespace -n prometheus --version 54.2.2 --wait
+</code></pre>
+<p>If everything went fine, you should be able to see three newly spawned deployments with the READY state!</p>
+<pre><code class="language-shell">➜ kubectl get deploy -n prometheus
+NAME                                  READY   UP-TO-DATE   AVAILABLE   
+prometheus-grafana                    1/1     1            1           
+prometheus-kube-prometheus-operator   1/1     1            1           
+prometheus-kube-state-metrics         1/1     1            1  
+</code></pre>
+<h2 id="automating-rollbacks-using-analysistemplates">Automating Rollbacks using AnalysisTemplates</h2>
 <hr>
 <p>In <a href="/posts/automated-canary-deployment/">Part 2</a>, we learned how to configure a Rollout and how to automate the Traffic Routing increments via Rollout <code>steps</code>.<br>
 Yet another amazing feature of Argo Rollouts is the ability to leverage Prometheus metrics in order to detect faulty deployments (i.e. based on request Success Share or Latency).</p>
 <p>To this end, Argo Rollouts provides another <a href="https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/">Custom Resource</a> called <strong>AnalysisTemplate</strong>.<br>
 Alright! Let’s explore what this is!</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">helm install sample-app/helm-charts/argo-rollouts --name-template sample-app --create-namespace -n sample-app --set prometheus.enabled<span class="o">=</span><span class="nb">true</span> --wait
-</span></span></code></pre></div><p>If everything goes fine, you should eventually see one Rollout with the READY state.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">➜ kubectl get rollout sample-app -n sample-app
-</span></span><span class="line"><span class="cl">NAME         DESIRED   CURRENT   UP-TO-DATE   AVAILABLE
-</span></span><span class="line"><span class="cl">sample-app   <span class="m">1</span>         <span class="m">1</span>         <span class="m">1</span>            <span class="m">1</span>
-</span></span></code></pre></div><p>Alright, let’s have a look at the <code>analysistemplate.yaml</code> and the <code>rollout.yaml</code> inside the <code>templates</code> folder!</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">➜ ls -1 sample-app/helm-charts/argo-rollouts/templates
-</span></span><span class="line"><span class="cl">analysistemplate.yaml
-</span></span><span class="line"><span class="cl">canary
-</span></span><span class="line"><span class="cl">ingress.yaml
-</span></span><span class="line"><span class="cl">rollout.yaml
-</span></span><span class="line"><span class="cl">service.yaml
-</span></span><span class="line"><span class="cl">serviceaccount.yaml
-</span></span><span class="line"><span class="cl">servicemonitor.yaml
-</span></span></code></pre></div><p>An <strong>AnalysisTemplate</strong> is a template <em>spec</em> that defines how to perform a canary analysis. It consists of a Prometheus metric which is being evaluated, at a given interval, against a given success condition.</p>
+<pre><code class="language-shell">helm install sample-app/helm-charts/argo-rollouts --name-template sample-app --create-namespace -n sample-app --set prometheus.enabled=true --wait
+</code></pre>
+<p>If everything goes fine, you should eventually see one Rollout with the READY state.</p>
+<pre><code class="language-shell">➜ kubectl get rollout sample-app -n sample-app
+NAME         DESIRED   CURRENT   UP-TO-DATE   AVAILABLE
+sample-app   1         1         1            1
+</code></pre>
+<p>Alright, let’s have a look at the <code>analysistemplate.yaml</code> and the <code>rollout.yaml</code> inside the <code>templates</code> folder!</p>
+<pre><code class="language-shell">➜ ls -1 sample-app/helm-charts/argo-rollouts/templates
+analysistemplate.yaml
+canary
+ingress.yaml
+rollout.yaml
+service.yaml
+serviceaccount.yaml
+servicemonitor.yaml
+</code></pre>
+<p>An <strong>AnalysisTemplate</strong> is a template <em>spec</em> that defines how to perform a canary analysis. It consists of a Prometheus metric which is being evaluated, at a given interval, against a given success condition.</p>
 <p>In this example, the Prometheus metric is a <em>Success Share</em>, with a minimum threshold of 99% and an interval of 1 minute. The failure limit is 0, meaning that as soon as it fails, the Rollout will be aborted. Since it is the canary Deployment that we are trying to evaluate, the PromQL query must target it specifically via the <em>service</em> label.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nn">---</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">argoproj.io/v1alpha1</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">AnalysisTemplate</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nn">...</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">metrics</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">success-share</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l">1m</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">successCondition</span><span class="p">:</span><span class="w"> </span><span class="l">len(result) == 0 || result[0] &gt;= 0.99</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">failureLimit</span><span class="p">:</span><span class="w"> </span><span class="m">0</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">provider</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">prometheus</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">address</span><span class="p">:</span><span class="w"> </span>{{<span class="w"> </span><span class="l">.Values.prometheus.address }}</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">query</span><span class="p">:</span><span class="w"> </span><span class="p">|</span><span class="sd">
-</span></span></span><span class="line"><span class="cl"><span class="sd">            sum(rate(
-</span></span></span><span class="line"><span class="cl"><span class="sd">              sample_app_requests_count{service=&#34;{{ .Release.Name }}-canary&#34;, success=&#34;true&#34;}[1m])
-</span></span></span><span class="line"><span class="cl"><span class="sd">            ) by (service)
-</span></span></span><span class="line"><span class="cl"><span class="sd">            /
-</span></span></span><span class="line"><span class="cl"><span class="sd">            sum(rate(
-</span></span></span><span class="line"><span class="cl"><span class="sd">              sample_app_requests_count{service=&#34;{{ .Release.Name }}-canary&#34;}[1m])
-</span></span></span><span class="line"><span class="cl"><span class="sd">            ) by (service)
-</span></span></span><span class="line"><span class="cl"><span class="sd">            unless sum(rate(
-</span></span></span><span class="line"><span class="cl"><span class="sd">              sample_app_requests_count{service=&#34;{{ .Release.Name }}-canary&#34;}[1m])
-</span></span></span><span class="line"><span class="cl"><span class="sd">            ) by (service) == 0</span><span class="w">            
-</span></span></span></code></pre></div><p>The instantiation of an <strong>AnalysisTemplate</strong> is called an <strong>AnalysisRun</strong>. It is like a <em>Job</em>, meaning it eventually completes, with a result of either Successful, Failed, or Inconclusive. If successful, the rollout continues, if failed, it is aborted and if inconclusive, it is paused.</p>
+<pre><code class="language-yaml">---
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+...
+spec:
+  metrics:
+    - name: success-share
+      interval: 1m
+      successCondition: len(result) == 0 || result[0] &gt;= 0.99
+      failureLimit: 0
+      provider:
+        prometheus:
+          address: {{ .Values.prometheus.address }}
+          query: |
+            sum(rate(
+              sample_app_requests_count{service=&quot;{{ .Release.Name }}-canary&quot;, success=&quot;true&quot;}[1m])
+            ) by (service)
+            /
+            sum(rate(
+              sample_app_requests_count{service=&quot;{{ .Release.Name }}-canary&quot;}[1m])
+            ) by (service)
+            unless sum(rate(
+              sample_app_requests_count{service=&quot;{{ .Release.Name }}-canary&quot;}[1m])
+            ) by (service) == 0
+</code></pre>
+<p>The instantiation of an <strong>AnalysisTemplate</strong> is called an <strong>AnalysisRun</strong>. It is like a <em>Job</em>, meaning it eventually completes, with a result of either Successful, Failed, or Inconclusive. If successful, the rollout continues, if failed, it is aborted and if inconclusive, it is paused.</p>
 <p>There are two ways to define an <strong>AnalysisTemplate</strong>:</p>
 <ol>
 <li><strong>Background Analysis</strong><br>
@@ -203,237 +214,253 @@ This Analysis runs in the background, while the Rollout is progressing through i
 This Analysis runs as part of the Rollout steps. This means that the Rollout will wait for the <strong>AnalysisRun</strong> to complete, before proceeding to the next step, or aborting the rollout depending on the outcome.</li>
 </ol>
 <p>In our case, we will be using the Background Analysis, as it will detect a faulty deployment sooner than an Inline Analysis would.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nn">---</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">argoproj.io/v1alpha1</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Rollout</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nn">...</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="l">...</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">strategy</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">canary</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="l">...</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">steps</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="nt">setWeight</span><span class="p">:</span><span class="w"> </span><span class="m">25</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="nt">pause</span><span class="p">:</span><span class="w"> </span>{}<span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="nt">setWeight</span><span class="p">:</span><span class="w"> </span><span class="m">50</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="nt">pause</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">duration</span><span class="p">:</span><span class="w"> </span><span class="l">5m</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="nt">setWeight</span><span class="p">:</span><span class="w"> </span><span class="m">75</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="nt">pause</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">duration</span><span class="p">:</span><span class="w"> </span><span class="l">5m</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">analysis</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">templates</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">          </span>- <span class="nt">templateName</span><span class="p">:</span><span class="w"> </span>{{<span class="w"> </span><span class="l">.Release.Name }}</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">startingStep</span><span class="p">:</span><span class="w"> </span><span class="m">2</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="l">...</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="l">...</span><span class="w">
-</span></span></span></code></pre></div><p>As you can see, the Analysis has been scheduled to start after step 2.<br>
+<pre><code class="language-yaml">---
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+...
+spec:
+  ...
+  strategy:
+    canary:
+      ...
+      steps:
+        - setWeight: 25
+        - pause: {}
+        - setWeight: 50
+        - pause:
+            duration: 5m
+        - setWeight: 75
+        - pause:
+            duration: 5m
+      analysis:
+        templates:
+          - templateName: {{ .Release.Name }}
+        startingStep: 2
+      ...
+  ...
+</code></pre>
+<p>As you can see, the Analysis has been scheduled to start after step 2.<br>
 Meaning, once the Rollout is promoted, the <code>canary-weight</code> will be set to 50 and an <strong>AnalysisRun</strong> will start. It will determine later if the Rollout succeeds or not: if the Prometheus metric falls below 99% Success Share, the Rollout will be aborted immediately. On the other hand, if the Success Share stays above 99% for 10 minutes, the Rollout will complete successfully.</p>
 <h2 id="detecting-and-aborting-rollouts-automatically">Detecting and Aborting Rollouts Automatically</h2>
 <hr>
 <p>Now that we’ve seen how an <strong>AnalysisRun</strong> works in theory, let’s see it in practice, shall we?! 🧐</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">kubectl argo rollouts dashboard -n argo-rollouts <span class="p">&amp;</span>
-</span></span></code></pre></div><p>If you now head to <a href="http://localhost:3100/rollout/sample-app">http://localhost:3100/rollout/sample-app</a>, you should see a shiny dashboard showing the state of the <code>sample-app</code> Rollout.</p>
+<pre><code class="language-shell">kubectl argo rollouts dashboard -n argo-rollouts &amp;
+</code></pre>
+<p>If you now head to <a href="http://localhost:3100/rollout/sample-app">http://localhost:3100/rollout/sample-app</a>, you should see a shiny dashboard showing the state of the <code>sample-app</code> Rollout.</p>
 <p><img src="/images/smart-canary-deployment/1.png" alt="Argo Rollouts Dashboard"></p>
 <p>Cool! So far, we can observe only one <strong>revision</strong> labeled as <code>stable</code>, serving 100% of the traffic.</p>
 <p>Now, let’s set a new image for the container!</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">kubectl argo rollouts <span class="nb">set</span> image sample-app sample-app<span class="o">=</span>ghcr.io/jhandguy/canary-deployment/sample-app:latest -n sample-app
-</span></span></code></pre></div><p><img src="/images/smart-canary-deployment/2.png" alt="Argo Rollouts Dashboard"></p>
+<pre><code class="language-shell">kubectl argo rollouts set image sample-app sample-app=ghcr.io/jhandguy/canary-deployment/sample-app:latest -n sample-app
+</code></pre>
+<p><img src="/images/smart-canary-deployment/2.png" alt="Argo Rollouts Dashboard"></p>
 <p>Tada! The Rollout has just completed step 1: setting the <code>canary-weight</code> to 25%.</p>
 <p>As you can see, the <strong>AnalysisRun</strong> has not yet started, this will only happen once we start step 2. Let’s proceed then!</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">kubectl argo rollouts promote sample-app -n sample-app
-</span></span></code></pre></div><p><img src="/images/smart-canary-deployment/3.png" alt="Argo Rollouts Dashboard"></p>
+<pre><code class="language-shell">kubectl argo rollouts promote sample-app -n sample-app
+</code></pre>
+<p><img src="/images/smart-canary-deployment/3.png" alt="Argo Rollouts Dashboard"></p>
 <p>Awesome! The <code>canary-weight</code> is now at 50% and an <strong>AnalysisRun</strong> has just started.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">➜ kubectl get analysisrun -n sample-app
-</span></span><span class="line"><span class="cl">NAME                      STATUS
-</span></span><span class="line"><span class="cl">sample-app-5c9fc8b7d4-2   Running
-</span></span></code></pre></div><p>Let’s have a deeper look at it!</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">➜ kubectl describe analysisrun -n sample-app
-</span></span><span class="line"><span class="cl">Name:         sample-app-5c9fc8b7d4-2
-</span></span><span class="line"><span class="cl">Namespace:    sample-app
-</span></span><span class="line"><span class="cl">Labels:       rollout-type<span class="o">=</span>Background
-</span></span><span class="line"><span class="cl">              rollouts-pod-template-hash<span class="o">=</span>5c9fc8b7d4
-</span></span><span class="line"><span class="cl">Annotations:  rollout.argoproj.io/revision: <span class="m">2</span>
-</span></span><span class="line"><span class="cl">API Version:  argoproj.io/v1alpha1
-</span></span><span class="line"><span class="cl">Kind:         AnalysisRun
-</span></span><span class="line"><span class="cl">...
-</span></span><span class="line"><span class="cl">Spec:
-</span></span><span class="line"><span class="cl">  Metrics:
-</span></span><span class="line"><span class="cl">    Failure Limit:  <span class="m">0</span>
-</span></span><span class="line"><span class="cl">    Interval:       1m
-</span></span><span class="line"><span class="cl">    Name:           success-share
-</span></span><span class="line"><span class="cl">    Provider:
-</span></span><span class="line"><span class="cl">      Prometheus:
-</span></span><span class="line"><span class="cl">        Address:  http://prometheus-operated.prometheus.svc.cluster.local:9090
-</span></span><span class="line"><span class="cl">        Query:    sum<span class="o">(</span>rate<span class="o">(</span>
-</span></span><span class="line"><span class="cl">                    sample_app_requests_count<span class="o">{</span><span class="nv">service</span><span class="o">=</span><span class="s2">&#34;sample-app-canary&#34;</span>, <span class="nv">success</span><span class="o">=</span><span class="s2">&#34;true&#34;</span><span class="o">}[</span>1m<span class="o">])</span>
-</span></span><span class="line"><span class="cl">                  <span class="o">)</span> by <span class="o">(</span>service<span class="o">)</span>
-</span></span><span class="line"><span class="cl">                  /
-</span></span><span class="line"><span class="cl">                  sum<span class="o">(</span>rate<span class="o">(</span>
-</span></span><span class="line"><span class="cl">                    sample_app_requests_count<span class="o">{</span><span class="nv">service</span><span class="o">=</span><span class="s2">&#34;sample-app-canary&#34;</span><span class="o">}[</span>1m<span class="o">])</span>
-</span></span><span class="line"><span class="cl">                  <span class="o">)</span> by <span class="o">(</span>service<span class="o">)</span>
-</span></span><span class="line"><span class="cl">                  unless sum<span class="o">(</span>rate<span class="o">(</span>
-</span></span><span class="line"><span class="cl">                    sample_app_requests_count<span class="o">{</span><span class="nv">service</span><span class="o">=</span><span class="s2">&#34;sample-app-canary&#34;</span><span class="o">}[</span>1m<span class="o">])</span>
-</span></span><span class="line"><span class="cl">                  <span class="o">)</span> by <span class="o">(</span>service<span class="o">)</span> <span class="o">==</span> <span class="m">0</span>
-</span></span><span class="line"><span class="cl">    Success Condition:  len<span class="o">(</span>result<span class="o">)</span> <span class="o">==</span> <span class="m">0</span> <span class="o">||</span> result<span class="o">[</span>0<span class="o">]</span> &gt;<span class="o">=</span> 0.99
-</span></span><span class="line"><span class="cl">Status:
-</span></span><span class="line"><span class="cl">  Metric Results:
-</span></span><span class="line"><span class="cl">    Count:  <span class="m">1</span>
-</span></span><span class="line"><span class="cl">    Measurements:
-</span></span><span class="line"><span class="cl">      Finished At:  2022-01-29T18:37:49Z
-</span></span><span class="line"><span class="cl">      Phase:        Successful
-</span></span><span class="line"><span class="cl">      Started At:   2022-01-29T18:37:49Z
-</span></span><span class="line"><span class="cl">      Value:        <span class="o">[]</span>
-</span></span><span class="line"><span class="cl">    Name:           success-share
-</span></span><span class="line"><span class="cl">    Phase:          Running
-</span></span><span class="line"><span class="cl">    Successful:     <span class="m">1</span>
-</span></span><span class="line"><span class="cl">  Phase:            Running
-</span></span><span class="line"><span class="cl">  Started At:       2022-01-29T18:37:49Z
-</span></span><span class="line"><span class="cl">Events:             &lt;none&gt;
-</span></span></code></pre></div><p>As expected, the Spec part of the <strong>AnalysisRun</strong> is the same one we’ve specified in the <strong>AnalysisTemplate</strong>.<br>
+<pre><code class="language-shell">➜ kubectl get analysisrun -n sample-app
+NAME                      STATUS
+sample-app-5c9fc8b7d4-2   Running
+</code></pre>
+<p>Let’s have a deeper look at it!</p>
+<pre><code class="language-shell">➜ kubectl describe analysisrun -n sample-app
+Name:         sample-app-5c9fc8b7d4-2
+Namespace:    sample-app
+Labels:       rollout-type=Background
+              rollouts-pod-template-hash=5c9fc8b7d4
+Annotations:  rollout.argoproj.io/revision: 2
+API Version:  argoproj.io/v1alpha1
+Kind:         AnalysisRun
+...
+Spec:
+  Metrics:
+    Failure Limit:  0
+    Interval:       1m
+    Name:           success-share
+    Provider:
+      Prometheus:
+        Address:  http://prometheus-operated.prometheus.svc.cluster.local:9090
+        Query:    sum(rate(
+                    sample_app_requests_count{service=&quot;sample-app-canary&quot;, success=&quot;true&quot;}[1m])
+                  ) by (service)
+                  /
+                  sum(rate(
+                    sample_app_requests_count{service=&quot;sample-app-canary&quot;}[1m])
+                  ) by (service)
+                  unless sum(rate(
+                    sample_app_requests_count{service=&quot;sample-app-canary&quot;}[1m])
+                  ) by (service) == 0
+    Success Condition:  len(result) == 0 || result[0] &gt;= 0.99
+Status:
+  Metric Results:
+    Count:  1
+    Measurements:
+      Finished At:  2022-01-29T18:37:49Z
+      Phase:        Successful
+      Started At:   2022-01-29T18:37:49Z
+      Value:        []
+    Name:           success-share
+    Phase:          Running
+    Successful:     1
+  Phase:            Running
+  Started At:       2022-01-29T18:37:49Z
+Events:             &lt;none&gt;
+</code></pre>
+<p>As expected, the Spec part of the <strong>AnalysisRun</strong> is the same one we’ve specified in the <strong>AnalysisTemplate</strong>.<br>
 To monitor the progress of the Rollout, however, it is the <em>Status</em> and the <em>Events</em> that we will be looking at.</p>
 <p>Right now, the measurement’s value is empty (<code>[]</code>), this is because the service has not recorded any metrics yet. Let’s change that and send some successful requests for Prometheus to scrape! 🚀</p>
 <blockquote>
 <p>Since the PromQL query targets the canary Service specifically, we must make sure to always land in the canary Deployment using the Ingress <code>canary-by-header</code> annotation (learn more about it in <a href="/posts/simple-canary-deployment/">Part 1</a>).</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">curl localhost/success -H <span class="s2">&#34;Host: sample.app&#34;</span> -H <span class="s2">&#34;X-Canary: always&#34;</span>
-</span></span></code></pre></div><p>After firing some requests and waiting about a minute for Prometheus to scrape the metrics and the <strong>AnalysisRun</strong> to measure the <code>success-share</code> metric, you should see one of the measurements with a value of <code>[1]</code>, meaning that the Success Share has been successfully measured at 100%! 💯</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">➜ kubectl describe analysisrun -n sample-app
-</span></span><span class="line"><span class="cl">...
-</span></span><span class="line"><span class="cl">Status:
-</span></span><span class="line"><span class="cl">  Metric Results:
-</span></span><span class="line"><span class="cl">    Count:  <span class="m">5</span>
-</span></span><span class="line"><span class="cl">    Measurements:
-</span></span><span class="line"><span class="cl">      ...
-</span></span><span class="line"><span class="cl">      Finished At:  2022-01-29T18:41:49Z
-</span></span><span class="line"><span class="cl">      Phase:        Successful
-</span></span><span class="line"><span class="cl">      Started At:   2022-01-29T18:41:49Z
-</span></span><span class="line"><span class="cl">      Value:        <span class="o">[</span>1<span class="o">]</span>
-</span></span><span class="line"><span class="cl">    Name:           success-share
-</span></span><span class="line"><span class="cl">    Phase:          Running
-</span></span><span class="line"><span class="cl">    Successful:     <span class="m">5</span>
-</span></span><span class="line"><span class="cl">  Phase:            Running
-</span></span><span class="line"><span class="cl">  Started At:       2022-01-29T18:37:49Z
-</span></span><span class="line"><span class="cl">Events:             &lt;none&gt;
-</span></span></code></pre></div><p>The best part of this is, that while all of this was happening, the Rollout kept on progressing and has probably already reached the next step: increasing the <code>canary-weight</code> to 75%.</p>
+<pre><code class="language-shell">curl localhost/success -H &quot;Host: sample.app&quot; -H &quot;X-Canary: always&quot;
+</code></pre>
+<p>After firing some requests and waiting about a minute for Prometheus to scrape the metrics and the <strong>AnalysisRun</strong> to measure the <code>success-share</code> metric, you should see one of the measurements with a value of <code>[1]</code>, meaning that the Success Share has been successfully measured at 100%! 💯</p>
+<pre><code class="language-shell">➜ kubectl describe analysisrun -n sample-app
+...
+Status:
+  Metric Results:
+    Count:  5
+    Measurements:
+      ...
+      Finished At:  2022-01-29T18:41:49Z
+      Phase:        Successful
+      Started At:   2022-01-29T18:41:49Z
+      Value:        [1]
+    Name:           success-share
+    Phase:          Running
+    Successful:     5
+  Phase:            Running
+  Started At:       2022-01-29T18:37:49Z
+Events:             &lt;none&gt;
+</code></pre>
+<p>The best part of this is, that while all of this was happening, the Rollout kept on progressing and has probably already reached the next step: increasing the <code>canary-weight</code> to 75%.</p>
 <p><img src="/images/smart-canary-deployment/4.png" alt="Argo Rollouts Dashboard"></p>
 <p>That’s great! But let’s make things more interesting: what happens once the Success Share falls below 99%? 😱</p>
 <p>Let’s go ahead and simulate a 50% Success Share by sending several requests and alternating between successes and errors!</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">curl localhost/success -H <span class="s2">&#34;Host: sample.app&#34;</span> -H <span class="s2">&#34;X-Canary: always&#34;</span>
-</span></span><span class="line"><span class="cl">curl localhost/error -H <span class="s2">&#34;Host: sample.app&#34;</span> -H <span class="s2">&#34;X-Canary: always&#34;</span>
-</span></span></code></pre></div><p>After a short while, you should notice that something quite magical has happened… 🪄</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">➜ kubectl describe analysisrun -n sample-app
-</span></span><span class="line"><span class="cl">...
-</span></span><span class="line"><span class="cl">Status:
-</span></span><span class="line"><span class="cl">  Message:  metric <span class="s2">&#34;success-share&#34;</span> assessed Failed due to failed <span class="o">(</span>1<span class="o">)</span> &gt; failureLimit <span class="o">(</span>0<span class="o">)</span>
-</span></span><span class="line"><span class="cl">  Metric Results:
-</span></span><span class="line"><span class="cl">    Count:   <span class="m">9</span>
-</span></span><span class="line"><span class="cl">    Failed:  <span class="m">1</span>
-</span></span><span class="line"><span class="cl">    Measurements:
-</span></span><span class="line"><span class="cl">      ...
-</span></span><span class="line"><span class="cl">      Finished At:  2022-01-29T18:45:49Z
-</span></span><span class="line"><span class="cl">      Phase:        Failed
-</span></span><span class="line"><span class="cl">      Started At:   2022-01-29T18:45:49Z
-</span></span><span class="line"><span class="cl">      Value:        <span class="o">[</span>0.5<span class="o">]</span>
-</span></span><span class="line"><span class="cl">    Name:           success-share
-</span></span><span class="line"><span class="cl">    Phase:          Failed
-</span></span><span class="line"><span class="cl">    Successful:     <span class="m">8</span>
-</span></span><span class="line"><span class="cl">  Phase:            Failed
-</span></span><span class="line"><span class="cl">  Started At:       2022-01-29T18:37:49Z
-</span></span><span class="line"><span class="cl">Events:
-</span></span><span class="line"><span class="cl">  Type     Reason             Age   From                 Message
-</span></span><span class="line"><span class="cl">  ----     ------             ----  ----                 -------
-</span></span><span class="line"><span class="cl">  Warning  MetricFailed       17s   rollouts-controller  metric <span class="s1">&#39;success-share&#39;</span> completed Failed
-</span></span><span class="line"><span class="cl">  Warning  AnalysisRunFailed  17s   rollouts-controller  analysis completed Failed
-</span></span></code></pre></div><p>As soon as the <strong>AnalysisRun</strong> recorded a measurement breaching below the 99% Success Share threshold, the Rollout was immediately aborted.</p>
+<pre><code class="language-shell">curl localhost/success -H &quot;Host: sample.app&quot; -H &quot;X-Canary: always&quot;
+curl localhost/error -H &quot;Host: sample.app&quot; -H &quot;X-Canary: always&quot;
+</code></pre>
+<p>After a short while, you should notice that something quite magical has happened… 🪄</p>
+<pre><code class="language-shell">➜ kubectl describe analysisrun -n sample-app
+...
+Status:
+  Message:  metric &quot;success-share&quot; assessed Failed due to failed (1) &gt; failureLimit (0)
+  Metric Results:
+    Count:   9
+    Failed:  1
+    Measurements:
+      ...
+      Finished At:  2022-01-29T18:45:49Z
+      Phase:        Failed
+      Started At:   2022-01-29T18:45:49Z
+      Value:        [0.5]
+    Name:           success-share
+    Phase:          Failed
+    Successful:     8
+  Phase:            Failed
+  Started At:       2022-01-29T18:37:49Z
+Events:
+  Type     Reason             Age   From                 Message
+  ----     ------             ----  ----                 -------
+  Warning  MetricFailed       17s   rollouts-controller  metric 'success-share' completed Failed
+  Warning  AnalysisRunFailed  17s   rollouts-controller  analysis completed Failed
+</code></pre>
+<p>As soon as the <strong>AnalysisRun</strong> recorded a measurement breaching below the 99% Success Share threshold, the Rollout was immediately aborted.</p>
 <p>Let’s confirm that from the Rollout’s status real quick!</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">➜ kubectl argo rollouts status sample-app -n sample-app
-</span></span><span class="line"><span class="cl">Degraded
-</span></span><span class="line"><span class="cl">Error: The rollout is in a degraded state with message: RolloutAborted: Rollout aborted update to revision 2: metric <span class="s2">&#34;success-share&#34;</span> assessed Failed due to failed <span class="o">(</span>1<span class="o">)</span> &gt; failureLimit <span class="o">(</span>0<span class="o">)</span>
-</span></span></code></pre></div><p>Indeed, even the Dashboard highlights that the Rollout is in a <em>Degraded</em> state, and consequently the <code>canary-weight</code> has been taken down to 0%.</p>
+<pre><code class="language-shell">➜ kubectl argo rollouts status sample-app -n sample-app
+Degraded
+Error: The rollout is in a degraded state with message: RolloutAborted: Rollout aborted update to revision 2: metric &quot;success-share&quot; assessed Failed due to failed (1) &gt; failureLimit (0)
+</code></pre>
+<p>Indeed, even the Dashboard highlights that the Rollout is in a <em>Degraded</em> state, and consequently the <code>canary-weight</code> has been taken down to 0%.</p>
 <p><img src="/images/smart-canary-deployment/5.png" alt="Argo Rollouts Dashboard"></p>
 <p>This would, in practice, give us time to investigate the issue, and once fixed, <strong>retry</strong> the Rollout, either via the CLI or the Dashboard’s <em>RETRY</em> button.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">kubectl argo rollouts retry rollout sample-app -n sample-app
-</span></span><span class="line"><span class="cl">kubectl argo rollouts promote sample-app -n sample-app
-</span></span></code></pre></div><p>Now that the Rollout has restarted and reached step 2, a new <strong>AnalysisRun</strong> has started and the incremental rollout is back on track! 🛤</p>
+<pre><code class="language-shell">kubectl argo rollouts retry rollout sample-app -n sample-app
+kubectl argo rollouts promote sample-app -n sample-app
+</code></pre>
+<p>Now that the Rollout has restarted and reached step 2, a new <strong>AnalysisRun</strong> has started and the incremental rollout is back on track! 🛤</p>
 <p><img src="/images/smart-canary-deployment/6.png" alt="Argo Rollouts Dashboard"></p>
 <h3 id="load-testing-with-k6">Load Testing with k6</h3>
 <hr>
 <p>Instead of running some <code>curl</code> commands like we previously did, how about we execute a Load Test instead?</p>
 <p>For Load Testing, I really recommend <a href="https://k6.io/docs/">k6</a> from the Grafana Labs team. It is a dead-simple yet super powerful tool with very extensive documentation.</p>
 <p>See for yourself!</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">k6 run k6/script.js
-</span></span></code></pre></div><p>After about 1 minute, k6 should be done executing the load test and show you the results.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">          /<span class="se">\ </span>     <span class="p">|</span>‾‾<span class="p">|</span> /‾‾/   /‾‾/
-</span></span><span class="line"><span class="cl">     /<span class="se">\ </span> /  <span class="se">\ </span>    <span class="p">|</span>  <span class="p">|</span>/  /   /  /
-</span></span><span class="line"><span class="cl">    /  <span class="se">\/</span>    <span class="se">\ </span>   <span class="p">|</span>     <span class="o">(</span>   /   ‾‾<span class="se">\
-</span></span></span><span class="line"><span class="cl"><span class="se"></span>   /          <span class="se">\ </span>  <span class="p">|</span>  <span class="p">|</span><span class="se">\ </span> <span class="se">\ </span><span class="p">|</span>  <span class="o">(</span>‾<span class="o">)</span>  <span class="p">|</span>
-</span></span><span class="line"><span class="cl">  / __________ <span class="se">\ </span> <span class="p">|</span>__<span class="p">|</span> <span class="se">\_</span>_<span class="se">\ \_</span>____/ .io
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">  execution: <span class="nb">local</span>
-</span></span><span class="line"><span class="cl">     script: k6/script.js
-</span></span><span class="line"><span class="cl">     output: -
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">  scenarios: <span class="o">(</span>100.00%<span class="o">)</span> <span class="m">1</span> scenario, <span class="m">20</span> max VUs, 1m30s max duration <span class="o">(</span>incl. graceful stop<span class="o">)</span>:
-</span></span><span class="line"><span class="cl">           * load: Up to 20.00 iterations/s <span class="k">for</span> 1m0s over <span class="m">2</span> stages <span class="o">(</span>maxVUs: 20, gracefulStop: 30s<span class="o">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">     ✓ status code is <span class="m">200</span>
-</span></span><span class="line"><span class="cl">     ✓ node is kind-control-plane
-</span></span><span class="line"><span class="cl">     ✓ namespace is sample-app
-</span></span><span class="line"><span class="cl">     ✓ pod is sample-app-*
-</span></span><span class="line"><span class="cl">     ✓ deployment is stable or canary
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">   ✓ checks.........................: 100.00% ✓ <span class="m">3095</span>      ✗ <span class="m">0</span>
-</span></span><span class="line"><span class="cl">     data_received..................: <span class="m">157</span> kB  2.6 kB/s
-</span></span><span class="line"><span class="cl">     data_sent......................: <span class="m">71</span> kB   1.2 kB/s
-</span></span><span class="line"><span class="cl">     http_req_blocked...............: <span class="nv">avg</span><span class="o">=</span>41.24µs <span class="nv">min</span><span class="o">=</span>3µs    <span class="nv">med</span><span class="o">=</span>8µs    <span class="nv">max</span><span class="o">=</span>3.39ms  p<span class="o">(</span>90<span class="o">)=</span>19µs   p<span class="o">(</span>95<span class="o">)=</span>55.19µs
-</span></span><span class="line"><span class="cl">     http_req_connecting............: <span class="nv">avg</span><span class="o">=</span>21.96µs <span class="nv">min</span><span class="o">=</span>0s     <span class="nv">med</span><span class="o">=</span>0s     <span class="nv">max</span><span class="o">=</span>2.71ms  p<span class="o">(</span>90<span class="o">)=</span>0s     p<span class="o">(</span>95<span class="o">)=</span>0s
-</span></span><span class="line"><span class="cl">   ✓ http_req_duration..............: <span class="nv">avg</span><span class="o">=</span>3.75ms  <span class="nv">min</span><span class="o">=</span>940µs  <span class="nv">med</span><span class="o">=</span>2.96ms <span class="nv">max</span><span class="o">=</span>17.22ms p<span class="o">(</span>90<span class="o">)=</span>6.99ms p<span class="o">(</span>95<span class="o">)=</span>9.37ms
-</span></span><span class="line"><span class="cl">       <span class="o">{</span> expected_response:true <span class="o">}</span>...: <span class="nv">avg</span><span class="o">=</span>3.75ms  <span class="nv">min</span><span class="o">=</span>940µs  <span class="nv">med</span><span class="o">=</span>2.96ms <span class="nv">max</span><span class="o">=</span>17.22ms p<span class="o">(</span>90<span class="o">)=</span>6.99ms p<span class="o">(</span>95<span class="o">)=</span>9.37ms
-</span></span><span class="line"><span class="cl">     http_req_failed................: 0.00%   ✓ <span class="m">0</span>         ✗ <span class="m">619</span>
-</span></span><span class="line"><span class="cl">     http_req_rate..................: 50.00%  ✓ <span class="m">619</span>       ✗ <span class="m">619</span>
-</span></span><span class="line"><span class="cl">     ✓ <span class="o">{</span> deployment:canary <span class="o">}</span>........: 49.91%  ✓ <span class="m">309</span>       ✗ <span class="m">310</span>
-</span></span><span class="line"><span class="cl">     ✓ <span class="o">{</span> deployment:stable <span class="o">}</span>........: 50.08%  ✓ <span class="m">310</span>       ✗ <span class="m">309</span>
-</span></span><span class="line"><span class="cl">     http_req_receiving.............: <span class="nv">avg</span><span class="o">=</span>107.1µs <span class="nv">min</span><span class="o">=</span>24µs   <span class="nv">med</span><span class="o">=</span>88µs   <span class="nv">max</span><span class="o">=</span>2.09ms  p<span class="o">(</span>90<span class="o">)=</span>165µs  p<span class="o">(</span>95<span class="o">)=</span>189.09µs
-</span></span><span class="line"><span class="cl">     http_req_sending...............: <span class="nv">avg</span><span class="o">=</span>50.78µs <span class="nv">min</span><span class="o">=</span>14µs   <span class="nv">med</span><span class="o">=</span>36µs   <span class="nv">max</span><span class="o">=</span>837µs   p<span class="o">(</span>90<span class="o">)=</span>77µs   p<span class="o">(</span>95<span class="o">)=</span>114.19µs
-</span></span><span class="line"><span class="cl">     http_req_tls_handshaking.......: <span class="nv">avg</span><span class="o">=</span>0s      <span class="nv">min</span><span class="o">=</span>0s     <span class="nv">med</span><span class="o">=</span>0s     <span class="nv">max</span><span class="o">=</span>0s      p<span class="o">(</span>90<span class="o">)=</span>0s     p<span class="o">(</span>95<span class="o">)=</span>0s
-</span></span><span class="line"><span class="cl">     http_req_waiting...............: <span class="nv">avg</span><span class="o">=</span>3.6ms   <span class="nv">min</span><span class="o">=</span>857µs  <span class="nv">med</span><span class="o">=</span>2.78ms <span class="nv">max</span><span class="o">=</span>17.09ms p<span class="o">(</span>90<span class="o">)=</span>6.81ms p<span class="o">(</span>95<span class="o">)=</span>9.1ms
-</span></span><span class="line"><span class="cl">     http_reqs......................: <span class="m">619</span>     10.316653/s
-</span></span><span class="line"><span class="cl">     iteration_duration.............: <span class="nv">avg</span><span class="o">=</span>4.31ms  <span class="nv">min</span><span class="o">=</span>1.09ms <span class="nv">med</span><span class="o">=</span>3.53ms <span class="nv">max</span><span class="o">=</span>21.84ms p<span class="o">(</span>90<span class="o">)=</span>7.82ms p<span class="o">(</span>95<span class="o">)=</span>10.34ms
-</span></span><span class="line"><span class="cl">     iterations.....................: <span class="m">619</span>     10.316653/s
-</span></span><span class="line"><span class="cl">     vus............................: <span class="m">0</span>       <span class="nv">min</span><span class="o">=</span><span class="m">0</span>       <span class="nv">max</span><span class="o">=</span><span class="m">0</span>
-</span></span><span class="line"><span class="cl">     vus_max........................: <span class="m">20</span>      <span class="nv">min</span><span class="o">=</span><span class="m">20</span>      <span class="nv">max</span><span class="o">=</span><span class="m">20</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">running <span class="o">(</span>1m00.0s<span class="o">)</span>, 00/20 VUs, <span class="m">619</span> <span class="nb">complete</span> and <span class="m">0</span> interrupted iterations
-</span></span><span class="line"><span class="cl">load ✓ <span class="o">[======================================]</span> 00/20 VUs  1m0s  00.71 iters/s
-</span></span></code></pre></div><p>That sounds about right!<br>
+<pre><code class="language-shell">k6 run k6/script.js
+</code></pre>
+<p>After about 1 minute, k6 should be done executing the load test and show you the results.</p>
+<pre><code class="language-shell">          /\      |‾‾| /‾‾/   /‾‾/
+     /\  /  \     |  |/  /   /  /
+    /  \/    \    |     (   /   ‾‾\
+   /          \   |  |\  \ |  (‾)  |
+  / __________ \  |__| \__\ \_____/ .io
+
+  execution: local
+     script: k6/script.js
+     output: -
+
+  scenarios: (100.00%) 1 scenario, 20 max VUs, 1m30s max duration (incl. graceful stop):
+           * load: Up to 20.00 iterations/s for 1m0s over 2 stages (maxVUs: 20, gracefulStop: 30s)
+
+
+     ✓ status code is 200
+     ✓ node is kind-control-plane
+     ✓ namespace is sample-app
+     ✓ pod is sample-app-*
+     ✓ deployment is stable or canary
+
+   ✓ checks.........................: 100.00% ✓ 3095      ✗ 0
+     data_received..................: 157 kB  2.6 kB/s
+     data_sent......................: 71 kB   1.2 kB/s
+     http_req_blocked...............: avg=41.24µs min=3µs    med=8µs    max=3.39ms  p(90)=19µs   p(95)=55.19µs
+     http_req_connecting............: avg=21.96µs min=0s     med=0s     max=2.71ms  p(90)=0s     p(95)=0s
+   ✓ http_req_duration..............: avg=3.75ms  min=940µs  med=2.96ms max=17.22ms p(90)=6.99ms p(95)=9.37ms
+       { expected_response:true }...: avg=3.75ms  min=940µs  med=2.96ms max=17.22ms p(90)=6.99ms p(95)=9.37ms
+     http_req_failed................: 0.00%   ✓ 0         ✗ 619
+     http_req_rate..................: 50.00%  ✓ 619       ✗ 619
+     ✓ { deployment:canary }........: 49.91%  ✓ 309       ✗ 310
+     ✓ { deployment:stable }........: 50.08%  ✓ 310       ✗ 309
+     http_req_receiving.............: avg=107.1µs min=24µs   med=88µs   max=2.09ms  p(90)=165µs  p(95)=189.09µs
+     http_req_sending...............: avg=50.78µs min=14µs   med=36µs   max=837µs   p(90)=77µs   p(95)=114.19µs
+     http_req_tls_handshaking.......: avg=0s      min=0s     med=0s     max=0s      p(90)=0s     p(95)=0s
+     http_req_waiting...............: avg=3.6ms   min=857µs  med=2.78ms max=17.09ms p(90)=6.81ms p(95)=9.1ms
+     http_reqs......................: 619     10.316653/s
+     iteration_duration.............: avg=4.31ms  min=1.09ms med=3.53ms max=21.84ms p(90)=7.82ms p(95)=10.34ms
+     iterations.....................: 619     10.316653/s
+     vus............................: 0       min=0       max=0
+     vus_max........................: 20      min=20      max=20
+
+
+running (1m00.0s), 00/20 VUs, 619 complete and 0 interrupted iterations
+load ✓ [======================================] 00/20 VUs  1m0s  00.71 iters/s
+</code></pre>
+<p>That sounds about right!<br>
 Depending on which step the Rollout is at, the Traffic Distribution shown in k6’s output should be either 50/50 or 75/25.</p>
 <p>Same as before, if you now describe the <strong>AnalysisRun</strong>, you should see some successful measurements were measured.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">➜ kubectl describe analysisrun -n sample-app
-</span></span><span class="line"><span class="cl">...
-</span></span><span class="line"><span class="cl">Status:
-</span></span><span class="line"><span class="cl">  Metric Results:
-</span></span><span class="line"><span class="cl">    Count:  <span class="m">5</span>
-</span></span><span class="line"><span class="cl">    Measurements:
-</span></span><span class="line"><span class="cl">      ...
-</span></span><span class="line"><span class="cl">      Phase:        Successful
-</span></span><span class="line"><span class="cl">      Started At:   2022-01-30T14:34:07Z
-</span></span><span class="line"><span class="cl">      Value:        <span class="o">[</span>1<span class="o">]</span>
-</span></span><span class="line"><span class="cl">    Name:           success-share
-</span></span><span class="line"><span class="cl">    Phase:          Running
-</span></span><span class="line"><span class="cl">    Successful:     <span class="m">5</span>
-</span></span><span class="line"><span class="cl">  Phase:            Running
-</span></span><span class="line"><span class="cl">  Started At:       2022-01-30T14:32:07Z
-</span></span><span class="line"><span class="cl">Events:             &lt;none&gt;
-</span></span></code></pre></div><p>Eventually, the Rollout should complete successfully and the new revision should become the new <code>stable</code> Deployment! 🎉</p>
+<pre><code class="language-shell">➜ kubectl describe analysisrun -n sample-app
+...
+Status:
+  Metric Results:
+    Count:  5
+    Measurements:
+      ...
+      Phase:        Successful
+      Started At:   2022-01-30T14:34:07Z
+      Value:        [1]
+    Name:           success-share
+    Phase:          Running
+    Successful:     5
+  Phase:            Running
+  Started At:       2022-01-30T14:32:07Z
+Events:             &lt;none&gt;
+</code></pre>
+<p>Eventually, the Rollout should complete successfully and the new revision should become the new <code>stable</code> Deployment! 🎉</p>
 <p><img src="/images/smart-canary-deployment/7.png" alt="Argo Rollouts Dashboard"></p>
 <h2 id="wrapping-up">Wrapping up</h2>
 <hr>
 <p>That’s it! You can now delete your Kind cluster!</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">kind delete cluster
-</span></span></code></pre></div><p>To summarize, using Argo Rollouts and Prometheus we were able to:</p>
+<pre><code class="language-shell">kind delete cluster
+</code></pre>
+<p>To summarize, using Argo Rollouts and Prometheus we were able to:</p>
 <ul>
 <li>Detect when a Prometheus metric breaches a given threshold and abort the faulty Rollout automatically, thanks to the <strong>AnalysisRun</strong> CRD;</li>
 <li>Restart the aborted Rollout effortlessly once the issue is fixed.</li>

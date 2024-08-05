@@ -6,7 +6,6 @@
     <title>UI Testing in iOS - Generating Accessibility Identifiers using Reflection</title>
     <link rel="stylesheet" href="/css/bulma.min.css">
     <link rel="stylesheet" href="/css/custom.css">
-    <link rel="stylesheet" href="/css/hugo.css">
 </head>
 
 <body>
@@ -54,66 +53,70 @@
 <h2 id="the-usual-way">The usual way</h2>
 <hr>
 <p>Usually, assigning an <strong>Accessibility Identifier</strong> to a View is rather straightforward…</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kr">final</span> <span class="kd">class</span> <span class="nc">SomethingViewController</span><span class="p">:</span> <span class="n">UIViewController</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">    
-</span></span><span class="line"><span class="cl">    <span class="kr">@IBOutlet</span> <span class="kd">private</span> <span class="kr">weak</span> <span class="kd">var</span> <span class="nv">titleLabel</span><span class="p">:</span> <span class="n">UILabel</span><span class="p">!</span>
-</span></span><span class="line"><span class="cl">    <span class="kr">@IBOutlet</span> <span class="kd">private</span> <span class="kr">weak</span> <span class="kd">var</span> <span class="nv">descriptionLabel</span><span class="p">:</span> <span class="n">UILabel</span><span class="p">!</span>
-</span></span><span class="line"><span class="cl">    <span class="kr">@IBOutlet</span> <span class="kd">private</span> <span class="kr">weak</span> <span class="kd">var</span> <span class="nv">doneButton</span><span class="p">:</span> <span class="n">UIButton</span><span class="p">!</span>
-</span></span><span class="line"><span class="cl">    
-</span></span><span class="line"><span class="cl">    <span class="kr">override</span> <span class="kd">func</span> <span class="nf">viewDidLoad</span><span class="p">()</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">        <span class="n">titleLabel</span><span class="p">.</span><span class="n">accessibilityIdentifier</span>       <span class="p">=</span> <span class="s">&#34;SomethingViewController.titleLabel&#34;</span>
-</span></span><span class="line"><span class="cl">        <span class="n">descriptionLabel</span><span class="p">.</span><span class="n">accessibilityIdentifier</span> <span class="p">=</span> <span class="s">&#34;SomethingViewController.descriptionLabel&#34;</span>
-</span></span><span class="line"><span class="cl">        <span class="n">doneButton</span><span class="p">.</span><span class="n">accessibilityIdentifier</span>       <span class="p">=</span> <span class="s">&#34;SomethingViewController.doneButton&#34;</span>
-</span></span><span class="line"><span class="cl">    <span class="p">}</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></div><p>Simple! 👌<br>
+<pre><code class="language-swift">final class SomethingViewController: UIViewController {
+    
+    @IBOutlet private weak var titleLabel: UILabel!
+    @IBOutlet private weak var descriptionLabel: UILabel!
+    @IBOutlet private weak var doneButton: UIButton!
+    
+    override func viewDidLoad() {
+        titleLabel.accessibilityIdentifier       = &quot;SomethingViewController.titleLabel&quot;
+        descriptionLabel.accessibilityIdentifier = &quot;SomethingViewController.descriptionLabel&quot;
+        doneButton.accessibilityIdentifier       = &quot;SomethingViewController.doneButton&quot;
+    }
+}
+</code></pre>
+<p>Simple! 👌<br>
 However, we can easily spot the problem here, <strong>it’s a hell of a boilerplate</strong>! 😫</p>
 <p>Now here’s the thing, what if we could iterate through all the <em>Views</em> of a <em>ViewController</em> and assign to each one of them an <strong>Accessibility Identifier</strong> consisting of the name of the <em>ViewController</em> (<strong>prefix</strong>) and the name of the <em>View</em> (<strong>suffix</strong>)? 🤔</p>
 <h2 id="mirror-mirror">Mirror, mirror…</h2>
 <hr>
 <p>That’s right! Let’s use the awesome Swift’s reflection API: <strong>Mirror</strong>! 🔮<br>
 To make it generic and reusable across all <em>ViewControllers/Views</em>, let’s wrap it inside a protocol called <strong>Accessible</strong>! 👍</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">protocol</span> <span class="nc">Accessible</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">generateAccessibilityIdentifiers</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">extension</span> <span class="nc">Accessible</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">generateAccessibilityIdentifiers</span><span class="p">()</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">        <span class="cp">#if</span> <span class="cp">DEBUG</span>
-</span></span><span class="line"><span class="cl">        <span class="kd">let</span> <span class="nv">mirror</span> <span class="p">=</span> <span class="n">Mirror</span><span class="p">(</span><span class="n">reflecting</span><span class="p">:</span> <span class="kc">self</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="n">child</span> <span class="k">in</span> <span class="n">mirror</span><span class="p">.</span><span class="n">children</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">            <span class="k">if</span>
-</span></span><span class="line"><span class="cl">                <span class="kd">let</span> <span class="nv">view</span> <span class="p">=</span> <span class="n">child</span><span class="p">.</span><span class="n">value</span> <span class="k">as</span><span class="p">?</span> <span class="n">UIView</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">                <span class="kd">let</span> <span class="nv">identifier</span> <span class="p">=</span> <span class="n">child</span><span class="p">.</span><span class="n">label</span><span class="p">?.</span><span class="n">replacingOccurrences</span><span class="p">(</span><span class="n">of</span><span class="p">:</span> <span class="s">&#34;.storage&#34;</span><span class="p">,</span> <span class="n">with</span><span class="p">:</span> <span class="s">&#34;&#34;</span><span class="p">)</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">                <span class="n">view</span><span class="p">.</span><span class="n">accessibilityIdentifier</span> <span class="p">=</span> <span class="s">&#34;</span><span class="si">\(</span><span class="n">type</span><span class="si">(</span><span class="n">of</span><span class="p">:</span> <span class="kc">self</span><span class="si">))</span><span class="s">.</span><span class="si">\(</span><span class="n">identifier</span><span class="si">)</span><span class="s">&#34;</span>
-</span></span><span class="line"><span class="cl">            <span class="p">}</span>
-</span></span><span class="line"><span class="cl">        <span class="p">}</span>
-</span></span><span class="line"><span class="cl">        <span class="cp">#endif</span>
-</span></span><span class="line"><span class="cl">    <span class="p">}</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></div><p>Now, let’s take a look at the above implementation. 🧐</p>
+<pre><code class="language-swift">protocol Accessible {
+    func generateAccessibilityIdentifiers()
+}
+
+extension Accessible {
+
+    func generateAccessibilityIdentifiers() {
+        #if DEBUG
+        let mirror = Mirror(reflecting: self)
+
+        for child in mirror.children {
+            if
+                let view = child.value as? UIView,
+                let identifier = child.label?.replacingOccurrences(of: &quot;.storage&quot;, with: &quot;&quot;) {
+
+                view.accessibilityIdentifier = &quot;\(type(of: self)).\(identifier)&quot;
+            }
+        }
+        #endif
+    }
+}
+</code></pre>
+<p>Now, let’s take a look at the above implementation. 🧐</p>
 <p>The first step is to instantiate a <strong>Mirror</strong> reflecting the type conforming to <strong>Accessible</strong> (<em>self</em>). Then, we iterate through all children (<em>properties</em>) of <em>self</em> and, whenever a child is of type <em>View</em>, assign an <strong>Accessibility Identifier</strong> with the format: <code>&quot;ParentType.ChildProperty&quot;</code> ✅</p>
 <p>Simple! 👍<br>
 Now, going back to our initial implementation of the ViewController, things will suddenly get much smoother! 😎</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kr">final</span> <span class="kd">class</span> <span class="nc">SomethingViewController</span><span class="p">:</span> <span class="n">UIViewController</span><span class="p">,</span> <span class="n">Accessible</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">    
-</span></span><span class="line"><span class="cl">    <span class="kr">@IBOutlet</span> <span class="kd">private</span> <span class="kr">weak</span> <span class="kd">var</span> <span class="nv">titleLabel</span><span class="p">:</span> <span class="n">UILabel</span><span class="p">!</span>
-</span></span><span class="line"><span class="cl">    <span class="kr">@IBOutlet</span> <span class="kd">private</span> <span class="kr">weak</span> <span class="kd">var</span> <span class="nv">descriptionLabel</span><span class="p">:</span> <span class="n">UILabel</span><span class="p">!</span>
-</span></span><span class="line"><span class="cl">    <span class="kr">@IBOutlet</span> <span class="kd">private</span> <span class="kr">weak</span> <span class="kd">var</span> <span class="nv">doneButton</span><span class="p">:</span> <span class="n">UIButton</span><span class="p">!</span>
-</span></span><span class="line"><span class="cl">    
-</span></span><span class="line"><span class="cl">    <span class="kr">override</span> <span class="kd">func</span> <span class="nf">viewDidLoad</span><span class="p">()</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">        <span class="n">generateAccessibilityIdentifiers</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">    <span class="p">}</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></div><p>That’s all! 🤯<br>
+<pre><code class="language-swift">final class SomethingViewController: UIViewController, Accessible {
+    
+    @IBOutlet private weak var titleLabel: UILabel!
+    @IBOutlet private weak var descriptionLabel: UILabel!
+    @IBOutlet private weak var doneButton: UIButton!
+    
+    override func viewDidLoad() {
+        generateAccessibilityIdentifiers()
+    }
+}
+</code></pre>
+<p>That’s all! 🤯<br>
 Now, executing the command print app during UI Testing will output the following:</p>
-<pre tabindex="0"><code>StaticText, identifier: &#39;SomethingViewController.titleLabel&#39;
-StaticText, identifier: &#39;SomethingViewController.descriptionLabel&#39;
-Button, identifier: &#39;SomethingViewController.doneButton&#39;
-</code></pre><p>Boom! 💥<br>
+<pre><code>StaticText, identifier: 'SomethingViewController.titleLabel'
+StaticText, identifier: 'SomethingViewController.descriptionLabel'
+Button, identifier: 'SomethingViewController.doneButton'
+</code></pre>
+<p>Boom! 💥<br>
 We just generated Accessibility Identifiers using Swift Reflection! 🎉<br>
 No more manual assigning, no more unnecessary boilerplate! 💪</p>
 <p>Worth a try? Did you regain faith in UI Testing? If so, follow me on <a href="https://twitter.com/jhandguy">Twitter</a>, I’ll be happy to answer any of your questions and you’ll be the first one to know when a new article comes out! 👌</p>

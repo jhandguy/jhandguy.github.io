@@ -6,7 +6,6 @@
     <title>Lightweight Design Patterns in iOS (Part 2) - Presenter</title>
     <link rel="stylesheet" href="/css/bulma.min.css">
     <link rel="stylesheet" href="/css/custom.css">
-    <link rel="stylesheet" href="/css/hugo.css">
 </head>
 
 <body>
@@ -62,53 +61,56 @@ In this episode, we will take a quick look at the <strong>Presenter Pattern</str
 <hr>
 <p>The practical way to present a ViewController is to have an extension on <em>UIViewController</em> to make use of the <strong>present(viewController:)</strong> method. 💯</p>
 <p>If we now look at an example, let’s say: present an <strong>Alert</strong> with an <strong>Error</strong> description, it would look pretty simple. 👍</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">extension</span> <span class="nc">UIViewController</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">    
-</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">present</span><span class="p">(</span><span class="n">error</span><span class="p">:</span> <span class="n">Error</span><span class="p">,</span> <span class="n">animated</span><span class="p">:</span> <span class="nb">Bool</span><span class="p">,</span> <span class="n">completion</span><span class="p">:</span> <span class="p">(()</span> <span class="p">-&gt;</span> <span class="nb">Void</span><span class="p">)?</span> <span class="p">=</span> <span class="kc">nil</span><span class="p">)</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">        <span class="kd">let</span> <span class="nv">alertController</span> <span class="p">=</span> <span class="n">UIAlertController</span><span class="p">(</span>
-</span></span><span class="line"><span class="cl">            <span class="n">title</span><span class="p">:</span> <span class="s">&#34;Error&#34;</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">            <span class="n">message</span><span class="p">:</span> <span class="n">error</span><span class="p">.</span><span class="n">localizedDescription</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">            <span class="n">preferredStyle</span><span class="p">:</span> <span class="p">.</span><span class="n">alert</span>
-</span></span><span class="line"><span class="cl">        <span class="p">)</span>
-</span></span><span class="line"><span class="cl">        <span class="kd">let</span> <span class="nv">alertAction</span> <span class="p">=</span> <span class="n">UIAlertAction</span><span class="p">(</span>
-</span></span><span class="line"><span class="cl">            <span class="n">title</span><span class="p">:</span> <span class="s">&#34;Ok&#34;</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">            <span class="n">style</span><span class="p">:</span> <span class="p">.</span><span class="k">default</span>
-</span></span><span class="line"><span class="cl">        <span class="p">)</span>
-</span></span><span class="line"><span class="cl">        <span class="n">alertController</span><span class="p">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">alertAction</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">        <span class="n">present</span><span class="p">(</span><span class="n">alertController</span><span class="p">,</span> <span class="n">animated</span><span class="p">:</span> <span class="n">animated</span><span class="p">,</span> <span class="n">completion</span><span class="p">:</span> <span class="n">completion</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">    <span class="p">}</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></div><p>Though it might seem elegant at first, it actually comes with a price: every single <em>ViewController</em> is now able to present an <strong>Alert</strong> with an <strong>Error</strong> description. 😲</p>
+<pre><code class="language-swift">extension UIViewController {
+    
+    func present(error: Error, animated: Bool, completion: (() -&gt; Void)? = nil) {
+        let alertController = UIAlertController(
+            title: &quot;Error&quot;,
+            message: error.localizedDescription,
+            preferredStyle: .alert
+        )
+        let alertAction = UIAlertAction(
+            title: &quot;Ok&quot;,
+            style: .default
+        )
+        alertController.addAction(alertAction)
+
+        present(alertController, animated: animated, completion: completion)
+    }
+}
+</code></pre>
+<p>Though it might seem elegant at first, it actually comes with a price: every single <em>ViewController</em> is now able to present an <strong>Alert</strong> with an <strong>Error</strong> description. 😲</p>
 <p>Do we really want that? Or would we rather delegate this logic to an other independent layer? 🤔</p>
 <p>You know where I’m going… 😉</p>
 <h2 id="the-presenter-way">The Presenter way</h2>
 <hr>
 <p>Using a <strong>Presenter</strong>, we implement a separate entity responsible for presenting a <strong>View</strong>. This means for us, a <em>struct</em>! 🚀</p>
 <p>In the example of presenting an <strong>Error</strong>, we would implement an <em>ErrorPresenter</em> struct with the actual error as property and the <strong>present(in viewController:)</strong> function. ✅</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">struct</span> <span class="nc">ErrorPresenter</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">    <span class="kd">let</span> <span class="nv">error</span><span class="p">:</span> <span class="n">Error</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">present</span><span class="p">(</span><span class="k">in</span> <span class="n">viewController</span><span class="p">:</span> <span class="n">UIViewController</span><span class="p">,</span> <span class="n">animated</span><span class="p">:</span> <span class="nb">Bool</span><span class="p">,</span> <span class="n">completion</span><span class="p">:</span> <span class="p">(()</span> <span class="p">-&gt;</span> <span class="nb">Void</span><span class="p">)?</span> <span class="p">=</span> <span class="kc">nil</span><span class="p">)</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">        <span class="kd">let</span> <span class="nv">alertController</span> <span class="p">=</span> <span class="n">UIAlertController</span><span class="p">(</span>
-</span></span><span class="line"><span class="cl">            <span class="n">title</span><span class="p">:</span> <span class="s">&#34;Error&#34;</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">            <span class="n">message</span><span class="p">:</span> <span class="n">error</span><span class="p">.</span><span class="n">localizedDescription</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">            <span class="n">preferredStyle</span><span class="p">:</span> <span class="p">.</span><span class="n">alert</span>
-</span></span><span class="line"><span class="cl">        <span class="p">)</span>
-</span></span><span class="line"><span class="cl">        <span class="kd">let</span> <span class="nv">alertAction</span> <span class="p">=</span> <span class="n">UIAlertAction</span><span class="p">(</span>
-</span></span><span class="line"><span class="cl">            <span class="n">title</span><span class="p">:</span> <span class="s">&#34;Ok&#34;</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">            <span class="n">style</span><span class="p">:</span> <span class="p">.</span><span class="k">default</span>
-</span></span><span class="line"><span class="cl">        <span class="p">)</span>
-</span></span><span class="line"><span class="cl">        <span class="n">alertController</span><span class="p">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">alertAction</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">        <span class="n">viewController</span><span class="p">.</span><span class="n">present</span><span class="p">(</span><span class="n">alertController</span><span class="p">,</span> <span class="n">animated</span><span class="p">:</span> <span class="n">animated</span><span class="p">,</span> <span class="n">completion</span><span class="p">:</span> <span class="n">completion</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">    <span class="p">}</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></div><p>And that’s all, we now have a completely independent <strong>Presenter</strong>, that can be called from anywhere in our App! 👏</p>
+<pre><code class="language-swift">struct ErrorPresenter {
+    let error: Error
+
+    func present(in viewController: UIViewController, animated: Bool, completion: (() -&gt; Void)? = nil) {
+        let alertController = UIAlertController(
+            title: &quot;Error&quot;,
+            message: error.localizedDescription,
+            preferredStyle: .alert
+        )
+        let alertAction = UIAlertAction(
+            title: &quot;Ok&quot;,
+            style: .default
+        )
+        alertController.addAction(alertAction)
+
+        viewController.present(alertController, animated: animated, completion: completion)
+    }
+}
+</code></pre>
+<p>And that’s all, we now have a completely independent <strong>Presenter</strong>, that can be called from anywhere in our App! 👏</p>
 <p>Calling our <em>ErrorPresenter</em> is as simple as it is elegant! 😎</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">let</span> <span class="nv">presenter</span> <span class="p">=</span> <span class="n">ErrorPresenter</span><span class="p">(</span><span class="n">error</span><span class="p">:</span> <span class="n">NetworkError</span><span class="p">())</span>
-</span></span><span class="line"><span class="cl"><span class="n">presenter</span><span class="p">.</span><span class="n">present</span><span class="p">(</span><span class="k">in</span><span class="p">:</span> <span class="kc">self</span><span class="p">,</span> <span class="n">animated</span><span class="p">:</span> <span class="kc">true</span><span class="p">)</span>
-</span></span></code></pre></div><p>And boom! 💥<br>
+<pre><code class="language-swift">let presenter = ErrorPresenter(error: NetworkError())
+presenter.present(in: self, animated: true)
+</code></pre>
+<p>And boom! 💥<br>
 We just made a lightweight <strong>Presenter</strong>! 🎉</p>
 <p>Worth it? Did that help you see what problems the <strong>Presenter Pattern</strong> is trying to solve? How to make such a pattern lightweight?</p>
 <p>If so, follow me on <a href="https://twitter.com/jhandguy">Twitter</a>, I’ll be happy to answer any of your questions and you’ll be the first one to know when a new article comes out! 👌</p>
