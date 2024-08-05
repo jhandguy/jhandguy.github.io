@@ -6,6 +6,7 @@
     <title>Painless UI Testing in iOS (Part 3) - Disabling Animations</title>
     <link rel="stylesheet" href="/css/bulma.min.css">
     <link rel="stylesheet" href="/css/custom.css">
+    <link rel="stylesheet" href="/css/hugo.css">
 </head>
 
 <body>
@@ -60,111 +61,111 @@ In this episode, we will take a closer look at <strong>Disabling Animations</str
 But well, you should know by now that this problem won’t be unanswered! 🧐</p>
 <p>The same way we did with <a href="/posts/stubbing-the-navigation-ios/">Stubbing the Navigation</a>, let’s create an enum. 👍<br>
 In it, let’s also add a Bool computed property to toggle the animations. 👨‍🎨</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">import</span> <span style="color:#5dd8ff">Foundation</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#fc5fa3">enum</span> <span style="color:#5dd8ff">AnimationStub</span>: Identifiable {
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">case</span> enableAnimations, disableAnimations
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">areAnimationsEnabled</span>: <span style="color:#d0a8ff">Bool</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">switch</span> <span style="color:#fc5fa3">self</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">case</span> .enableAnimations:
-</span></span><span style="display:flex;"><span>            <span style="color:#fc5fa3">return</span> <span style="color:#fc5fa3">true</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">case</span> .disableAnimations:
-</span></span><span style="display:flex;"><span>            <span style="color:#fc5fa3">return</span> <span style="color:#fc5fa3">false</span>
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">import</span> <span class="nc">Foundation</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">enum</span> <span class="nc">AnimationStub</span><span class="p">:</span> <span class="n">Identifiable</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">case</span> <span class="n">enableAnimations</span><span class="p">,</span> <span class="n">disableAnimations</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">var</span> <span class="nv">areAnimationsEnabled</span><span class="p">:</span> <span class="nb">Bool</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">switch</span> <span class="kc">self</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">case</span> <span class="p">.</span><span class="n">enableAnimations</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">        <span class="k">case</span> <span class="p">.</span><span class="n">disableAnimations</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><p>Looking good! 😎<br>
 Now, once more, let’s make it <em>Codable</em> so we can inject it in the <em>ProcessInfo</em>! 💉</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">import</span> <span style="color:#5dd8ff">Foundation</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#fc5fa3">extension</span> <span style="color:#5dd8ff">AnimationStub</span>: Codable {
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">enum</span> <span style="color:#5dd8ff">CodingKeys</span>: <span style="color:#d0a8ff">String</span>, CodingKey { <span style="color:#fc5fa3">case</span> areAnimationsEnabled }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">init</span>(from decoder: Decoder) <span style="color:#fc5fa3">throws</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">values</span> = <span style="color:#fc5fa3">try</span> decoder.container(keyedBy: CodingKeys.<span style="color:#fc5fa3">self</span>)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">if</span> <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">areAnimationsEnabled</span> = <span style="color:#fc5fa3">try</span>? values.decode(<span style="color:#d0a8ff">Bool</span>.<span style="color:#fc5fa3">self</span>, forKey: .areAnimationsEnabled) {
-</span></span><span style="display:flex;"><span>            <span style="color:#fc5fa3">self</span> = areAnimationsEnabled ? .enableAnimations : .disableAnimations
-</span></span><span style="display:flex;"><span>            <span style="color:#fc5fa3">return</span>
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">self</span> = .disableAnimations
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">encode</span>(to encoder: Encoder) <span style="color:#fc5fa3">throws</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">container</span> = encoder.container(keyedBy: CodingKeys.<span style="color:#fc5fa3">self</span>)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">switch</span> <span style="color:#fc5fa3">self</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">case</span> .enableAnimations:
-</span></span><span style="display:flex;"><span>            <span style="color:#fc5fa3">try</span> container.encode(<span style="color:#fc5fa3">true</span>, forKey: .areAnimationsEnabled)
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">case</span> .disableAnimations:
-</span></span><span style="display:flex;"><span>            <span style="color:#fc5fa3">try</span> container.encode(<span style="color:#fc5fa3">false</span>, forKey: .areAnimationsEnabled)
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">import</span> <span class="nc">Foundation</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">extension</span> <span class="nc">AnimationStub</span><span class="p">:</span> <span class="n">Codable</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">enum</span> <span class="nc">CodingKeys</span><span class="p">:</span> <span class="nb">String</span><span class="p">,</span> <span class="n">CodingKey</span> <span class="p">{</span> <span class="k">case</span> <span class="n">areAnimationsEnabled</span> <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">init</span><span class="p">(</span><span class="n">from</span> <span class="n">decoder</span><span class="p">:</span> <span class="n">Decoder</span><span class="p">)</span> <span class="kr">throws</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">let</span> <span class="nv">values</span> <span class="p">=</span> <span class="k">try</span> <span class="n">decoder</span><span class="p">.</span><span class="n">container</span><span class="p">(</span><span class="n">keyedBy</span><span class="p">:</span> <span class="n">CodingKeys</span><span class="p">.</span><span class="kc">self</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="kd">let</span> <span class="nv">areAnimationsEnabled</span> <span class="p">=</span> <span class="k">try</span><span class="p">?</span> <span class="n">values</span><span class="p">.</span><span class="n">decode</span><span class="p">(</span><span class="nb">Bool</span><span class="p">.</span><span class="kc">self</span><span class="p">,</span> <span class="n">forKey</span><span class="p">:</span> <span class="p">.</span><span class="n">areAnimationsEnabled</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="kc">self</span> <span class="p">=</span> <span class="n">areAnimationsEnabled</span> <span class="p">?</span> <span class="p">.</span><span class="n">enableAnimations</span> <span class="p">:</span> <span class="p">.</span><span class="n">disableAnimations</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="kc">self</span> <span class="p">=</span> <span class="p">.</span><span class="n">disableAnimations</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">encode</span><span class="p">(</span><span class="n">to</span> <span class="n">encoder</span><span class="p">:</span> <span class="n">Encoder</span><span class="p">)</span> <span class="kr">throws</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">var</span> <span class="nv">container</span> <span class="p">=</span> <span class="n">encoder</span><span class="p">.</span><span class="n">container</span><span class="p">(</span><span class="n">keyedBy</span><span class="p">:</span> <span class="n">CodingKeys</span><span class="p">.</span><span class="kc">self</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">switch</span> <span class="kc">self</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">case</span> <span class="p">.</span><span class="n">enableAnimations</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">try</span> <span class="n">container</span><span class="p">.</span><span class="n">encode</span><span class="p">(</span><span class="kc">true</span><span class="p">,</span> <span class="n">forKey</span><span class="p">:</span> <span class="p">.</span><span class="n">areAnimationsEnabled</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">case</span> <span class="p">.</span><span class="n">disableAnimations</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">try</span> <span class="n">container</span><span class="p">.</span><span class="n">encode</span><span class="p">(</span><span class="kc">false</span><span class="p">,</span> <span class="n">forKey</span><span class="p">:</span> <span class="p">.</span><span class="n">areAnimationsEnabled</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><p>Nothing new, all clear! ✅<br>
 In the <em>AppDelegate</em>, we can now decode the <em>AnimationStub</em> and toggle the animations with it. 👌</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">import</span> <span style="color:#5dd8ff">UIKit</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#fc5fa3">@UIApplicationMain</span>
-</span></span><span style="display:flex;"><span><span style="color:#fc5fa3">class</span> <span style="color:#5dd8ff">AppDelegate</span>: UIResponder, UIApplicationDelegate {
-</span></span><span style="display:flex;"><span>    ...
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">application</span>(<span style="color:#fc5fa3">_</span> application: UIApplication, willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: <span style="color:#d0a8ff">Any</span>]? = <span style="color:#fc5fa3">nil</span>) -&gt; <span style="color:#d0a8ff">Bool</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">if</span> <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">animationStub</span> = ProcessInfo.processInfo.decode(AnimationStub.<span style="color:#fc5fa3">self</span>) {
-</span></span><span style="display:flex;"><span>            UIView.setAnimationsEnabled(animationStub.areAnimationsEnabled)
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>        ...
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">return</span> <span style="color:#fc5fa3">true</span>
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>    ...
-</span></span><span style="display:flex;"><span>}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">import</span> <span class="nc">UIKit</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kr">@UIApplicationMain</span>
+</span></span><span class="line"><span class="cl"><span class="kd">class</span> <span class="nc">AppDelegate</span><span class="p">:</span> <span class="n">UIResponder</span><span class="p">,</span> <span class="n">UIApplicationDelegate</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="p">...</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">application</span><span class="p">(</span><span class="kc">_</span> <span class="n">application</span><span class="p">:</span> <span class="n">UIApplication</span><span class="p">,</span> <span class="n">willFinishLaunchingWithOptions</span> <span class="n">launchOptions</span><span class="p">:</span> <span class="p">[</span><span class="n">UIApplication</span><span class="p">.</span><span class="n">LaunchOptionsKey</span><span class="p">:</span> <span class="nb">Any</span><span class="p">]?</span> <span class="p">=</span> <span class="kc">nil</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="nb">Bool</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="kd">let</span> <span class="nv">animationStub</span> <span class="p">=</span> <span class="n">ProcessInfo</span><span class="p">.</span><span class="n">processInfo</span><span class="p">.</span><span class="n">decode</span><span class="p">(</span><span class="n">AnimationStub</span><span class="p">.</span><span class="kc">self</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">UIView</span><span class="p">.</span><span class="n">setAnimationsEnabled</span><span class="p">(</span><span class="n">animationStub</span><span class="p">.</span><span class="n">areAnimationsEnabled</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="p">...</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">...</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><p>You didn’t expect it to be that easy did ya’?! 😜<br>
 Last but not least, let’s complete our <em>XCUIApplication</em> extension to include our <em>AnimationStub</em> in the launch environment and we are good to go! 🚀</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">import</span> <span style="color:#5dd8ff">XCTest</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#fc5fa3">extension</span> <span style="color:#5dd8ff">XCUIApplication</span> {
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">launch</span>(<span style="color:#fc5fa3">_</span> coordinatorStub: CoordinatorStub, with sessionMock: URLSessionMock = URLSessionMock(), and animationStub: AnimationStub = .disableAnimations) {
-</span></span><span style="display:flex;"><span>        launchEnvironment[CoordinatorStub.identifier] = coordinatorStub.json
-</span></span><span style="display:flex;"><span>        launchEnvironment[URLSessionMock.identifier] = sessionMock.json
-</span></span><span style="display:flex;"><span>        launchEnvironment[AnimationStub.identifier] = animationStub.json
-</span></span><span style="display:flex;"><span>        launch()
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">import</span> <span class="nc">XCTest</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">extension</span> <span class="nc">XCUIApplication</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">launch</span><span class="p">(</span><span class="kc">_</span> <span class="n">coordinatorStub</span><span class="p">:</span> <span class="n">CoordinatorStub</span><span class="p">,</span> <span class="n">with</span> <span class="n">sessionMock</span><span class="p">:</span> <span class="n">URLSessionMock</span> <span class="p">=</span> <span class="n">URLSessionMock</span><span class="p">(),</span> <span class="n">and</span> <span class="n">animationStub</span><span class="p">:</span> <span class="n">AnimationStub</span> <span class="p">=</span> <span class="p">.</span><span class="n">disableAnimations</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">launchEnvironment</span><span class="p">[</span><span class="n">CoordinatorStub</span><span class="p">.</span><span class="n">identifier</span><span class="p">]</span> <span class="p">=</span> <span class="n">coordinatorStub</span><span class="p">.</span><span class="n">json</span>
+</span></span><span class="line"><span class="cl">        <span class="n">launchEnvironment</span><span class="p">[</span><span class="n">URLSessionMock</span><span class="p">.</span><span class="n">identifier</span><span class="p">]</span> <span class="p">=</span> <span class="n">sessionMock</span><span class="p">.</span><span class="n">json</span>
+</span></span><span class="line"><span class="cl">        <span class="n">launchEnvironment</span><span class="p">[</span><span class="n">AnimationStub</span><span class="p">.</span><span class="n">identifier</span><span class="p">]</span> <span class="p">=</span> <span class="n">animationStub</span><span class="p">.</span><span class="n">json</span>
+</span></span><span class="line"><span class="cl">        <span class="n">launch</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><p>That’s it! 🎉<br>
 Now, by default, animations will be disabled during UI Testing! 💪<br>
 No more random flakiness! 🍾</p>
 <p>But if for one UI test we suddenly decide to keep the animations enabled, we can simply add the case <strong>.enableAnimations</strong> in the launch function and we’re all set! 🙌</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">import</span> <span style="color:#5dd8ff">XCTest</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#fc5fa3">final</span> <span style="color:#fc5fa3">class</span> <span style="color:#5dd8ff">SomethingUITest</span>: XCTestCase {
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">private</span> <span style="color:#fc5fa3">lazy</span> <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">app</span> = XCUIApplication()
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">override</span> <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">setUp</span>() {
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">super</span>.setUp()
-</span></span><span style="display:flex;"><span>        ...
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">testOpenSomething</span>() {
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">something</span> = Something(stuff: <span style="color:#fc6a5d">&#34;Stuff&#34;</span>, ...)
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">sessionMock</span> = URLSessionMock(
-</span></span><span style="display:flex;"><span>            responses: [
-</span></span><span style="display:flex;"><span>                .fetchSomething: [
-</span></span><span style="display:flex;"><span>                    Response(File(<span style="color:#fc6a5d">&#34;something_response&#34;</span>, .json)),
-</span></span><span style="display:flex;"><span>                    Response(error: .invalidResponse)
-</span></span><span style="display:flex;"><span>                ]
-</span></span><span style="display:flex;"><span>            ]
-</span></span><span style="display:flex;"><span>        )
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        app.launch(.openSomething(something), with: sessionMock, and: .enableAnimations)
-</span></span><span style="display:flex;"><span>        ...
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>    ...
-</span></span><span style="display:flex;"><span>}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">import</span> <span class="nc">XCTest</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kr">final</span> <span class="kd">class</span> <span class="nc">SomethingUITest</span><span class="p">:</span> <span class="n">XCTestCase</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="kr">lazy</span> <span class="kd">var</span> <span class="nv">app</span> <span class="p">=</span> <span class="n">XCUIApplication</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kr">override</span> <span class="kd">func</span> <span class="nf">setUp</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kc">super</span><span class="p">.</span><span class="n">setUp</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="p">...</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">testOpenSomething</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">let</span> <span class="nv">something</span> <span class="p">=</span> <span class="n">Something</span><span class="p">(</span><span class="n">stuff</span><span class="p">:</span> <span class="s">&#34;Stuff&#34;</span><span class="p">,</span> <span class="p">...)</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">let</span> <span class="nv">sessionMock</span> <span class="p">=</span> <span class="n">URLSessionMock</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">            <span class="n">responses</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                <span class="p">.</span><span class="n">fetchSomething</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">Response</span><span class="p">(</span><span class="n">File</span><span class="p">(</span><span class="s">&#34;something_response&#34;</span><span class="p">,</span> <span class="p">.</span><span class="n">json</span><span class="p">)),</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">Response</span><span class="p">(</span><span class="n">error</span><span class="p">:</span> <span class="p">.</span><span class="n">invalidResponse</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                <span class="p">]</span>
+</span></span><span class="line"><span class="cl">            <span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">app</span><span class="p">.</span><span class="n">launch</span><span class="p">(.</span><span class="n">openSomething</span><span class="p">(</span><span class="n">something</span><span class="p">),</span> <span class="n">with</span><span class="p">:</span> <span class="n">sessionMock</span><span class="p">,</span> <span class="n">and</span><span class="p">:</span> <span class="p">.</span><span class="n">enableAnimations</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="p">...</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">...</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><p>Was it worth it? Did that help you overcome the problems of UI Testing, finishing with <strong>Disabling Animations</strong>? Are you now feeling more confident about writing UI Tests?</p>
 <p>If so, follow me on <a href="https://twitter.com/jhandguy">Twitter</a>, I’ll be happy to answer any of your questions and you’ll be the first one to know when a new article comes out! 👌</p>
 <p>If you’d like to see a <strong>real-life example of an app doing extensive UI Testing</strong>, don’t hesitate to check out my <a href="https://github.com/jhandguy/SwiftKotlination">Github</a> repo! 📦</p>

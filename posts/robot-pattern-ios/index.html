@@ -6,6 +6,7 @@
     <title>UI Testing in iOS - Robot Pattern</title>
     <link rel="stylesheet" href="/css/bulma.min.css">
     <link rel="stylesheet" href="/css/custom.css">
+    <link rel="stylesheet" href="/css/hugo.css">
 </head>
 
 <body>
@@ -55,23 +56,23 @@
 <h2 id="the-usual-way">The usual way</h2>
 <hr>
 <p>Usually, all UI Testing logic is bundled in one test function. Which inevitably leads to this…</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">uglyUITest</span>() {
-</span></span><span style="display:flex;"><span>    ...
-</span></span><span style="display:flex;"><span>    app.launch()
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">title</span> = app.navigationBars.firstMatch.otherElements.firstMatch
-</span></span><span style="display:flex;"><span>    XCTAssert(title.isHittable)
-</span></span><span style="display:flex;"><span>    XCTAssertEqual(title.label, <span style="color:#fc6a5d">&#34;U.S. - Politics&#34;</span>)
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">stackView</span> = app.otherElements[<span style="color:#fc6a5d">&#34;StoryView.stackView&#34;</span>]
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">multimediaImage</span> = stackView.images[<span style="color:#fc6a5d">&#34;StoryView.multimediaImageView&#34;</span>]
-</span></span><span style="display:flex;"><span>    XCTAssert(multimediaImage.isHittable)
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">titleLabel</span> = stackView.staticTexts[<span style="color:#fc6a5d">&#34;StoryView.titleLabel&#34;</span>]
-</span></span><span style="display:flex;"><span>    XCTAssertEqual(titleLabel.label, <span style="color:#fc6a5d">&#34;A Trump Endorsement Can Decide a Race. Here’s How to Get One.&#34;</span>)
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">abstractLabel</span> = stackView.staticTexts[<span style="color:#fc6a5d">&#34;StoryView.abstractLabel&#34;</span>]
-</span></span><span style="display:flex;"><span>    XCTAssertEqual(abstractLabel.label, <span style="color:#fc6a5d">&#34;The president’s grip on G.O.P. primary voters is as strong as it has been since he seized the party’s nomination.&#34;</span>)
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">bylineLabel</span> = stackView.staticTexts[<span style="color:#fc6a5d">&#34;StoryView.bylineLabel&#34;</span>]
-</span></span><span style="display:flex;"><span>    XCTAssertEqual(bylineLabel.label, <span style="color:#fc6a5d">&#34;By JONATHAN MARTIN and MAGGIE HABERMAN&#34;</span>)
-</span></span><span style="display:flex;"><span>    snapshot(<span style="color:#fc6a5d">&#34;Story&#34;</span>)
-</span></span><span style="display:flex;"><span>}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">uglyUITest</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="p">...</span>
+</span></span><span class="line"><span class="cl">    <span class="n">app</span><span class="p">.</span><span class="n">launch</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">let</span> <span class="nv">title</span> <span class="p">=</span> <span class="n">app</span><span class="p">.</span><span class="n">navigationBars</span><span class="p">.</span><span class="n">firstMatch</span><span class="p">.</span><span class="n">otherElements</span><span class="p">.</span><span class="n">firstMatch</span>
+</span></span><span class="line"><span class="cl">    <span class="n">XCTAssert</span><span class="p">(</span><span class="n">title</span><span class="p">.</span><span class="n">isHittable</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">XCTAssertEqual</span><span class="p">(</span><span class="n">title</span><span class="p">.</span><span class="n">label</span><span class="p">,</span> <span class="s">&#34;U.S. - Politics&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">let</span> <span class="nv">stackView</span> <span class="p">=</span> <span class="n">app</span><span class="p">.</span><span class="n">otherElements</span><span class="p">[</span><span class="s">&#34;StoryView.stackView&#34;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">let</span> <span class="nv">multimediaImage</span> <span class="p">=</span> <span class="n">stackView</span><span class="p">.</span><span class="n">images</span><span class="p">[</span><span class="s">&#34;StoryView.multimediaImageView&#34;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="n">XCTAssert</span><span class="p">(</span><span class="n">multimediaImage</span><span class="p">.</span><span class="n">isHittable</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">let</span> <span class="nv">titleLabel</span> <span class="p">=</span> <span class="n">stackView</span><span class="p">.</span><span class="n">staticTexts</span><span class="p">[</span><span class="s">&#34;StoryView.titleLabel&#34;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="n">XCTAssertEqual</span><span class="p">(</span><span class="n">titleLabel</span><span class="p">.</span><span class="n">label</span><span class="p">,</span> <span class="s">&#34;A Trump Endorsement Can Decide a Race. Here’s How to Get One.&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">let</span> <span class="nv">abstractLabel</span> <span class="p">=</span> <span class="n">stackView</span><span class="p">.</span><span class="n">staticTexts</span><span class="p">[</span><span class="s">&#34;StoryView.abstractLabel&#34;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="n">XCTAssertEqual</span><span class="p">(</span><span class="n">abstractLabel</span><span class="p">.</span><span class="n">label</span><span class="p">,</span> <span class="s">&#34;The president’s grip on G.O.P. primary voters is as strong as it has been since he seized the party’s nomination.&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">let</span> <span class="nv">bylineLabel</span> <span class="p">=</span> <span class="n">stackView</span><span class="p">.</span><span class="n">staticTexts</span><span class="p">[</span><span class="s">&#34;StoryView.bylineLabel&#34;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="n">XCTAssertEqual</span><span class="p">(</span><span class="n">bylineLabel</span><span class="p">.</span><span class="n">label</span><span class="p">,</span> <span class="s">&#34;By JONATHAN MARTIN and MAGGIE HABERMAN&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">snapshot</span><span class="p">(</span><span class="s">&#34;Story&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><p>I am sure you didn’t even finish reading that you already jumped to this line.<br>
 And to be fair, I’m not angry at you; this UI Test was fairly <strong>unreadable</strong>! 😵</p>
 <p>And the main reason for that is:</p>
@@ -85,179 +86,179 @@ And to be fair, I’m not angry at you; this UI Test was fairly <strong>unreadab
 The idea Jake had for the Android community is to separate in a UI Test the <em>What</em> from the <em>How</em>.<br>
 And to achieve this, he introduced a new layer called: <strong>Robot</strong>.</p>
 <p>Transcribed to iOS (Swift), our UI Test now looks like this…</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">prettyUITest</span>() {
-</span></span><span style="display:flex;"><span>    ...
-</span></span><span style="display:flex;"><span>    StoryRobot(app)
-</span></span><span style="display:flex;"><span>        .start()
-</span></span><span style="display:flex;"><span>        .checkTitle(<span style="color:#a167e6">contains</span>: <span style="color:#fc6a5d">&#34;U.S. - Politics&#34;</span>)
-</span></span><span style="display:flex;"><span>        .checkStoryImage()
-</span></span><span style="display:flex;"><span>        .checkStoryTitle(<span style="color:#a167e6">contains</span>: <span style="color:#fc6a5d">&#34;A Trump Endorsement Can Decide a Race. Here’s How to Get One.&#34;</span>)
-</span></span><span style="display:flex;"><span>        .checkStoryAbstract(<span style="color:#a167e6">contains</span>: <span style="color:#fc6a5d">&#34;The president’s grip on G.O.P. primary voters is as strong as it has been since he seized the party’s nomination.&#34;</span>)
-</span></span><span style="display:flex;"><span>        .checkStoryByline(<span style="color:#a167e6">contains</span>: <span style="color:#fc6a5d">&#34;By JONATHAN MARTIN and MAGGIE HABERMAN&#34;</span>)
-</span></span><span style="display:flex;"><span>        .takeScreenshot(named: <span style="color:#fc6a5d">&#34;Story&#34;</span>)
-</span></span><span style="display:flex;"><span>}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">prettyUITest</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="p">...</span>
+</span></span><span class="line"><span class="cl">    <span class="n">StoryRobot</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="p">.</span><span class="n">start</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="p">.</span><span class="n">checkTitle</span><span class="p">(</span><span class="bp">contains</span><span class="p">:</span> <span class="s">&#34;U.S. - Politics&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="p">.</span><span class="n">checkStoryImage</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="p">.</span><span class="n">checkStoryTitle</span><span class="p">(</span><span class="bp">contains</span><span class="p">:</span> <span class="s">&#34;A Trump Endorsement Can Decide a Race. Here’s How to Get One.&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="p">.</span><span class="n">checkStoryAbstract</span><span class="p">(</span><span class="bp">contains</span><span class="p">:</span> <span class="s">&#34;The president’s grip on G.O.P. primary voters is as strong as it has been since he seized the party’s nomination.&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="p">.</span><span class="n">checkStoryByline</span><span class="p">(</span><span class="bp">contains</span><span class="p">:</span> <span class="s">&#34;By JONATHAN MARTIN and MAGGIE HABERMAN&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="p">.</span><span class="n">takeScreenshot</span><span class="p">(</span><span class="n">named</span><span class="p">:</span> <span class="s">&#34;Story&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><p>How about that, didn’t it feel right to read the whole function this time? 😍<br>
 Exactly, in the UI Test itself, we are now left only with the <em>What</em> and the <em>How</em> is delegated to the <strong>Robot</strong>. Meaning: anybody can read and understand it! 👍</p>
 <h2 id="the-robot-in-action">The Robot in action!</h2>
 <hr>
 <p>First and foremost, we are going to implement a base <em>Robot</em>.<br>
 This class will take care of setting up Fastlane’s Snapshot, launching the app and providing a nice panel of util functions, such as tapping on elements, making assertions and taking screenshots… 👌</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">class</span> <span style="color:#5dd8ff">Robot</span> {
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">private</span> <span style="color:#fc5fa3">static</span> <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">defaultTimeout</span>: <span style="color:#d0a8ff">Double</span> = <span style="color:#d0bf69">30</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">app</span>: XCUIApplication
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">lazy</span> <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">navigationBar</span>       = app.navigationBars.firstMatch
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">lazy</span> <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">navigationBarButton</span> = navigationBar.buttons.firstMatch
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">lazy</span> <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">navigationBarTitle</span>  = navigationBar.otherElements.firstMatch
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">init</span>(<span style="color:#fc5fa3">_</span> app: XCUIApplication) {
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">self</span>.app = app
-</span></span><span style="display:flex;"><span>        setupSnapshot(app)
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    @discardableResult
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">start</span>(timeout: TimeInterval = Robot.defaultTimeout) -&gt; <span style="color:#fc5fa3">Self</span> {
-</span></span><span style="display:flex;"><span>        app.launch()
-</span></span><span style="display:flex;"><span>        <span style="color:#a167e6">assert</span>(app, [.exists], timeout: timeout)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">return</span> <span style="color:#fc5fa3">self</span>
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    @discardableResult
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">tap</span>(<span style="color:#fc5fa3">_</span> element: XCUIElement, timeout: TimeInterval = Robot.defaultTimeout) -&gt; <span style="color:#fc5fa3">Self</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#a167e6">assert</span>(element, [.isHittable], timeout: timeout)
-</span></span><span style="display:flex;"><span>        element.tap()
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">return</span> <span style="color:#fc5fa3">self</span>
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    @discardableResult
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">assert</span>(<span style="color:#fc5fa3">_</span> element: XCUIElement, <span style="color:#fc5fa3">_</span> predicates: [Predicate], timeout: TimeInterval = Robot.defaultTimeout) -&gt; <span style="color:#fc5fa3">Self</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">expectation</span> = XCTNSPredicateExpectation(predicate: NSPredicate(format: predicates.<span style="color:#a167e6">map</span> { <span style="color:#41a1c0">$0</span>.format }.joined(separator: <span style="color:#fc6a5d">&#34; AND &#34;</span>)), object: element)
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">guard</span> XCTWaiter.wait(<span style="color:#fc5fa3">for</span>: [expectation], timeout: timeout) == .completed <span style="color:#fc5fa3">else</span> {
-</span></span><span style="display:flex;"><span>            XCTFail(<span style="color:#fc6a5d">&#34;[</span><span style="color:#fc6a5d">\(</span><span style="color:#fc5fa3">self</span><span style="color:#fc6a5d">)</span><span style="color:#fc6a5d">] Element </span><span style="color:#fc6a5d">\(</span>element.description<span style="color:#fc6a5d">)</span><span style="color:#fc6a5d"> did not fulfill expectation: </span><span style="color:#fc6a5d">\(</span>predicates.<span style="color:#a167e6">map</span> { <span style="color:#41a1c0">$0</span>.format }<span style="color:#fc6a5d">)</span><span style="color:#fc6a5d">&#34;</span>)
-</span></span><span style="display:flex;"><span>            <span style="color:#fc5fa3">return</span> <span style="color:#fc5fa3">self</span>
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">return</span> <span style="color:#fc5fa3">self</span>
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    @discardableResult
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">checkTitle</span>(<span style="color:#a167e6">contains</span> title: <span style="color:#d0a8ff">String</span>, timeout: TimeInterval = Robot.defaultTimeout) -&gt; <span style="color:#fc5fa3">Self</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#a167e6">assert</span>(navigationBar, [.isHittable], timeout: timeout)
-</span></span><span style="display:flex;"><span>        <span style="color:#a167e6">assert</span>(navigationBarTitle, [.<span style="color:#a167e6">contains</span>(title)], timeout: timeout)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">return</span> <span style="color:#fc5fa3">self</span>
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    @discardableResult
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">takeScreenshot</span>(named name: <span style="color:#d0a8ff">String</span>, timeout: TimeInterval = Robot.defaultTimeout) -&gt; <span style="color:#fc5fa3">Self</span> {
-</span></span><span style="display:flex;"><span>        snapshot(name, timeWaitingForIdle: timeout)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">return</span> <span style="color:#fc5fa3">self</span>
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    @discardableResult
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">back</span>(timeout: TimeInterval = Robot.defaultTimeout) -&gt; <span style="color:#fc5fa3">Self</span> {
-</span></span><span style="display:flex;"><span>        tap(navigationBarButton, timeout: timeout)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">return</span> <span style="color:#fc5fa3">self</span>
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">class</span> <span class="nc">Robot</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">let</span> <span class="nv">defaultTimeout</span><span class="p">:</span> <span class="nb">Double</span> <span class="p">=</span> <span class="mi">30</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">var</span> <span class="nv">app</span><span class="p">:</span> <span class="n">XCUIApplication</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kr">lazy</span> <span class="kd">var</span> <span class="nv">navigationBar</span>       <span class="p">=</span> <span class="n">app</span><span class="p">.</span><span class="n">navigationBars</span><span class="p">.</span><span class="n">firstMatch</span>
+</span></span><span class="line"><span class="cl">    <span class="kr">lazy</span> <span class="kd">var</span> <span class="nv">navigationBarButton</span> <span class="p">=</span> <span class="n">navigationBar</span><span class="p">.</span><span class="n">buttons</span><span class="p">.</span><span class="n">firstMatch</span>
+</span></span><span class="line"><span class="cl">    <span class="kr">lazy</span> <span class="kd">var</span> <span class="nv">navigationBarTitle</span>  <span class="p">=</span> <span class="n">navigationBar</span><span class="p">.</span><span class="n">otherElements</span><span class="p">.</span><span class="n">firstMatch</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">init</span><span class="p">(</span><span class="kc">_</span> <span class="n">app</span><span class="p">:</span> <span class="n">XCUIApplication</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kc">self</span><span class="p">.</span><span class="n">app</span> <span class="p">=</span> <span class="n">app</span>
+</span></span><span class="line"><span class="cl">        <span class="n">setupSnapshot</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">@</span><span class="n">discardableResult</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">start</span><span class="p">(</span><span class="n">timeout</span><span class="p">:</span> <span class="n">TimeInterval</span> <span class="p">=</span> <span class="n">Robot</span><span class="p">.</span><span class="n">defaultTimeout</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="kc">Self</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">app</span><span class="p">.</span><span class="n">launch</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">assert</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="p">[.</span><span class="n">exists</span><span class="p">],</span> <span class="n">timeout</span><span class="p">:</span> <span class="n">timeout</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="kc">self</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">@</span><span class="n">discardableResult</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">tap</span><span class="p">(</span><span class="kc">_</span> <span class="n">element</span><span class="p">:</span> <span class="n">XCUIElement</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="n">TimeInterval</span> <span class="p">=</span> <span class="n">Robot</span><span class="p">.</span><span class="n">defaultTimeout</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="kc">Self</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">assert</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="p">[.</span><span class="n">isHittable</span><span class="p">],</span> <span class="n">timeout</span><span class="p">:</span> <span class="n">timeout</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">element</span><span class="p">.</span><span class="n">tap</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="kc">self</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">@</span><span class="n">discardableResult</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">assert</span><span class="p">(</span><span class="kc">_</span> <span class="n">element</span><span class="p">:</span> <span class="n">XCUIElement</span><span class="p">,</span> <span class="kc">_</span> <span class="n">predicates</span><span class="p">:</span> <span class="p">[</span><span class="n">Predicate</span><span class="p">],</span> <span class="n">timeout</span><span class="p">:</span> <span class="n">TimeInterval</span> <span class="p">=</span> <span class="n">Robot</span><span class="p">.</span><span class="n">defaultTimeout</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="kc">Self</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">let</span> <span class="nv">expectation</span> <span class="p">=</span> <span class="n">XCTNSPredicateExpectation</span><span class="p">(</span><span class="n">predicate</span><span class="p">:</span> <span class="n">NSPredicate</span><span class="p">(</span><span class="n">format</span><span class="p">:</span> <span class="n">predicates</span><span class="p">.</span><span class="bp">map</span> <span class="p">{</span> <span class="nv">$0</span><span class="p">.</span><span class="n">format</span> <span class="p">}.</span><span class="n">joined</span><span class="p">(</span><span class="n">separator</span><span class="p">:</span> <span class="s">&#34; AND &#34;</span><span class="p">)),</span> <span class="n">object</span><span class="p">:</span> <span class="n">element</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">guard</span> <span class="n">XCTWaiter</span><span class="p">.</span><span class="n">wait</span><span class="p">(</span><span class="k">for</span><span class="p">:</span> <span class="p">[</span><span class="n">expectation</span><span class="p">],</span> <span class="n">timeout</span><span class="p">:</span> <span class="n">timeout</span><span class="p">)</span> <span class="p">==</span> <span class="p">.</span><span class="n">completed</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">XCTFail</span><span class="p">(</span><span class="s">&#34;[</span><span class="si">\(</span><span class="kc">self</span><span class="si">)</span><span class="s">] Element </span><span class="si">\(</span><span class="n">element</span><span class="p">.</span><span class="n">description</span><span class="si">)</span><span class="s"> did not fulfill expectation: </span><span class="si">\(</span><span class="n">predicates</span><span class="p">.</span><span class="bp">map</span> <span class="p">{</span> <span class="nv">$0</span><span class="p">.</span><span class="n">format</span> <span class="p">}</span><span class="si">)</span><span class="s">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="kc">self</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="kc">self</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">@</span><span class="n">discardableResult</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">checkTitle</span><span class="p">(</span><span class="bp">contains</span> <span class="n">title</span><span class="p">:</span> <span class="nb">String</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="n">TimeInterval</span> <span class="p">=</span> <span class="n">Robot</span><span class="p">.</span><span class="n">defaultTimeout</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="kc">Self</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">assert</span><span class="p">(</span><span class="n">navigationBar</span><span class="p">,</span> <span class="p">[.</span><span class="n">isHittable</span><span class="p">],</span> <span class="n">timeout</span><span class="p">:</span> <span class="n">timeout</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">assert</span><span class="p">(</span><span class="n">navigationBarTitle</span><span class="p">,</span> <span class="p">[.</span><span class="bp">contains</span><span class="p">(</span><span class="n">title</span><span class="p">)],</span> <span class="n">timeout</span><span class="p">:</span> <span class="n">timeout</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="kc">self</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">@</span><span class="n">discardableResult</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">takeScreenshot</span><span class="p">(</span><span class="n">named</span> <span class="n">name</span><span class="p">:</span> <span class="nb">String</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="n">TimeInterval</span> <span class="p">=</span> <span class="n">Robot</span><span class="p">.</span><span class="n">defaultTimeout</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="kc">Self</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">snapshot</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">timeWaitingForIdle</span><span class="p">:</span> <span class="n">timeout</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="kc">self</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="p">@</span><span class="n">discardableResult</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">back</span><span class="p">(</span><span class="n">timeout</span><span class="p">:</span> <span class="n">TimeInterval</span> <span class="p">=</span> <span class="n">Robot</span><span class="p">.</span><span class="n">defaultTimeout</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="kc">Self</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">tap</span><span class="p">(</span><span class="n">navigationBarButton</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="n">timeout</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="kc">self</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><p>Simple, right?<br>
 Oh, by the way, here is the Predicate enum I am using for making assertions, you’ll find it quite handy! 😎</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">enum</span> <span style="color:#5dd8ff">Predicate</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">case</span> <span style="color:#a167e6">contains</span>(<span style="color:#d0a8ff">String</span>), doesNotContain(<span style="color:#d0a8ff">String</span>)
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">case</span> exists, doesNotExist
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">case</span> isHittable, isNotHittable
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">format</span>: <span style="color:#d0a8ff">String</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">switch</span> <span style="color:#fc5fa3">self</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">case</span> .<span style="color:#a167e6">contains</span>(<span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">label</span>):
-</span></span><span style="display:flex;"><span>            <span style="color:#fc5fa3">return</span> <span style="color:#fc6a5d">&#34;label == &#39;</span><span style="color:#fc6a5d">\(</span>label<span style="color:#fc6a5d">)</span><span style="color:#fc6a5d">&#39;&#34;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">case</span> .doesNotContain(<span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">label</span>):
-</span></span><span style="display:flex;"><span>            <span style="color:#fc5fa3">return</span> <span style="color:#fc6a5d">&#34;label != &#39;</span><span style="color:#fc6a5d">\(</span>label<span style="color:#fc6a5d">)</span><span style="color:#fc6a5d">&#39;&#34;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">case</span> .exists:
-</span></span><span style="display:flex;"><span>            <span style="color:#fc5fa3">return</span> <span style="color:#fc6a5d">&#34;exists == true&#34;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">case</span> .doesNotExist:
-</span></span><span style="display:flex;"><span>            <span style="color:#fc5fa3">return</span> <span style="color:#fc6a5d">&#34;exists == false&#34;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">case</span> .isHittable:
-</span></span><span style="display:flex;"><span>            <span style="color:#fc5fa3">return</span> <span style="color:#fc6a5d">&#34;isHittable == true&#34;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">case</span> .isNotHittable:
-</span></span><span style="display:flex;"><span>            <span style="color:#fc5fa3">return</span> <span style="color:#fc6a5d">&#34;isHittable == false&#34;</span>
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">enum</span> <span class="nc">Predicate</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">case</span> <span class="bp">contains</span><span class="p">(</span><span class="nb">String</span><span class="p">),</span> <span class="n">doesNotContain</span><span class="p">(</span><span class="nb">String</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">case</span> <span class="n">exists</span><span class="p">,</span> <span class="n">doesNotExist</span>
+</span></span><span class="line"><span class="cl">    <span class="k">case</span> <span class="n">isHittable</span><span class="p">,</span> <span class="n">isNotHittable</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">var</span> <span class="nv">format</span><span class="p">:</span> <span class="nb">String</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">switch</span> <span class="kc">self</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">case</span> <span class="p">.</span><span class="bp">contains</span><span class="p">(</span><span class="kd">let</span> <span class="nv">label</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="s">&#34;label == &#39;</span><span class="si">\(</span><span class="n">label</span><span class="si">)</span><span class="s">&#39;&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">case</span> <span class="p">.</span><span class="n">doesNotContain</span><span class="p">(</span><span class="kd">let</span> <span class="nv">label</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="s">&#34;label != &#39;</span><span class="si">\(</span><span class="n">label</span><span class="si">)</span><span class="s">&#39;&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">case</span> <span class="p">.</span><span class="n">exists</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="s">&#34;exists == true&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">case</span> <span class="p">.</span><span class="n">doesNotExist</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="s">&#34;exists == false&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">case</span> <span class="p">.</span><span class="n">isHittable</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="s">&#34;isHittable == true&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">case</span> <span class="p">.</span><span class="n">isNotHittable</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="s">&#34;isHittable == false&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><p>Alright! Now our Base <strong>Robot</strong> class is ready, let’s inherit from it in the <em>StoryRobot</em> and see how it plays out! 🤖</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">final</span> <span style="color:#fc5fa3">class</span> <span style="color:#5dd8ff">StoryRobot</span>: Robot {
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">private</span> <span style="color:#fc5fa3">lazy</span> <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">stackView</span>       = app.otherElements[<span style="color:#fc6a5d">&#34;StoryView.stackView&#34;</span>]
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">private</span> <span style="color:#fc5fa3">lazy</span> <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">multimediaImage</span> = stackView.images[<span style="color:#fc6a5d">&#34;StoryView.multimediaImageView&#34;</span>]
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">private</span> <span style="color:#fc5fa3">lazy</span> <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">titleLabel</span>      = stackView.staticTexts[<span style="color:#fc6a5d">&#34;StoryView.titleLabel&#34;</span>]
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">private</span> <span style="color:#fc5fa3">lazy</span> <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">abstractLabel</span>   = stackView.staticTexts[<span style="color:#fc6a5d">&#34;StoryView.abstractLabel&#34;</span>]
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">private</span> <span style="color:#fc5fa3">lazy</span> <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">bylineLabel</span>     = stackView.staticTexts[<span style="color:#fc6a5d">&#34;StoryView.bylineLabel&#34;</span>]
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    @discardableResult
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">checkStoryImage</span>() -&gt; <span style="color:#fc5fa3">Self</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#a167e6">assert</span>(multimediaImage, [.exists])
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">return</span> <span style="color:#fc5fa3">self</span>
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    @discardableResult
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">checkStoryTitle</span>(<span style="color:#a167e6">contains</span> storyTitle: <span style="color:#d0a8ff">String</span>) -&gt; <span style="color:#fc5fa3">Self</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#a167e6">assert</span>(titleLabel, [.isHittable, .<span style="color:#a167e6">contains</span>(storyTitle)])
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">return</span> <span style="color:#fc5fa3">self</span>
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    @discardableResult
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">checkStoryAbstract</span>(<span style="color:#a167e6">contains</span> storyAbstract: <span style="color:#d0a8ff">String</span>) -&gt; <span style="color:#fc5fa3">Self</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#a167e6">assert</span>(abstractLabel, [.isHittable, .<span style="color:#a167e6">contains</span>(storyAbstract)])
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">return</span> <span style="color:#fc5fa3">self</span>
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    @discardableResult
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">checkStoryByline</span>(<span style="color:#a167e6">contains</span> storyByline: <span style="color:#d0a8ff">String</span>) -&gt; <span style="color:#fc5fa3">Self</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#a167e6">assert</span>(bylineLabel, [.isHittable, .<span style="color:#a167e6">contains</span>(storyByline)])
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">return</span> <span style="color:#fc5fa3">self</span>
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kr">final</span> <span class="kd">class</span> <span class="nc">StoryRobot</span><span class="p">:</span> <span class="n">Robot</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="kr">lazy</span> <span class="kd">var</span> <span class="nv">stackView</span>       <span class="p">=</span> <span class="n">app</span><span class="p">.</span><span class="n">otherElements</span><span class="p">[</span><span class="s">&#34;StoryView.stackView&#34;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="kr">lazy</span> <span class="kd">var</span> <span class="nv">multimediaImage</span> <span class="p">=</span> <span class="n">stackView</span><span class="p">.</span><span class="n">images</span><span class="p">[</span><span class="s">&#34;StoryView.multimediaImageView&#34;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="kr">lazy</span> <span class="kd">var</span> <span class="nv">titleLabel</span>      <span class="p">=</span> <span class="n">stackView</span><span class="p">.</span><span class="n">staticTexts</span><span class="p">[</span><span class="s">&#34;StoryView.titleLabel&#34;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="kr">lazy</span> <span class="kd">var</span> <span class="nv">abstractLabel</span>   <span class="p">=</span> <span class="n">stackView</span><span class="p">.</span><span class="n">staticTexts</span><span class="p">[</span><span class="s">&#34;StoryView.abstractLabel&#34;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="kr">lazy</span> <span class="kd">var</span> <span class="nv">bylineLabel</span>     <span class="p">=</span> <span class="n">stackView</span><span class="p">.</span><span class="n">staticTexts</span><span class="p">[</span><span class="s">&#34;StoryView.bylineLabel&#34;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">@</span><span class="n">discardableResult</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">checkStoryImage</span><span class="p">()</span> <span class="p">-&gt;</span> <span class="kc">Self</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">assert</span><span class="p">(</span><span class="n">multimediaImage</span><span class="p">,</span> <span class="p">[.</span><span class="n">exists</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="kc">self</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">@</span><span class="n">discardableResult</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">checkStoryTitle</span><span class="p">(</span><span class="bp">contains</span> <span class="n">storyTitle</span><span class="p">:</span> <span class="nb">String</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="kc">Self</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">assert</span><span class="p">(</span><span class="n">titleLabel</span><span class="p">,</span> <span class="p">[.</span><span class="n">isHittable</span><span class="p">,</span> <span class="p">.</span><span class="bp">contains</span><span class="p">(</span><span class="n">storyTitle</span><span class="p">)])</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="kc">self</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">@</span><span class="n">discardableResult</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">checkStoryAbstract</span><span class="p">(</span><span class="bp">contains</span> <span class="n">storyAbstract</span><span class="p">:</span> <span class="nb">String</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="kc">Self</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">assert</span><span class="p">(</span><span class="n">abstractLabel</span><span class="p">,</span> <span class="p">[.</span><span class="n">isHittable</span><span class="p">,</span> <span class="p">.</span><span class="bp">contains</span><span class="p">(</span><span class="n">storyAbstract</span><span class="p">)])</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="kc">self</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">@</span><span class="n">discardableResult</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">checkStoryByline</span><span class="p">(</span><span class="bp">contains</span> <span class="n">storyByline</span><span class="p">:</span> <span class="nb">String</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="kc">Self</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">assert</span><span class="p">(</span><span class="n">bylineLabel</span><span class="p">,</span> <span class="p">[.</span><span class="n">isHittable</span><span class="p">,</span> <span class="p">.</span><span class="bp">contains</span><span class="p">(</span><span class="n">storyByline</span><span class="p">)])</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="kc">self</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><p>That’s it! We’ve just implemented the <em>How</em> of our UI Test! 🎊<br>
 What’s also really nice about <strong>Robots</strong>, is that they can cross call themselves without breaking the continuity of our UI Tests! 🤯</p>
 <p>For instance, let’s say we want to open Safari in the <em>StoryUITest</em>.<br>
 All we need to do is create a <em>SafariRobot</em> which will take care of UI Testing the browser and create a function inside the <em>StoryRobot</em> that will open Safari as well as return the <em>SafariRobot</em>! 😮</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">lazy</span> <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">urlButton</span> = stackView.buttons[<span style="color:#fc6a5d">&#34;StoryView.urlButton&#34;</span>]
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>@discardableResult
-</span></span><span style="display:flex;"><span><span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">openSafari</span>() -&gt; SafariRobot {
-</span></span><span style="display:flex;"><span>    tap(urlButton)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">return</span> SafariRobot(app)
-</span></span><span style="display:flex;"><span>}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kr">lazy</span> <span class="kd">var</span> <span class="nv">urlButton</span> <span class="p">=</span> <span class="n">stackView</span><span class="p">.</span><span class="n">buttons</span><span class="p">[</span><span class="s">&#34;StoryView.urlButton&#34;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="p">@</span><span class="n">discardableResult</span>
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">openSafari</span><span class="p">()</span> <span class="p">-&gt;</span> <span class="n">SafariRobot</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">tap</span><span class="p">(</span><span class="n">urlButton</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">SafariRobot</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><p>And as you can see now, the continuity of our UI Test isn’t disturbed…</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">final</span> <span style="color:#fc5fa3">class</span> <span style="color:#5dd8ff">StoryUITest</span>: XCTestCase {
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">private</span> <span style="color:#fc5fa3">lazy</span> <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">app</span> = XCUIApplication()
-</span></span><span style="display:flex;"><span>  
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">testStory</span>() {
-</span></span><span style="display:flex;"><span>        StoryRobot(app)
-</span></span><span style="display:flex;"><span>            .start()
-</span></span><span style="display:flex;"><span>            .checkTitle(<span style="color:#a167e6">contains</span>: <span style="color:#fc6a5d">&#34;U.S. - Politics&#34;</span>)
-</span></span><span style="display:flex;"><span>            .checkStoryImage()
-</span></span><span style="display:flex;"><span>            .checkStoryTitle(<span style="color:#a167e6">contains</span>: <span style="color:#fc6a5d">&#34;A Trump Endorsement Can Decide a Race. Here’s How to Get One.&#34;</span>)
-</span></span><span style="display:flex;"><span>            .checkStoryAbstract(<span style="color:#a167e6">contains</span>: <span style="color:#fc6a5d">&#34;The president’s grip on G.O.P. primary voters is as strong as it has been since he seized the party’s nomination.&#34;</span>)
-</span></span><span style="display:flex;"><span>            .checkStoryByline(<span style="color:#a167e6">contains</span>: <span style="color:#fc6a5d">&#34;By JONATHAN MARTIN and MAGGIE HABERMAN&#34;</span>)
-</span></span><span style="display:flex;"><span>            .takeScreenshot(named: <span style="color:#fc6a5d">&#34;Story&#34;</span>)
-</span></span><span style="display:flex;"><span>            .openSafari()
-</span></span><span style="display:flex;"><span>            .checkURL(<span style="color:#a167e6">contains</span>: <span style="color:#fc6a5d">&#34;https://www.nytimes.com/2018/08/27/us/politics/trump-endorsements.html&#34;</span>)
-</span></span><span style="display:flex;"><span>            .closeSafari()
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kr">final</span> <span class="kd">class</span> <span class="nc">StoryUITest</span><span class="p">:</span> <span class="n">XCTestCase</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="kr">lazy</span> <span class="kd">var</span> <span class="nv">app</span> <span class="p">=</span> <span class="n">XCUIApplication</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">  
+</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">testStory</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">StoryRobot</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="p">.</span><span class="n">start</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">            <span class="p">.</span><span class="n">checkTitle</span><span class="p">(</span><span class="bp">contains</span><span class="p">:</span> <span class="s">&#34;U.S. - Politics&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="p">.</span><span class="n">checkStoryImage</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">            <span class="p">.</span><span class="n">checkStoryTitle</span><span class="p">(</span><span class="bp">contains</span><span class="p">:</span> <span class="s">&#34;A Trump Endorsement Can Decide a Race. Here’s How to Get One.&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="p">.</span><span class="n">checkStoryAbstract</span><span class="p">(</span><span class="bp">contains</span><span class="p">:</span> <span class="s">&#34;The president’s grip on G.O.P. primary voters is as strong as it has been since he seized the party’s nomination.&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="p">.</span><span class="n">checkStoryByline</span><span class="p">(</span><span class="bp">contains</span><span class="p">:</span> <span class="s">&#34;By JONATHAN MARTIN and MAGGIE HABERMAN&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="p">.</span><span class="n">takeScreenshot</span><span class="p">(</span><span class="n">named</span><span class="p">:</span> <span class="s">&#34;Story&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="p">.</span><span class="n">openSafari</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">            <span class="p">.</span><span class="n">checkURL</span><span class="p">(</span><span class="bp">contains</span><span class="p">:</span> <span class="s">&#34;https://www.nytimes.com/2018/08/27/us/politics/trump-endorsements.html&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="p">.</span><span class="n">closeSafari</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><p>Boom! 💥<br>
 We just implemented the Robot Pattern! 🎉<br>
 UI Testing is now easy, elegant and readable! 💪</p>

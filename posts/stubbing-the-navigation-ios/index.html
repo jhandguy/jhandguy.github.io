@@ -6,6 +6,7 @@
     <title>Painless UI Testing in iOS (Part 2) - Stubbing the Navigation</title>
     <link rel="stylesheet" href="/css/bulma.min.css">
     <link rel="stylesheet" href="/css/custom.css">
+    <link rel="stylesheet" href="/css/hugo.css">
 </head>
 
 <body>
@@ -66,61 +67,61 @@ Let me introduce you…<br>
 <p>Alright, let’s get right to the point with a concrete example. 👌<br>
 We have an app, which <strong>displays a list of items</strong> and tapping on one would <strong>open</strong> a new screen giving more <strong>details about this item</strong>. Simple. 👍<br>
 So, let’s write our <em>Coordinator</em> then! ✍️</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">import</span> <span style="color:#5dd8ff">UIKit</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#fc5fa3">protocol</span> <span style="color:#5dd8ff">CoordinatorProtocol</span>: <span style="color:#fc5fa3">class</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">start</span>()
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">open</span>(<span style="color:#fc5fa3">_</span> something: Something)
-</span></span><span style="display:flex;"><span>    ...
-</span></span><span style="display:flex;"><span>}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#fc5fa3">final</span> <span style="color:#fc5fa3">class</span> <span style="color:#5dd8ff">Coordinator</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">private</span> <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">window</span>: UIWindow
-</span></span><span style="display:flex;"><span>    ...
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">navigationController</span> = UINavigationController()
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">init</span>(window: UIWindow, ...) {
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">self</span>.window = window
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">self</span>.window.rootViewController = navigationController
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">self</span>.window.makeKeyAndVisible()
-</span></span><span style="display:flex;"><span>        ...
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>    ...
-</span></span><span style="display:flex;"><span>}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#fc5fa3">extension</span> <span style="color:#5dd8ff">Coordinator</span>: CoordinatorProtocol {
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">start</span>() {
-</span></span><span style="display:flex;"><span>        ...
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">open</span>(<span style="color:#fc5fa3">_</span> something: Something) {
-</span></span><span style="display:flex;"><span>        ...
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>    ...
-</span></span><span style="display:flex;"><span>}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">import</span> <span class="nc">UIKit</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">protocol</span> <span class="nc">CoordinatorProtocol</span><span class="p">:</span> <span class="kd">class</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">start</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">open</span><span class="p">(</span><span class="kc">_</span> <span class="n">something</span><span class="p">:</span> <span class="n">Something</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">...</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kr">final</span> <span class="kd">class</span> <span class="nc">Coordinator</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="kd">let</span> <span class="nv">window</span><span class="p">:</span> <span class="n">UIWindow</span>
+</span></span><span class="line"><span class="cl">    <span class="p">...</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">let</span> <span class="nv">navigationController</span> <span class="p">=</span> <span class="n">UINavigationController</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">init</span><span class="p">(</span><span class="n">window</span><span class="p">:</span> <span class="n">UIWindow</span><span class="p">,</span> <span class="p">...)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kc">self</span><span class="p">.</span><span class="n">window</span> <span class="p">=</span> <span class="n">window</span>
+</span></span><span class="line"><span class="cl">        <span class="kc">self</span><span class="p">.</span><span class="n">window</span><span class="p">.</span><span class="n">rootViewController</span> <span class="p">=</span> <span class="n">navigationController</span>
+</span></span><span class="line"><span class="cl">        <span class="kc">self</span><span class="p">.</span><span class="n">window</span><span class="p">.</span><span class="n">makeKeyAndVisible</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="p">...</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">...</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">extension</span> <span class="nc">Coordinator</span><span class="p">:</span> <span class="n">CoordinatorProtocol</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">start</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="p">...</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">open</span><span class="p">(</span><span class="kc">_</span> <span class="n">something</span><span class="p">:</span> <span class="n">Something</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="p">...</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">...</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><p>No surprise, just a standard Coordinator like you know it already! 😃<br>
 Now, looking at our <em>AppDelegate</em>, instantiating and starting our <em>Coordinator</em> is also quite straightforward. 👌</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">import</span> <span style="color:#5dd8ff">UIKit</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#fc5fa3">@UIApplicationMain</span>
-</span></span><span style="display:flex;"><span><span style="color:#fc5fa3">class</span> <span style="color:#5dd8ff">AppDelegate</span>: UIResponder, UIApplicationDelegate {
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">coordinator</span>: CoordinatorProtocol!
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">application</span>(<span style="color:#fc5fa3">_</span> application: UIApplication, willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: <span style="color:#d0a8ff">Any</span>]? = <span style="color:#fc5fa3">nil</span>) -&gt; <span style="color:#d0a8ff">Bool</span> {
-</span></span><span style="display:flex;"><span>        ...
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">window</span> = UIWindow(frame: UIScreen.main.bounds)
-</span></span><span style="display:flex;"><span>        coordinator = Coordinator(window: window, ...)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">return</span> <span style="color:#fc5fa3">true</span>
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">application</span>(<span style="color:#fc5fa3">_</span> application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: <span style="color:#d0a8ff">Any</span>]?) -&gt; <span style="color:#d0a8ff">Bool</span> {
-</span></span><span style="display:flex;"><span>        coordinator.start()
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">return</span> <span style="color:#fc5fa3">true</span>
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">import</span> <span class="nc">UIKit</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kr">@UIApplicationMain</span>
+</span></span><span class="line"><span class="cl"><span class="kd">class</span> <span class="nc">AppDelegate</span><span class="p">:</span> <span class="n">UIResponder</span><span class="p">,</span> <span class="n">UIApplicationDelegate</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="kd">var</span> <span class="nv">coordinator</span><span class="p">:</span> <span class="n">CoordinatorProtocol</span><span class="p">!</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">application</span><span class="p">(</span><span class="kc">_</span> <span class="n">application</span><span class="p">:</span> <span class="n">UIApplication</span><span class="p">,</span> <span class="n">willFinishLaunchingWithOptions</span> <span class="n">launchOptions</span><span class="p">:</span> <span class="p">[</span><span class="n">UIApplication</span><span class="p">.</span><span class="n">LaunchOptionsKey</span><span class="p">:</span> <span class="nb">Any</span><span class="p">]?</span> <span class="p">=</span> <span class="kc">nil</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="nb">Bool</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="p">...</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">let</span> <span class="nv">window</span> <span class="p">=</span> <span class="n">UIWindow</span><span class="p">(</span><span class="n">frame</span><span class="p">:</span> <span class="n">UIScreen</span><span class="p">.</span><span class="n">main</span><span class="p">.</span><span class="n">bounds</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">coordinator</span> <span class="p">=</span> <span class="n">Coordinator</span><span class="p">(</span><span class="n">window</span><span class="p">:</span> <span class="n">window</span><span class="p">,</span> <span class="p">...)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">application</span><span class="p">(</span><span class="kc">_</span> <span class="n">application</span><span class="p">:</span> <span class="n">UIApplication</span><span class="p">,</span> <span class="n">didFinishLaunchingWithOptions</span> <span class="n">launchOptions</span><span class="p">:</span> <span class="p">[</span><span class="n">UIApplication</span><span class="p">.</span><span class="n">LaunchOptionsKey</span><span class="p">:</span> <span class="nb">Any</span><span class="p">]?)</span> <span class="p">-&gt;</span> <span class="nb">Bool</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">coordinator</span><span class="p">.</span><span class="n">start</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><p>Again, nothing new, all clear! ✅<br>
 Now thinking once more about our problem with UI Testing, it becomes very clear that our course of action must happen in the <em>AppDelegate</em>. 👍<br>
 What we are trying to achieve here, is being able to jump on the Detail screen directly, without needing to manually tap on a cell in the first screen. 🤯<br>
@@ -128,127 +129,127 @@ And a very simple approach to that would be, to simply tell our <em>Coordinator<
 <p>Now how are we going to do that? 🤔<br>
 Well, as we did with <a href="/posts/mocking-the-network-ios/">Mocking the Network</a>, let’s pass that information through the launch environment and decide, at runtime in the <em>AppDelegate</em>, which method to call in our <em>Coordinator</em>! 😃<br>
 And all we need for that is an enum! 😆</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">import</span> <span style="color:#5dd8ff">Foundation</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#fc5fa3">enum</span> <span style="color:#5dd8ff">CoordinatorStub</span>: Identifiable {
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">case</span> start
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">case</span> openSomething(Something)
-</span></span><span style="display:flex;"><span>}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">import</span> <span class="nc">Foundation</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">enum</span> <span class="nc">CoordinatorStub</span><span class="p">:</span> <span class="n">Identifiable</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">case</span> <span class="n">start</span>
+</span></span><span class="line"><span class="cl">    <span class="k">case</span> <span class="n">openSomething</span><span class="p">(</span><span class="n">Something</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><p>That’s it, that’s our stub. 😮<br>
 Now, let’s make it <em>Codable</em> so we can inject it in the <em>ProcessInfo</em>! 💉</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">import</span> <span style="color:#5dd8ff">Foundation</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#fc5fa3">extension</span> <span style="color:#5dd8ff">CoordinatorStub</span>: Codable {
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">enum</span> <span style="color:#5dd8ff">CodingKeys</span>: <span style="color:#d0a8ff">String</span>, CodingKey { <span style="color:#fc5fa3">case</span> something }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">init</span>(from decoder: Decoder) <span style="color:#fc5fa3">throws</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">values</span> = <span style="color:#fc5fa3">try</span> decoder.container(keyedBy: CodingKeys.<span style="color:#fc5fa3">self</span>)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">if</span> <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">something</span> = <span style="color:#fc5fa3">try</span>? values.decode(Something.<span style="color:#fc5fa3">self</span>, forKey: .something) {
-</span></span><span style="display:flex;"><span>            <span style="color:#fc5fa3">self</span> = .openSomething(something)
-</span></span><span style="display:flex;"><span>            <span style="color:#fc5fa3">return</span>
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">self</span> = .start
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">encode</span>(to encoder: Encoder) <span style="color:#fc5fa3">throws</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">container</span> = encoder.container(keyedBy: CodingKeys.<span style="color:#fc5fa3">self</span>)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">switch</span> <span style="color:#fc5fa3">self</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">case</span> .start:
-</span></span><span style="display:flex;"><span>            <span style="color:#fc5fa3">break</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">case</span> .openSomething(<span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">something</span>):
-</span></span><span style="display:flex;"><span>            <span style="color:#fc5fa3">try</span> container.encode(something, forKey: .something)
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">import</span> <span class="nc">Foundation</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">extension</span> <span class="nc">CoordinatorStub</span><span class="p">:</span> <span class="n">Codable</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">enum</span> <span class="nc">CodingKeys</span><span class="p">:</span> <span class="nb">String</span><span class="p">,</span> <span class="n">CodingKey</span> <span class="p">{</span> <span class="k">case</span> <span class="n">something</span> <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">init</span><span class="p">(</span><span class="n">from</span> <span class="n">decoder</span><span class="p">:</span> <span class="n">Decoder</span><span class="p">)</span> <span class="kr">throws</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">let</span> <span class="nv">values</span> <span class="p">=</span> <span class="k">try</span> <span class="n">decoder</span><span class="p">.</span><span class="n">container</span><span class="p">(</span><span class="n">keyedBy</span><span class="p">:</span> <span class="n">CodingKeys</span><span class="p">.</span><span class="kc">self</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="kd">let</span> <span class="nv">something</span> <span class="p">=</span> <span class="k">try</span><span class="p">?</span> <span class="n">values</span><span class="p">.</span><span class="n">decode</span><span class="p">(</span><span class="n">Something</span><span class="p">.</span><span class="kc">self</span><span class="p">,</span> <span class="n">forKey</span><span class="p">:</span> <span class="p">.</span><span class="n">something</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="kc">self</span> <span class="p">=</span> <span class="p">.</span><span class="n">openSomething</span><span class="p">(</span><span class="n">something</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="kc">self</span> <span class="p">=</span> <span class="p">.</span><span class="n">start</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">encode</span><span class="p">(</span><span class="n">to</span> <span class="n">encoder</span><span class="p">:</span> <span class="n">Encoder</span><span class="p">)</span> <span class="kr">throws</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">var</span> <span class="nv">container</span> <span class="p">=</span> <span class="n">encoder</span><span class="p">.</span><span class="n">container</span><span class="p">(</span><span class="n">keyedBy</span><span class="p">:</span> <span class="n">CodingKeys</span><span class="p">.</span><span class="kc">self</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">switch</span> <span class="kc">self</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">case</span> <span class="p">.</span><span class="n">start</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">break</span>
+</span></span><span class="line"><span class="cl">        <span class="k">case</span> <span class="p">.</span><span class="n">openSomething</span><span class="p">(</span><span class="kd">let</span> <span class="nv">something</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">            <span class="k">try</span> <span class="n">container</span><span class="p">.</span><span class="n">encode</span><span class="p">(</span><span class="n">something</span><span class="p">,</span> <span class="n">forKey</span><span class="p">:</span> <span class="p">.</span><span class="n">something</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><p>Alright, we’re good to go! 🚶<br>
 Now, let’s improve our <em>XCUIApplication</em> extension to include the <em>CoordinatorStub</em> in the launch environment! 👍</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">import</span> <span style="color:#5dd8ff">XCTest</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#fc5fa3">extension</span> <span style="color:#5dd8ff">XCUIApplication</span> {
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">launch</span>(<span style="color:#fc5fa3">_</span> coordinatorStub: CoordinatorStub, with sessionMock: URLSessionMock = URLSessionMock()) {
-</span></span><span style="display:flex;"><span>        launchEnvironment[CoordinatorStub.identifier] = coordinatorStub.json
-</span></span><span style="display:flex;"><span>        launchEnvironment[URLSessionMock.identifier] = sessionMock.json
-</span></span><span style="display:flex;"><span>        launch()
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">import</span> <span class="nc">XCTest</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">extension</span> <span class="nc">XCUIApplication</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">launch</span><span class="p">(</span><span class="kc">_</span> <span class="n">coordinatorStub</span><span class="p">:</span> <span class="n">CoordinatorStub</span><span class="p">,</span> <span class="n">with</span> <span class="n">sessionMock</span><span class="p">:</span> <span class="n">URLSessionMock</span> <span class="p">=</span> <span class="n">URLSessionMock</span><span class="p">())</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">launchEnvironment</span><span class="p">[</span><span class="n">CoordinatorStub</span><span class="p">.</span><span class="n">identifier</span><span class="p">]</span> <span class="p">=</span> <span class="n">coordinatorStub</span><span class="p">.</span><span class="n">json</span>
+</span></span><span class="line"><span class="cl">        <span class="n">launchEnvironment</span><span class="p">[</span><span class="n">URLSessionMock</span><span class="p">.</span><span class="n">identifier</span><span class="p">]</span> <span class="p">=</span> <span class="n">sessionMock</span><span class="p">.</span><span class="n">json</span>
+</span></span><span class="line"><span class="cl">        <span class="n">launch</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><p>The last piece of the puzzle: decode the <em>CoordinatorStub</em> inside the <em>AppDelegate</em> and call the desired method in the <em>Coordinator</em>! 👌</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">import</span> <span style="color:#5dd8ff">UIKit</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#fc5fa3">@UIApplicationMain</span>
-</span></span><span style="display:flex;"><span><span style="color:#fc5fa3">class</span> <span style="color:#5dd8ff">AppDelegate</span>: UIResponder, UIApplicationDelegate {
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">coordinator</span>: CoordinatorProtocol!
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">application</span>(<span style="color:#fc5fa3">_</span> application: UIApplication, willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: <span style="color:#d0a8ff">Any</span>]? = <span style="color:#fc5fa3">nil</span>) -&gt; <span style="color:#d0a8ff">Bool</span> {
-</span></span><span style="display:flex;"><span>        ...
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">window</span> = UIWindow(frame: UIScreen.main.bounds)
-</span></span><span style="display:flex;"><span>        coordinator = Coordinator(window: window, ...)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">return</span> <span style="color:#fc5fa3">true</span>
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">application</span>(<span style="color:#fc5fa3">_</span> application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: <span style="color:#d0a8ff">Any</span>]?) -&gt; <span style="color:#d0a8ff">Bool</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">guard</span> <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">coordinatorStub</span> = ProcessInfo.processInfo.decode(CoordinatorStub.<span style="color:#fc5fa3">self</span>) <span style="color:#fc5fa3">else</span> {
-</span></span><span style="display:flex;"><span>            coordinator.start()
-</span></span><span style="display:flex;"><span>            <span style="color:#fc5fa3">return</span> <span style="color:#fc5fa3">true</span>
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">switch</span> coordinatorStub {
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">case</span> .start:
-</span></span><span style="display:flex;"><span>            coordinator.start()
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">case</span> .openSomething(<span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">something</span>):
-</span></span><span style="display:flex;"><span>            coordinator.open(something)
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">return</span> <span style="color:#fc5fa3">true</span>
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">import</span> <span class="nc">UIKit</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kr">@UIApplicationMain</span>
+</span></span><span class="line"><span class="cl"><span class="kd">class</span> <span class="nc">AppDelegate</span><span class="p">:</span> <span class="n">UIResponder</span><span class="p">,</span> <span class="n">UIApplicationDelegate</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">var</span> <span class="nv">coordinator</span><span class="p">:</span> <span class="n">CoordinatorProtocol</span><span class="p">!</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">application</span><span class="p">(</span><span class="kc">_</span> <span class="n">application</span><span class="p">:</span> <span class="n">UIApplication</span><span class="p">,</span> <span class="n">willFinishLaunchingWithOptions</span> <span class="n">launchOptions</span><span class="p">:</span> <span class="p">[</span><span class="n">UIApplication</span><span class="p">.</span><span class="n">LaunchOptionsKey</span><span class="p">:</span> <span class="nb">Any</span><span class="p">]?</span> <span class="p">=</span> <span class="kc">nil</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="nb">Bool</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="p">...</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">let</span> <span class="nv">window</span> <span class="p">=</span> <span class="n">UIWindow</span><span class="p">(</span><span class="n">frame</span><span class="p">:</span> <span class="n">UIScreen</span><span class="p">.</span><span class="n">main</span><span class="p">.</span><span class="n">bounds</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">coordinator</span> <span class="p">=</span> <span class="n">Coordinator</span><span class="p">(</span><span class="n">window</span><span class="p">:</span> <span class="n">window</span><span class="p">,</span> <span class="p">...)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">application</span><span class="p">(</span><span class="kc">_</span> <span class="n">application</span><span class="p">:</span> <span class="n">UIApplication</span><span class="p">,</span> <span class="n">didFinishLaunchingWithOptions</span> <span class="n">launchOptions</span><span class="p">:</span> <span class="p">[</span><span class="n">UIApplication</span><span class="p">.</span><span class="n">LaunchOptionsKey</span><span class="p">:</span> <span class="nb">Any</span><span class="p">]?)</span> <span class="p">-&gt;</span> <span class="nb">Bool</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">guard</span> <span class="kd">let</span> <span class="nv">coordinatorStub</span> <span class="p">=</span> <span class="n">ProcessInfo</span><span class="p">.</span><span class="n">processInfo</span><span class="p">.</span><span class="n">decode</span><span class="p">(</span><span class="n">CoordinatorStub</span><span class="p">.</span><span class="kc">self</span><span class="p">)</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">coordinator</span><span class="p">.</span><span class="n">start</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">switch</span> <span class="n">coordinatorStub</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">case</span> <span class="p">.</span><span class="n">start</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">coordinator</span><span class="p">.</span><span class="n">start</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="k">case</span> <span class="p">.</span><span class="n">openSomething</span><span class="p">(</span><span class="kd">let</span> <span class="nv">something</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">            <span class="n">coordinator</span><span class="p">.</span><span class="n">open</span><span class="p">(</span><span class="n">something</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><p>Smooth! 😍<br>
 Now let’s take a closer look at our UI tests and see how it plays out! 👀</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">import</span> <span style="color:#5dd8ff">XCTest</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#fc5fa3">final</span> <span style="color:#fc5fa3">class</span> <span style="color:#5dd8ff">SomethingUITest</span>: XCTestCase {
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">private</span> <span style="color:#fc5fa3">lazy</span> <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">app</span> = XCUIApplication()
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">override</span> <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">setUp</span>() {
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">super</span>.setUp()
-</span></span><span style="display:flex;"><span>        ...
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">testStart</span>() {
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">sessionMock</span> = URLSessionMock(
-</span></span><span style="display:flex;"><span>            responses: [
-</span></span><span style="display:flex;"><span>                .fetchSomething: [
-</span></span><span style="display:flex;"><span>                    Response(File(<span style="color:#fc6a5d">&#34;something_response&#34;</span>, .json)),
-</span></span><span style="display:flex;"><span>                    Response(error: .invalidResponse)
-</span></span><span style="display:flex;"><span>                ]
-</span></span><span style="display:flex;"><span>            ]
-</span></span><span style="display:flex;"><span>        )
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        app.launch(.start, with: sessionMock)
-</span></span><span style="display:flex;"><span>        ...
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">testOpenSomething</span>() {
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">something</span> = Something(stuff: <span style="color:#fc6a5d">&#34;Stuff&#34;</span>, ...)
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">sessionMock</span> = URLSessionMock(
-</span></span><span style="display:flex;"><span>            responses: [
-</span></span><span style="display:flex;"><span>                .fetchSomething: [
-</span></span><span style="display:flex;"><span>                    Response(File(<span style="color:#fc6a5d">&#34;something_response&#34;</span>, .json)),
-</span></span><span style="display:flex;"><span>                    Response(error: .invalidResponse)
-</span></span><span style="display:flex;"><span>                ]
-</span></span><span style="display:flex;"><span>            ]
-</span></span><span style="display:flex;"><span>        )
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        app.launch(.openSomething(something), with: sessionMock)
-</span></span><span style="display:flex;"><span>        ...
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">import</span> <span class="nc">XCTest</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kr">final</span> <span class="kd">class</span> <span class="nc">SomethingUITest</span><span class="p">:</span> <span class="n">XCTestCase</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="kr">lazy</span> <span class="kd">var</span> <span class="nv">app</span> <span class="p">=</span> <span class="n">XCUIApplication</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kr">override</span> <span class="kd">func</span> <span class="nf">setUp</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kc">super</span><span class="p">.</span><span class="n">setUp</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="p">...</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">testStart</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">let</span> <span class="nv">sessionMock</span> <span class="p">=</span> <span class="n">URLSessionMock</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">            <span class="n">responses</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                <span class="p">.</span><span class="n">fetchSomething</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">Response</span><span class="p">(</span><span class="n">File</span><span class="p">(</span><span class="s">&#34;something_response&#34;</span><span class="p">,</span> <span class="p">.</span><span class="n">json</span><span class="p">)),</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">Response</span><span class="p">(</span><span class="n">error</span><span class="p">:</span> <span class="p">.</span><span class="n">invalidResponse</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                <span class="p">]</span>
+</span></span><span class="line"><span class="cl">            <span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">app</span><span class="p">.</span><span class="n">launch</span><span class="p">(.</span><span class="n">start</span><span class="p">,</span> <span class="n">with</span><span class="p">:</span> <span class="n">sessionMock</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="p">...</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">testOpenSomething</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">let</span> <span class="nv">something</span> <span class="p">=</span> <span class="n">Something</span><span class="p">(</span><span class="n">stuff</span><span class="p">:</span> <span class="s">&#34;Stuff&#34;</span><span class="p">,</span> <span class="p">...)</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">let</span> <span class="nv">sessionMock</span> <span class="p">=</span> <span class="n">URLSessionMock</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">            <span class="n">responses</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                <span class="p">.</span><span class="n">fetchSomething</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">Response</span><span class="p">(</span><span class="n">File</span><span class="p">(</span><span class="s">&#34;something_response&#34;</span><span class="p">,</span> <span class="p">.</span><span class="n">json</span><span class="p">)),</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">Response</span><span class="p">(</span><span class="n">error</span><span class="p">:</span> <span class="p">.</span><span class="n">invalidResponse</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                <span class="p">]</span>
+</span></span><span class="line"><span class="cl">            <span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">app</span><span class="p">.</span><span class="n">launch</span><span class="p">(.</span><span class="n">openSomething</span><span class="p">(</span><span class="n">something</span><span class="p">),</span> <span class="n">with</span><span class="p">:</span> <span class="n">sessionMock</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="p">...</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><p>Boom! 💥<br>
 <strong>Fast, robust and readable</strong>, what else do you need? 😎<br>
 Not only we have full control over the <strong>Network</strong>, but now also the <strong>Navigation</strong> is in our grip! 👊<br>

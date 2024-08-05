@@ -6,6 +6,7 @@
     <title>Lightweight Design Patterns in iOS (Part 3) - Coordinator</title>
     <link rel="stylesheet" href="/css/bulma.min.css">
     <link rel="stylesheet" href="/css/custom.css">
+    <link rel="stylesheet" href="/css/hugo.css">
 </head>
 
 <body>
@@ -64,130 +65,130 @@ The <strong>Coordinator</strong> allows you to separate the <strong>Navigation l
 <hr>
 <p>We have an app, that displays a list of “things” and tapping on one of them opens a detail screen with more information concerning that item. Easy. 👍</p>
 <p>Our navigation is going to look very concise: we will first <strong>start</strong> with a list of things and later on eventually <strong>open something</strong>. This flow definition is nothing else than our <strong>CoordinatorProtocol</strong>! 👌</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">protocol</span> <span style="color:#5dd8ff">CoordinatorProtocol</span>: <span style="color:#fc5fa3">class</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">start</span>()
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">open</span>(<span style="color:#fc5fa3">_</span> something: Something)
-</span></span><span style="display:flex;"><span>}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">protocol</span> <span class="nc">CoordinatorProtocol</span><span class="p">:</span> <span class="kd">class</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">start</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">open</span><span class="p">(</span><span class="kc">_</span> <span class="n">something</span><span class="p">:</span> <span class="n">Something</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><p>Looking good! 😎<br>
 Let’s now implement the actual <strong>Coordinator</strong>!</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">final</span> <span style="color:#fc5fa3">class</span> <span style="color:#5dd8ff">Coordinator</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">private</span> <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">window</span>: UIWindow
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">navigationController</span> = UINavigationController()
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">init</span>(window: UIWindow) {
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">self</span>.window = window
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">self</span>.window.rootViewController = navigationController
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">self</span>.window.makeKeyAndVisible()
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kr">final</span> <span class="kd">class</span> <span class="nc">Coordinator</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="kd">let</span> <span class="nv">window</span><span class="p">:</span> <span class="n">UIWindow</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">let</span> <span class="nv">navigationController</span> <span class="p">=</span> <span class="n">UINavigationController</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="kd">init</span><span class="p">(</span><span class="n">window</span><span class="p">:</span> <span class="n">UIWindow</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kc">self</span><span class="p">.</span><span class="n">window</span> <span class="p">=</span> <span class="n">window</span>
+</span></span><span class="line"><span class="cl">        <span class="kc">self</span><span class="p">.</span><span class="n">window</span><span class="p">.</span><span class="n">rootViewController</span> <span class="p">=</span> <span class="n">navigationController</span>
+</span></span><span class="line"><span class="cl">        <span class="kc">self</span><span class="p">.</span><span class="n">window</span><span class="p">.</span><span class="n">makeKeyAndVisible</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><p>As you can see, we need to inject a <em>UIWindow</em> in the <strong>init</strong> method, in order to make the <strong>navigationController</strong> the <em>rootViewController</em> of this window. 📱</p>
 <p>Now, implementing the <em>CoordinatorProtocol</em> will only consist of instantiating the <em>ViewControllers</em> with their dependencies injected and push them to the <em>NavigationController</em>! 💯</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">extension</span> <span style="color:#5dd8ff">Coordinator</span>: CoordinatorProtocol {
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">start</span>() {
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">viewController</span> = MainViewController()
-</span></span><span style="display:flex;"><span>        viewController.viewModel = MainViewModel()
-</span></span><span style="display:flex;"><span>        viewController.coordinator = <span style="color:#fc5fa3">self</span>
-</span></span><span style="display:flex;"><span>        navigationController.pushViewController(viewController, animated: <span style="color:#fc5fa3">true</span>)
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">open</span>(<span style="color:#fc5fa3">_</span> something: Something) {
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">viewController</span> = SomethingViewController()
-</span></span><span style="display:flex;"><span>        viewController.viewModel = SomethingViewModel()
-</span></span><span style="display:flex;"><span>        viewController.coordinator = <span style="color:#fc5fa3">self</span>
-</span></span><span style="display:flex;"><span>        navigationController.pushViewController(viewController, animated: <span style="color:#fc5fa3">true</span>)
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">extension</span> <span class="nc">Coordinator</span><span class="p">:</span> <span class="n">CoordinatorProtocol</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">start</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">let</span> <span class="nv">viewController</span> <span class="p">=</span> <span class="n">MainViewController</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="n">viewController</span><span class="p">.</span><span class="n">viewModel</span> <span class="p">=</span> <span class="n">MainViewModel</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="n">viewController</span><span class="p">.</span><span class="n">coordinator</span> <span class="p">=</span> <span class="kc">self</span>
+</span></span><span class="line"><span class="cl">        <span class="n">navigationController</span><span class="p">.</span><span class="n">pushViewController</span><span class="p">(</span><span class="n">viewController</span><span class="p">,</span> <span class="n">animated</span><span class="p">:</span> <span class="kc">true</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">open</span><span class="p">(</span><span class="kc">_</span> <span class="n">something</span><span class="p">:</span> <span class="n">Something</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">let</span> <span class="nv">viewController</span> <span class="p">=</span> <span class="n">SomethingViewController</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="n">viewController</span><span class="p">.</span><span class="n">viewModel</span> <span class="p">=</span> <span class="n">SomethingViewModel</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="n">viewController</span><span class="p">.</span><span class="n">coordinator</span> <span class="p">=</span> <span class="kc">self</span>
+</span></span><span class="line"><span class="cl">        <span class="n">navigationController</span><span class="p">.</span><span class="n">pushViewController</span><span class="p">(</span><span class="n">viewController</span><span class="p">,</span> <span class="n">animated</span><span class="p">:</span> <span class="kc">true</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><p>And that’s it! Our flow is now implemented, and can be <strong>started/continued</strong> from anywhere in the App! 🎉</p>
 <p>Let’s start with the <em>AppDelegate</em>!</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">@UIApplicationMain</span>
-</span></span><span style="display:flex;"><span><span style="color:#fc5fa3">class</span> <span style="color:#5dd8ff">AppDelegate</span>: UIResponder, UIApplicationDelegate {
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">coordinator</span>: CoordinatorProtocol!
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">application</span>(<span style="color:#fc5fa3">_</span> application: UIApplication, willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: <span style="color:#d0a8ff">Any</span>]? = <span style="color:#fc5fa3">nil</span>) -&gt; <span style="color:#d0a8ff">Bool</span> {
-</span></span><span style="display:flex;"><span>        coordinator = Coordinator()
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">return</span> <span style="color:#fc5fa3">true</span>
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">application</span>(<span style="color:#fc5fa3">_</span> application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: <span style="color:#d0a8ff">Any</span>]?) -&gt; <span style="color:#d0a8ff">Bool</span> {
-</span></span><span style="display:flex;"><span>        coordinator.start()
-</span></span><span style="display:flex;"><span>      
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">return</span> <span style="color:#fc5fa3">true</span>
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kr">@UIApplicationMain</span>
+</span></span><span class="line"><span class="cl"><span class="kd">class</span> <span class="nc">AppDelegate</span><span class="p">:</span> <span class="n">UIResponder</span><span class="p">,</span> <span class="n">UIApplicationDelegate</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">var</span> <span class="nv">coordinator</span><span class="p">:</span> <span class="n">CoordinatorProtocol</span><span class="p">!</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">application</span><span class="p">(</span><span class="kc">_</span> <span class="n">application</span><span class="p">:</span> <span class="n">UIApplication</span><span class="p">,</span> <span class="n">willFinishLaunchingWithOptions</span> <span class="n">launchOptions</span><span class="p">:</span> <span class="p">[</span><span class="n">UIApplication</span><span class="p">.</span><span class="n">LaunchOptionsKey</span><span class="p">:</span> <span class="nb">Any</span><span class="p">]?</span> <span class="p">=</span> <span class="kc">nil</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="nb">Bool</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">coordinator</span> <span class="p">=</span> <span class="n">Coordinator</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">application</span><span class="p">(</span><span class="kc">_</span> <span class="n">application</span><span class="p">:</span> <span class="n">UIApplication</span><span class="p">,</span> <span class="n">didFinishLaunchingWithOptions</span> <span class="n">launchOptions</span><span class="p">:</span> <span class="p">[</span><span class="n">UIApplication</span><span class="p">.</span><span class="n">LaunchOptionsKey</span><span class="p">:</span> <span class="nb">Any</span><span class="p">]?)</span> <span class="p">-&gt;</span> <span class="nb">Bool</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">coordinator</span><span class="p">.</span><span class="n">start</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">      
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><p>Nice and simple! Now let’s look at the <em>MainViewController</em>!</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">final</span> <span style="color:#fc5fa3">class</span> <span style="color:#5dd8ff">MainViewController</span>: UITableViewController {
-</span></span><span style="display:flex;"><span>  <span style="color:#fc5fa3">weak</span> <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">coordinator</span>: CoordinatorProtocol?
-</span></span><span style="display:flex;"><span>  <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">viewModel</span>: SomethingViewModel!
-</span></span><span style="display:flex;"><span>  
-</span></span><span style="display:flex;"><span>  ...
-</span></span><span style="display:flex;"><span>  
-</span></span><span style="display:flex;"><span>  <span style="color:#fc5fa3">override</span> <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">tableView</span>(<span style="color:#fc5fa3">_</span> tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">something</span> = viewModel.somethings[indexPath.row]
-</span></span><span style="display:flex;"><span>    coordinator?.open(something)
-</span></span><span style="display:flex;"><span>  }
-</span></span><span style="display:flex;"><span>  
-</span></span><span style="display:flex;"><span>  ...
-</span></span><span style="display:flex;"><span>}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kr">final</span> <span class="kd">class</span> <span class="nc">MainViewController</span><span class="p">:</span> <span class="n">UITableViewController</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kr">weak</span> <span class="kd">var</span> <span class="nv">coordinator</span><span class="p">:</span> <span class="n">CoordinatorProtocol</span><span class="p">?</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">var</span> <span class="nv">viewModel</span><span class="p">:</span> <span class="n">SomethingViewModel</span><span class="p">!</span>
+</span></span><span class="line"><span class="cl">  
+</span></span><span class="line"><span class="cl">  <span class="p">...</span>
+</span></span><span class="line"><span class="cl">  
+</span></span><span class="line"><span class="cl">  <span class="kr">override</span> <span class="kd">func</span> <span class="nf">tableView</span><span class="p">(</span><span class="kc">_</span> <span class="n">tableView</span><span class="p">:</span> <span class="n">UITableView</span><span class="p">,</span> <span class="n">didSelectRowAt</span> <span class="n">indexPath</span><span class="p">:</span> <span class="n">IndexPath</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">let</span> <span class="nv">something</span> <span class="p">=</span> <span class="n">viewModel</span><span class="p">.</span><span class="n">somethings</span><span class="p">[</span><span class="n">indexPath</span><span class="p">.</span><span class="n">row</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="n">coordinator</span><span class="p">?.</span><span class="n">open</span><span class="p">(</span><span class="n">something</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  
+</span></span><span class="line"><span class="cl">  <span class="p">...</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><p>That’s it! The entire <strong>Navigation Logic</strong> has just been delegated to an independent layer! 🎊</p>
 <h2 id="testing-the-navigation-logic">Testing the Navigation Logic</h2>
 <hr>
 <p>Unit testing the navigation has never been easier!<br>
 Before writing any test, let’s implement a <em>CoordinatorMock</em> first! 🐚</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">final</span> <span style="color:#fc5fa3">class</span> <span style="color:#5dd8ff">CoordinatorMock</span>: CoordinatorProtocol {
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">private</span>(<span style="color:#fc5fa3">set</span>) <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">isStarted</span> = <span style="color:#fc5fa3">false</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">private</span>(<span style="color:#fc5fa3">set</span>) <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">isSomethingOpened</span> = <span style="color:#fc5fa3">false</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">start</span>() {
-</span></span><span style="display:flex;"><span>        isStarted = <span style="color:#fc5fa3">true</span>
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">open</span>(<span style="color:#fc5fa3">_</span> something: Something) {
-</span></span><span style="display:flex;"><span>        isSomethingOpened = <span style="color:#fc5fa3">true</span>
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kr">final</span> <span class="kd">class</span> <span class="nc">CoordinatorMock</span><span class="p">:</span> <span class="n">CoordinatorProtocol</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span><span class="p">(</span><span class="kr">set</span><span class="p">)</span> <span class="kd">var</span> <span class="nv">isStarted</span> <span class="p">=</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span><span class="p">(</span><span class="kr">set</span><span class="p">)</span> <span class="kd">var</span> <span class="nv">isSomethingOpened</span> <span class="p">=</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">start</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">isStarted</span> <span class="p">=</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">open</span><span class="p">(</span><span class="kc">_</span> <span class="n">something</span><span class="p">:</span> <span class="n">Something</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">isSomethingOpened</span> <span class="p">=</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><p>As you can see, we are just implementing the <em>CoordinatorProtocol</em> and toggle the respective boolean properties whenever a method is called. 🚀<br>
 Simple right?! Well, look at how easy testing now is! 💪</p>
 <p>Let’s start with the <em>AppDelegate</em> and verify the <strong>start</strong> method is called!</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">final</span> <span style="color:#fc5fa3">class</span> <span style="color:#5dd8ff">AppDelegateTest</span>: XCTestCase {
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">sut</span>: AppDelegate!
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">override</span> <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">setUp</span>() {
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">super</span>.setUp()
-</span></span><span style="display:flex;"><span>        sut = AppDelegate()
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">testAppDelegateStartsCoordinatorSuccessfully</span>() {
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">coordinator</span> = CoordinatorMock()
-</span></span><span style="display:flex;"><span>        sut.coordinator = coordinator
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">_</span> = sut.application(UIApplication.shared, didFinishLaunchingWithOptions: [:])
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        XCTAssertTrue(coordinator.isStarted)
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kr">final</span> <span class="kd">class</span> <span class="nc">AppDelegateTest</span><span class="p">:</span> <span class="n">XCTestCase</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">var</span> <span class="nv">sut</span><span class="p">:</span> <span class="n">AppDelegate</span><span class="p">!</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kr">override</span> <span class="kd">func</span> <span class="nf">setUp</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kc">super</span><span class="p">.</span><span class="n">setUp</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="n">sut</span> <span class="p">=</span> <span class="n">AppDelegate</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">testAppDelegateStartsCoordinatorSuccessfully</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">let</span> <span class="nv">coordinator</span> <span class="p">=</span> <span class="n">CoordinatorMock</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="n">sut</span><span class="p">.</span><span class="n">coordinator</span> <span class="p">=</span> <span class="n">coordinator</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="kc">_</span> <span class="p">=</span> <span class="n">sut</span><span class="p">.</span><span class="n">application</span><span class="p">(</span><span class="n">UIApplication</span><span class="p">.</span><span class="n">shared</span><span class="p">,</span> <span class="n">didFinishLaunchingWithOptions</span><span class="p">:</span> <span class="p">[:])</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">XCTAssertTrue</span><span class="p">(</span><span class="n">coordinator</span><span class="p">.</span><span class="n">isStarted</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><p>Marvellous! 💄</p>
 <p>And now with the <em>MainViewController</em>, let’s make sure the <strong>open</strong> function is called!</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">final</span> <span style="color:#fc5fa3">class</span> <span style="color:#5dd8ff">MainViewControllerTest</span>: XCTestCase {
-</span></span><span style="display:flex;"><span>  <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">sut</span>: MainViewController!
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>  <span style="color:#fc5fa3">override</span> <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">setUp</span>() {
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">super</span>.setUp()
-</span></span><span style="display:flex;"><span>    sut = MainViewController()
-</span></span><span style="display:flex;"><span>    sut.viewModel = SomethingViewModel()
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">_</span> = sut.view
-</span></span><span style="display:flex;"><span>  }
-</span></span><span style="display:flex;"><span>  
-</span></span><span style="display:flex;"><span>  <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">testMainViewControllerOpensSomethingSuccessfully</span>() {
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">coordinator</span> = CoordinatorMock()
-</span></span><span style="display:flex;"><span>    sut.coordinator = coordinator
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    sut.tableView(sut.tableView, didSelectRowAt: IndexPath(item: <span style="color:#d0bf69">0</span>, section: <span style="color:#d0bf69">0</span>))
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    XCTAssertTrue(coordinator.isSomethingOpened)
-</span></span><span style="display:flex;"><span>  }
-</span></span><span style="display:flex;"><span>}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kr">final</span> <span class="kd">class</span> <span class="nc">MainViewControllerTest</span><span class="p">:</span> <span class="n">XCTestCase</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">var</span> <span class="nv">sut</span><span class="p">:</span> <span class="n">MainViewController</span><span class="p">!</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">  <span class="kr">override</span> <span class="kd">func</span> <span class="nf">setUp</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kc">super</span><span class="p">.</span><span class="n">setUp</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">sut</span> <span class="p">=</span> <span class="n">MainViewController</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">sut</span><span class="p">.</span><span class="n">viewModel</span> <span class="p">=</span> <span class="n">SomethingViewModel</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="kc">_</span> <span class="p">=</span> <span class="n">sut</span><span class="p">.</span><span class="n">view</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  
+</span></span><span class="line"><span class="cl">  <span class="kd">func</span> <span class="nf">testMainViewControllerOpensSomethingSuccessfully</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">let</span> <span class="nv">coordinator</span> <span class="p">=</span> <span class="n">CoordinatorMock</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">sut</span><span class="p">.</span><span class="n">coordinator</span> <span class="p">=</span> <span class="n">coordinator</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="n">sut</span><span class="p">.</span><span class="n">tableView</span><span class="p">(</span><span class="n">sut</span><span class="p">.</span><span class="n">tableView</span><span class="p">,</span> <span class="n">didSelectRowAt</span><span class="p">:</span> <span class="n">IndexPath</span><span class="p">(</span><span class="n">item</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="n">section</span><span class="p">:</span> <span class="mi">0</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="n">XCTAssertTrue</span><span class="p">(</span><span class="n">coordinator</span><span class="p">.</span><span class="n">isSomethingOpened</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><p>And boom! 💥<br>
 We just made a lightweight <strong>Coordinator</strong> which is even testable! 🎉</p>
 <p>Worth it? Did that help you see what problems the <strong>Coordinator Pattern</strong> is trying to solve? How to make such a pattern lightweight?</p>

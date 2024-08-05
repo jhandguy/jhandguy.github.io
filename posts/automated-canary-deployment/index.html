@@ -6,6 +6,7 @@
     <title>Canary Deployment in Kubernetes (Part 2) — Automated Canary Deployment using Argo Rollouts</title>
     <link rel="stylesheet" href="/css/bulma.min.css">
     <link rel="stylesheet" href="/css/custom.css">
+    <link rel="stylesheet" href="/css/hugo.css">
 </head>
 
 <body>
@@ -89,23 +90,23 @@ Well, that, my friend, is what Canary Deployment is all about!</p>
 <p><a href="https://kind.sigs.k8s.io/">Kind</a> is a tool for running local Kubernetes clusters using Docker container “nodes”.
 It was primarily designed for testing Kubernetes itself, but may be used for local development or CI.</p>
 <p>I don’t expect you to have a demo project in handy, so <a href="https://github.com/jhandguy/canary-deployment">I built one</a> for you.</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>git clone https://github.com/jhandguy/canary-deployment.git
-</span></span><span style="display:flex;"><span><span style="color:#d0a8ff">cd</span> canary-deployment
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">git clone https://github.com/jhandguy/canary-deployment.git
+</span></span><span class="line"><span class="cl"><span class="nb">cd</span> canary-deployment
 </span></span></code></pre></div><p>Alright, let&rsquo;s spin up our Kind cluster! 🚀</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kind create cluster --image kindest/node:v1.27.3 --config=kind/cluster.yaml
-</span></span><span style="display:flex;"><span>Creating cluster <span style="color:#fc6a5d">&#34;kind&#34;</span> ...
-</span></span><span style="display:flex;"><span> ✓ Ensuring node image (kindest/node:v1.27.3) 🖼
-</span></span><span style="display:flex;"><span> ✓ Preparing nodes 📦
-</span></span><span style="display:flex;"><span> ✓ Writing configuration 📜
-</span></span><span style="display:flex;"><span> ✓ Starting control-plane 🕹️
-</span></span><span style="display:flex;"><span> ✓ Installing CNI 🔌
-</span></span><span style="display:flex;"><span> ✓ Installing StorageClass 💾
-</span></span><span style="display:flex;"><span>Set kubectl context to <span style="color:#fc6a5d">&#34;kind-kind&#34;</span>
-</span></span><span style="display:flex;"><span>You can now use your cluster with:
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>kubectl cluster-info --context kind-kind
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>Have a question, bug, or feature request? Let us know! https://kind.sigs.k8s.io/#community 🙂
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">➜ kind create cluster --image kindest/node:v1.27.3 --config<span class="o">=</span>kind/cluster.yaml
+</span></span><span class="line"><span class="cl">Creating cluster <span class="s2">&#34;kind&#34;</span> ...
+</span></span><span class="line"><span class="cl"> ✓ Ensuring node image <span class="o">(</span>kindest/node:v1.27.3<span class="o">)</span> 🖼
+</span></span><span class="line"><span class="cl"> ✓ Preparing nodes 📦
+</span></span><span class="line"><span class="cl"> ✓ Writing configuration 📜
+</span></span><span class="line"><span class="cl"> ✓ Starting control-plane 🕹️
+</span></span><span class="line"><span class="cl"> ✓ Installing CNI 🔌
+</span></span><span class="line"><span class="cl"> ✓ Installing StorageClass 💾
+</span></span><span class="line"><span class="cl">Set kubectl context to <span class="s2">&#34;kind-kind&#34;</span>
+</span></span><span class="line"><span class="cl">You can now use your cluster with:
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">kubectl cluster-info --context kind-kind
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Have a question, bug, or feature request? Let us know! https://kind.sigs.k8s.io/#community 🙂
 </span></span></code></pre></div><h2 id="using-argo-rollouts-with-nginx-ingress-controller">Using Argo Rollouts with NGINX Ingress Controller</h2>
 <hr>
 <p><a href="https://argoproj.github.io/argo-rollouts/">Argo Rollouts</a> is a <a href="https://kubernetes.io/docs/concepts/architecture/controller/">Kubernetes controller</a> and set of <a href="https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/">CRDs</a> which provide advanced deployment capabilities to Kubernetes such as blue-green, canary, canary analysis, experimentation, and progressive delivery.</p>
@@ -117,22 +118,22 @@ It was primarily designed for testing Kubernetes itself, but may be used for loc
 </blockquote>
 <p><a href="https://github.com/kubernetes/ingress-nginx">NGINX Ingress Controller</a> is one of the <a href="https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/#additional-controllers">many available Kubernetes Ingress Controllers</a>, which acts as a load balancer and satisfies routing rules specified in <a href="https://kubernetes.io/docs/concepts/services-networking/ingress/#what-is-ingress">Ingress</a> resources, using the <a href="https://nginx.org/en/">NGINX reverse proxy</a>.</p>
 <p>NGINX Ingress Controller can be installed via its <a href="https://github.com/kubernetes/ingress-nginx/tree/main/charts/ingress-nginx">Helm chart</a>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-</span></span><span style="display:flex;"><span>helm install ingress-nginx/ingress-nginx --name-template ingress-nginx --create-namespace -n ingress-nginx --values kind/ingress-nginx-values.yaml --version 4.8.3 --wait
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+</span></span><span class="line"><span class="cl">helm install ingress-nginx/ingress-nginx --name-template ingress-nginx --create-namespace -n ingress-nginx --values kind/ingress-nginx-values.yaml --version 4.8.3 --wait
 </span></span></code></pre></div><p>Now, if everything goes according to plan, you should be able to see the <strong>ingress-nginx-controller</strong> Deployment running.</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get deploy -n ingress-nginx
-</span></span><span style="display:flex;"><span>NAME                       READY   UP-TO-DATE   AVAILABLE   AGE
-</span></span><span style="display:flex;"><span>ingress-nginx-controller   1/1     <span style="color:#d0bf69">1</span>            <span style="color:#d0bf69">1</span>           4m35s
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">➜ kubectl get deploy -n ingress-nginx
+</span></span><span class="line"><span class="cl">NAME                       READY   UP-TO-DATE   AVAILABLE   AGE
+</span></span><span class="line"><span class="cl">ingress-nginx-controller   1/1     <span class="m">1</span>            <span class="m">1</span>           4m35s
 </span></span></code></pre></div><h3 id="installing-argo-rollouts">Installing Argo Rollouts</h3>
 <hr>
 <p>Argo Rollouts can be installed via its <a href="https://github.com/argoproj/argo-helm/tree/master/charts/argo-rollouts">Helm chart</a>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>helm repo add argo https://argoproj.github.io/argo-helm
-</span></span><span style="display:flex;"><span>helm install argo/argo-rollouts --name-template argo-rollouts --create-namespace -n argo-rollouts --set dashboard.enabled=<span style="color:#d0a8ff">true</span> --version 2.32.5 --wait
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">helm repo add argo https://argoproj.github.io/argo-helm
+</span></span><span class="line"><span class="cl">helm install argo/argo-rollouts --name-template argo-rollouts --create-namespace -n argo-rollouts --set dashboard.enabled<span class="o">=</span><span class="nb">true</span> --version 2.32.5 --wait
 </span></span></code></pre></div><p>If all goes well, you should see two newly spawned Deployments with the READY state.</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get deploy -n argo-rollouts
-</span></span><span style="display:flex;"><span>NAME                      READY   UP-TO-DATE   AVAILABLE   AGE
-</span></span><span style="display:flex;"><span>argo-rollouts             1/1     <span style="color:#d0bf69">1</span>            <span style="color:#d0bf69">1</span>           13m
-</span></span><span style="display:flex;"><span>argo-rollouts-dashboard   1/1     <span style="color:#d0bf69">1</span>            <span style="color:#d0bf69">1</span>           13m
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">➜ kubectl get deploy -n argo-rollouts
+</span></span><span class="line"><span class="cl">NAME                      READY   UP-TO-DATE   AVAILABLE   AGE
+</span></span><span class="line"><span class="cl">argo-rollouts             1/1     <span class="m">1</span>            <span class="m">1</span>           13m
+</span></span><span class="line"><span class="cl">argo-rollouts-dashboard   1/1     <span class="m">1</span>            <span class="m">1</span>           13m
 </span></span></code></pre></div><h2 id="configuring-rollout-resources">Configuring Rollout Resources</h2>
 <hr>
 <p>One of the limitations of using Ingress NGINX alone is that it requires the duplication of quite a few Kubernetes resources. If you remember in <a href="/posts/simple-canary-deployment/">Part 1</a>, the <strong>Deployment</strong>, <strong>Service</strong>, and <strong>Ingress</strong> resources were almost identically cloned.<br>
@@ -140,23 +141,23 @@ With Argo Rollouts, the duplication of Kubernetes resources is reduced to only o
 <p>Another limitation of using plain Ingress NGINX is that the incremental rollout of the Canary Deployment (via <code>canary-weight</code>) has to be done manually by annotating the canary Ingress.<br>
 Argo Rollouts created its own <a href="https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/">Custom Resource</a> to remediate that problem: the <strong><a href="https://argoproj.github.io/argo-rollouts/features/specification/">Rollout</a></strong> resource.</p>
 <p>Alrighty then! Let’s get to it! 🧐</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>helm install sample-app/helm-charts/argo-rollouts --name-template sample-app --create-namespace -n sample-app --wait
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">helm install sample-app/helm-charts/argo-rollouts --name-template sample-app --create-namespace -n sample-app --wait
 </span></span></code></pre></div><p>If everything goes fine, you should eventually see one Rollout with the READY state.</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get rollout sample-app -n sample-app
-</span></span><span style="display:flex;"><span>NAME         DESIRED   CURRENT   UP-TO-DATE   AVAILABLE
-</span></span><span style="display:flex;"><span>sample-app   <span style="color:#d0bf69">1</span>         <span style="color:#d0bf69">1</span>         <span style="color:#d0bf69">1</span>            <span style="color:#d0bf69">1</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">➜ kubectl get rollout sample-app -n sample-app
+</span></span><span class="line"><span class="cl">NAME         DESIRED   CURRENT   UP-TO-DATE   AVAILABLE
+</span></span><span class="line"><span class="cl">sample-app   <span class="m">1</span>         <span class="m">1</span>         <span class="m">1</span>            <span class="m">1</span>
 </span></span></code></pre></div><p>Alright, let’s take a look at what’s under all this!</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ ls -1 sample-app/helm-charts/argo-rollouts/templates
-</span></span><span style="display:flex;"><span>analysistemplate.yaml
-</span></span><span style="display:flex;"><span>canary
-</span></span><span style="display:flex;"><span>ingress.yaml
-</span></span><span style="display:flex;"><span>rollout.yaml
-</span></span><span style="display:flex;"><span>service.yaml
-</span></span><span style="display:flex;"><span>serviceaccount.yaml
-</span></span><span style="display:flex;"><span>servicemonitor.yaml
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>➜ ls -1 sample-app/helm-charts/argo-rollouts/templates/canary
-</span></span><span style="display:flex;"><span>service.yaml
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">➜ ls -1 sample-app/helm-charts/argo-rollouts/templates
+</span></span><span class="line"><span class="cl">analysistemplate.yaml
+</span></span><span class="line"><span class="cl">canary
+</span></span><span class="line"><span class="cl">ingress.yaml
+</span></span><span class="line"><span class="cl">rollout.yaml
+</span></span><span class="line"><span class="cl">service.yaml
+</span></span><span class="line"><span class="cl">serviceaccount.yaml
+</span></span><span class="line"><span class="cl">servicemonitor.yaml
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">➜ ls -1 sample-app/helm-charts/argo-rollouts/templates/canary
+</span></span><span class="line"><span class="cl">service.yaml
 </span></span></code></pre></div><blockquote>
 <p><em>Note: ignore the <code>analysistemplate.yaml</code> and the <code>servicemonitor.yaml</code> for now and focus on the rest of the resources.</em></p>
 </blockquote>
@@ -164,38 +165,38 @@ Argo Rollouts created its own <a href="https://kubernetes.io/docs/concepts/exten
 <p>Now you might wonder, where did the <strong>Deployment</strong> resource go?! 🤔</p>
 <p>In Argo Rollouts, the <strong>Deployment</strong> resource has been replaced with the <strong><a href="https://argoproj.github.io/argo-rollouts/features/specification/">Rollout</a></strong> resource. It is pretty much the same though, except it contains some extra specifications.</p>
 <p>In fact, if you compare the <code>deployment.yaml</code> from <a href="/posts/simple-canary-deployment/">Part 1</a> with the <code>rollout.yaml</code>, you will find that they are very similar, except for the <code>strategy</code> spec which is very unique to the <strong>Rollout</strong> resource.</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>---
-</span></span><span style="display:flex;"><span>apiVersion: argoproj.io/v1alpha1
-</span></span><span style="display:flex;"><span>kind: Rollout
-</span></span><span style="display:flex;"><span>...
-</span></span><span style="display:flex;"><span>spec:
-</span></span><span style="display:flex;"><span>  ...
-</span></span><span style="display:flex;"><span>  strategy:
-</span></span><span style="display:flex;"><span>    canary:
-</span></span><span style="display:flex;"><span>      canaryService: {{ .Release.Name }}-canary
-</span></span><span style="display:flex;"><span>      stableService: {{ .Release.Name }}
-</span></span><span style="display:flex;"><span>      canaryMetadata:
-</span></span><span style="display:flex;"><span>        labels:
-</span></span><span style="display:flex;"><span>          deployment: canary
-</span></span><span style="display:flex;"><span>      stableMetadata:
-</span></span><span style="display:flex;"><span>        labels:
-</span></span><span style="display:flex;"><span>          deployment: stable
-</span></span><span style="display:flex;"><span>      trafficRouting:
-</span></span><span style="display:flex;"><span>        nginx:
-</span></span><span style="display:flex;"><span>          stableIngress: {{ .Release.Name }}
-</span></span><span style="display:flex;"><span>          additionalIngressAnnotations:
-</span></span><span style="display:flex;"><span>            canary-by-header: X-Canary
-</span></span><span style="display:flex;"><span>      steps:
-</span></span><span style="display:flex;"><span>        - setWeight: <span style="color:#d0bf69">25</span>
-</span></span><span style="display:flex;"><span>        - pause: {}
-</span></span><span style="display:flex;"><span>        - setWeight: <span style="color:#d0bf69">50</span>
-</span></span><span style="display:flex;"><span>        - pause:
-</span></span><span style="display:flex;"><span>            duration: 5m
-</span></span><span style="display:flex;"><span>        - setWeight: <span style="color:#d0bf69">75</span>
-</span></span><span style="display:flex;"><span>        - pause:
-</span></span><span style="display:flex;"><span>            duration: 5m
-</span></span><span style="display:flex;"><span>  ...
-</span></span></code></pre></div><p>Now, let’s break down what is happening here:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nn">---</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">argoproj.io/v1alpha1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Rollout</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nn">...</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="l">...</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">strategy</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">canary</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">canaryService</span><span class="p">:</span><span class="w"> </span>{{<span class="w"> </span><span class="l">.Release.Name }}-canary</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">stableService</span><span class="p">:</span><span class="w"> </span>{{<span class="w"> </span><span class="l">.Release.Name }}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">canaryMetadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">labels</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">deployment</span><span class="p">:</span><span class="w"> </span><span class="l">canary</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">stableMetadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">labels</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">deployment</span><span class="p">:</span><span class="w"> </span><span class="l">stable</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">trafficRouting</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">nginx</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">stableIngress</span><span class="p">:</span><span class="w"> </span>{{<span class="w"> </span><span class="l">.Release.Name }}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">additionalIngressAnnotations</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">canary-by-header</span><span class="p">:</span><span class="w"> </span><span class="l">X-Canary</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">steps</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="nt">setWeight</span><span class="p">:</span><span class="w"> </span><span class="m">25</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="nt">pause</span><span class="p">:</span><span class="w"> </span>{}<span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="nt">setWeight</span><span class="p">:</span><span class="w"> </span><span class="m">50</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="nt">pause</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">duration</span><span class="p">:</span><span class="w"> </span><span class="l">5m</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="nt">setWeight</span><span class="p">:</span><span class="w"> </span><span class="m">75</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="nt">pause</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">duration</span><span class="p">:</span><span class="w"> </span><span class="l">5m</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="l">...</span><span class="w">
+</span></span></span></code></pre></div><p>Now, let’s break down what is happening here:</p>
 <ul>
 <li>Argo Rollouts Controller needs to know which Service is the <code>canaryService</code> and which is the <code>stableService</code> so it can update them to select their corresponding pods on the fly;</li>
 <li>In order for us to know which pods are being selected by which service, we can specify a label or annotation to be attached to the Pods metadata via <code>canaryMetadata</code> and <code>stableMetadata</code>;</li>
@@ -212,124 +213,124 @@ Argo Rollouts created its own <a href="https://kubernetes.io/docs/concepts/exten
 <hr>
 <p>Awesome! Now that our Rollout is up and we understand how it works under the hood, let’s take it for a spin! 🚗</p>
 <p>But first, let’s have a look at the dashboard!</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>kubectl argo rollouts dashboard -n argo-rollouts &amp;
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">kubectl argo rollouts dashboard -n argo-rollouts <span class="p">&amp;</span>
 </span></span></code></pre></div><p>If you now head to <a href="http://localhost:3100/rollout/sample-app">http://localhost:3100/rollout/sample-app</a>, you should see a shiny dashboard showing the state of the <code>sample-app</code> Rollout.</p>
 <p><img src="/images/automated-canary-deployment/1.png" alt="Argo Rollouts Dashboard"></p>
 <p>Cool! So far, we can observe only one <strong>revision</strong> labeled as <code>stable</code>, serving 100% of the traffic.</p>
 <p>Now, let’s set a new image for the container and see what happens!</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>kubectl argo rollouts <span style="color:#d0a8ff">set</span> image sample-app sample-app=ghcr.io/jhandguy/canary-deployment/sample-app:latest -n sample-app
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">kubectl argo rollouts <span class="nb">set</span> image sample-app sample-app<span class="o">=</span>ghcr.io/jhandguy/canary-deployment/sample-app:latest -n sample-app
 </span></span></code></pre></div><p><img src="/images/automated-canary-deployment/2.png" alt="Argo Rollouts Dashboard"></p>
 <p>Aha! A new <strong>revision</strong> has been created and was labeled as <code>canary</code>. The weight for the canary Ingress has been set to 25% and the <strong>Rollout</strong> has now entered the <em>Paused</em> state.</p>
 <p>Let’s verify this real quick!</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ kubectl get ingress -n sample-app
-</span></span><span style="display:flex;"><span>NAME                           CLASS    HOSTS        ADDRESS     ...   
-</span></span><span style="display:flex;"><span>sample-app                     &lt;none&gt;   sample.app   localhost   ...  
-</span></span><span style="display:flex;"><span>sample-app-sample-app-canary   &lt;none&gt;   sample.app   localhost   ...
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>➜ kubectl describe ingress sample-app-sample-app-canary -n sample-app
-</span></span><span style="display:flex;"><span>...
-</span></span><span style="display:flex;"><span>Annotations:  kubernetes.io/ingress.class: nginx
-</span></span><span style="display:flex;"><span>              nginx.ingress.kubernetes.io/canary: <span style="color:#d0a8ff">true</span>
-</span></span><span style="display:flex;"><span>              nginx.ingress.kubernetes.io/canary-by-header: X-Canary
-</span></span><span style="display:flex;"><span>              nginx.ingress.kubernetes.io/canary-weight: <span style="color:#d0bf69">25</span>
-</span></span><span style="display:flex;"><span>...
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">➜ kubectl get ingress -n sample-app
+</span></span><span class="line"><span class="cl">NAME                           CLASS    HOSTS        ADDRESS     ...   
+</span></span><span class="line"><span class="cl">sample-app                     &lt;none&gt;   sample.app   localhost   ...  
+</span></span><span class="line"><span class="cl">sample-app-sample-app-canary   &lt;none&gt;   sample.app   localhost   ...
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">➜ kubectl describe ingress sample-app-sample-app-canary -n sample-app
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">Annotations:  kubernetes.io/ingress.class: nginx
+</span></span><span class="line"><span class="cl">              nginx.ingress.kubernetes.io/canary: <span class="nb">true</span>
+</span></span><span class="line"><span class="cl">              nginx.ingress.kubernetes.io/canary-by-header: X-Canary
+</span></span><span class="line"><span class="cl">              nginx.ingress.kubernetes.io/canary-weight: <span class="m">25</span>
+</span></span><span class="line"><span class="cl">...
 </span></span></code></pre></div><p>Indeed! An extra Ingress resource was automatically created, and given a <code>canary-weight</code> of 25.</p>
 <p>Let’s see if it works!</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>curl localhost/success -H <span style="color:#fc6a5d">&#34;Host: sample.app&#34;</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">curl localhost/success -H <span class="s2">&#34;Host: sample.app&#34;</span>
 </span></span></code></pre></div><p>As you can see, out of 4 requests, one came back from the <code>canary</code> pod.</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ curl localhost/success -H <span style="color:#fc6a5d">&#34;Host: sample.app&#34;</span>
-</span></span><span style="display:flex;"><span>{<span style="color:#fc6a5d">&#34;node&#34;</span>:<span style="color:#fc6a5d">&#34;kind-control-plane&#34;</span>,<span style="color:#fc6a5d">&#34;namespace&#34;</span>:<span style="color:#fc6a5d">&#34;sample-app&#34;</span>,<span style="color:#fc6a5d">&#34;pod&#34;</span>:<span style="color:#fc6a5d">&#34;sample-app-6bf6dfdbb4-xmqdw&#34;</span>,<span style="color:#fc6a5d">&#34;deployment&#34;</span>:<span style="color:#fc6a5d">&#34;stable&#34;</span>}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>➜ curl localhost/success -H <span style="color:#fc6a5d">&#34;Host: sample.app&#34;</span>
-</span></span><span style="display:flex;"><span>{<span style="color:#fc6a5d">&#34;node&#34;</span>:<span style="color:#fc6a5d">&#34;kind-control-plane&#34;</span>,<span style="color:#fc6a5d">&#34;namespace&#34;</span>:<span style="color:#fc6a5d">&#34;sample-app&#34;</span>,<span style="color:#fc6a5d">&#34;pod&#34;</span>:<span style="color:#fc6a5d">&#34;sample-app-6bf6dfdbb4-xmqdw&#34;</span>,<span style="color:#fc6a5d">&#34;deployment&#34;</span>:<span style="color:#fc6a5d">&#34;stable&#34;</span>}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>➜ curl localhost/success -H <span style="color:#fc6a5d">&#34;Host: sample.app&#34;</span>
-</span></span><span style="display:flex;"><span>{<span style="color:#fc6a5d">&#34;node&#34;</span>:<span style="color:#fc6a5d">&#34;kind-control-plane&#34;</span>,<span style="color:#fc6a5d">&#34;namespace&#34;</span>:<span style="color:#fc6a5d">&#34;sample-app&#34;</span>,<span style="color:#fc6a5d">&#34;pod&#34;</span>:<span style="color:#fc6a5d">&#34;sample-app-6bf6dfdbb4-xmqdw&#34;</span>,<span style="color:#fc6a5d">&#34;deployment&#34;</span>:<span style="color:#fc6a5d">&#34;stable&#34;</span>}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>➜ curl localhost/success -H <span style="color:#fc6a5d">&#34;Host: sample.app&#34;</span>
-</span></span><span style="display:flex;"><span>{<span style="color:#fc6a5d">&#34;node&#34;</span>:<span style="color:#fc6a5d">&#34;kind-control-plane&#34;</span>,<span style="color:#fc6a5d">&#34;namespace&#34;</span>:<span style="color:#fc6a5d">&#34;sample-app&#34;</span>,<span style="color:#fc6a5d">&#34;pod&#34;</span>:<span style="color:#fc6a5d">&#34;sample-app-5c9fc8b7d4-wdrck&#34;</span>,<span style="color:#fc6a5d">&#34;deployment&#34;</span>:<span style="color:#fc6a5d">&#34;canary&#34;</span>}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">➜ curl localhost/success -H <span class="s2">&#34;Host: sample.app&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">{</span><span class="s2">&#34;node&#34;</span>:<span class="s2">&#34;kind-control-plane&#34;</span>,<span class="s2">&#34;namespace&#34;</span>:<span class="s2">&#34;sample-app&#34;</span>,<span class="s2">&#34;pod&#34;</span>:<span class="s2">&#34;sample-app-6bf6dfdbb4-xmqdw&#34;</span>,<span class="s2">&#34;deployment&#34;</span>:<span class="s2">&#34;stable&#34;</span><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">➜ curl localhost/success -H <span class="s2">&#34;Host: sample.app&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">{</span><span class="s2">&#34;node&#34;</span>:<span class="s2">&#34;kind-control-plane&#34;</span>,<span class="s2">&#34;namespace&#34;</span>:<span class="s2">&#34;sample-app&#34;</span>,<span class="s2">&#34;pod&#34;</span>:<span class="s2">&#34;sample-app-6bf6dfdbb4-xmqdw&#34;</span>,<span class="s2">&#34;deployment&#34;</span>:<span class="s2">&#34;stable&#34;</span><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">➜ curl localhost/success -H <span class="s2">&#34;Host: sample.app&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">{</span><span class="s2">&#34;node&#34;</span>:<span class="s2">&#34;kind-control-plane&#34;</span>,<span class="s2">&#34;namespace&#34;</span>:<span class="s2">&#34;sample-app&#34;</span>,<span class="s2">&#34;pod&#34;</span>:<span class="s2">&#34;sample-app-6bf6dfdbb4-xmqdw&#34;</span>,<span class="s2">&#34;deployment&#34;</span>:<span class="s2">&#34;stable&#34;</span><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">➜ curl localhost/success -H <span class="s2">&#34;Host: sample.app&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">{</span><span class="s2">&#34;node&#34;</span>:<span class="s2">&#34;kind-control-plane&#34;</span>,<span class="s2">&#34;namespace&#34;</span>:<span class="s2">&#34;sample-app&#34;</span>,<span class="s2">&#34;pod&#34;</span>:<span class="s2">&#34;sample-app-5c9fc8b7d4-wdrck&#34;</span>,<span class="s2">&#34;deployment&#34;</span>:<span class="s2">&#34;canary&#34;</span><span class="o">}</span>
 </span></span></code></pre></div><p>And, the same way as in <a href="/posts/simple-canary-deployment/">Part 1</a>, we can easily <strong>Smoke Test</strong> our change in isolation by leveraging the Ingress <code>canary-by-header</code> annotation.</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>curl localhost/success -H <span style="color:#fc6a5d">&#34;Host: sample.app&#34;</span> -H <span style="color:#fc6a5d">&#34;X-Canary: always&#34;</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">curl localhost/success -H <span class="s2">&#34;Host: sample.app&#34;</span> -H <span class="s2">&#34;X-Canary: always&#34;</span>
 </span></span></code></pre></div><p>Aha! We are now consistently hitting the <code>canary</code> pod.</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ curl localhost/success -H <span style="color:#fc6a5d">&#34;Host: sample.app&#34;</span> -H <span style="color:#fc6a5d">&#34;X-Canary: always&#34;</span>
-</span></span><span style="display:flex;"><span>{<span style="color:#fc6a5d">&#34;node&#34;</span>:<span style="color:#fc6a5d">&#34;kind-control-plane&#34;</span>,<span style="color:#fc6a5d">&#34;namespace&#34;</span>:<span style="color:#fc6a5d">&#34;sample-app&#34;</span>,<span style="color:#fc6a5d">&#34;pod&#34;</span>:<span style="color:#fc6a5d">&#34;sample-app-5c9fc8b7d4-wdrck&#34;</span>,<span style="color:#fc6a5d">&#34;deployment&#34;</span>:<span style="color:#fc6a5d">&#34;canary&#34;</span>}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>➜ curl localhost/success -H <span style="color:#fc6a5d">&#34;Host: sample.app&#34;</span> -H <span style="color:#fc6a5d">&#34;X-Canary: always&#34;</span>
-</span></span><span style="display:flex;"><span>{<span style="color:#fc6a5d">&#34;node&#34;</span>:<span style="color:#fc6a5d">&#34;kind-control-plane&#34;</span>,<span style="color:#fc6a5d">&#34;namespace&#34;</span>:<span style="color:#fc6a5d">&#34;sample-app&#34;</span>,<span style="color:#fc6a5d">&#34;pod&#34;</span>:<span style="color:#fc6a5d">&#34;sample-app-5c9fc8b7d4-wdrck&#34;</span>,<span style="color:#fc6a5d">&#34;deployment&#34;</span>:<span style="color:#fc6a5d">&#34;canary&#34;</span>}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>➜ curl localhost/success -H <span style="color:#fc6a5d">&#34;Host: sample.app&#34;</span> -H <span style="color:#fc6a5d">&#34;X-Canary: always&#34;</span>
-</span></span><span style="display:flex;"><span>{<span style="color:#fc6a5d">&#34;node&#34;</span>:<span style="color:#fc6a5d">&#34;kind-control-plane&#34;</span>,<span style="color:#fc6a5d">&#34;namespace&#34;</span>:<span style="color:#fc6a5d">&#34;sample-app&#34;</span>,<span style="color:#fc6a5d">&#34;pod&#34;</span>:<span style="color:#fc6a5d">&#34;sample-app-5c9fc8b7d4-wdrck&#34;</span>,<span style="color:#fc6a5d">&#34;deployment&#34;</span>:<span style="color:#fc6a5d">&#34;canary&#34;</span>}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">➜ curl localhost/success -H <span class="s2">&#34;Host: sample.app&#34;</span> -H <span class="s2">&#34;X-Canary: always&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">{</span><span class="s2">&#34;node&#34;</span>:<span class="s2">&#34;kind-control-plane&#34;</span>,<span class="s2">&#34;namespace&#34;</span>:<span class="s2">&#34;sample-app&#34;</span>,<span class="s2">&#34;pod&#34;</span>:<span class="s2">&#34;sample-app-5c9fc8b7d4-wdrck&#34;</span>,<span class="s2">&#34;deployment&#34;</span>:<span class="s2">&#34;canary&#34;</span><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">➜ curl localhost/success -H <span class="s2">&#34;Host: sample.app&#34;</span> -H <span class="s2">&#34;X-Canary: always&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">{</span><span class="s2">&#34;node&#34;</span>:<span class="s2">&#34;kind-control-plane&#34;</span>,<span class="s2">&#34;namespace&#34;</span>:<span class="s2">&#34;sample-app&#34;</span>,<span class="s2">&#34;pod&#34;</span>:<span class="s2">&#34;sample-app-5c9fc8b7d4-wdrck&#34;</span>,<span class="s2">&#34;deployment&#34;</span>:<span class="s2">&#34;canary&#34;</span><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">➜ curl localhost/success -H <span class="s2">&#34;Host: sample.app&#34;</span> -H <span class="s2">&#34;X-Canary: always&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">{</span><span class="s2">&#34;node&#34;</span>:<span class="s2">&#34;kind-control-plane&#34;</span>,<span class="s2">&#34;namespace&#34;</span>:<span class="s2">&#34;sample-app&#34;</span>,<span class="s2">&#34;pod&#34;</span>:<span class="s2">&#34;sample-app-5c9fc8b7d4-wdrck&#34;</span>,<span class="s2">&#34;deployment&#34;</span>:<span class="s2">&#34;canary&#34;</span><span class="o">}</span>
 </span></span></code></pre></div><h3 id="load-testing-with-k6">Load Testing with k6</h3>
 <hr>
 <p>Now we’ve made a few requests, let’s see how it behaves under load and whether or not it indeed guarantees a rough 25/75 traffic split!</p>
 <p>For Load Testing, I really recommend <a href="https://k6.io/docs/">k6</a> from the Grafana Labs team. It is a dead-simple yet super powerful tool with very extensive documentation.</p>
 <p>See for yourself!</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>k6 run k6/script.js
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">k6 run k6/script.js
 </span></span></code></pre></div><p>After about 1 minute, k6 should be done executing the load test and show you the results.</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>          /<span style="color:#fc6a5d">\ </span>     |‾‾| /‾‾/   /‾‾/
-</span></span><span style="display:flex;"><span>     /<span style="color:#fc6a5d">\ </span> /  <span style="color:#fc6a5d">\ </span>    |  |/  /   /  /
-</span></span><span style="display:flex;"><span>    /  <span style="color:#fc6a5d">\/</span>    <span style="color:#fc6a5d">\ </span>   |     (   /   ‾‾<span style="color:#fc6a5d">\
-</span></span></span><span style="display:flex;"><span><span style="color:#fc6a5d"></span>   /          <span style="color:#fc6a5d">\ </span>  |  |<span style="color:#fc6a5d">\ </span> <span style="color:#fc6a5d">\ </span>|  (‾)  |
-</span></span><span style="display:flex;"><span>  / __________ <span style="color:#fc6a5d">\ </span> |__| <span style="color:#fc6a5d">\_</span>_<span style="color:#fc6a5d">\ \_</span>____/ .io
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>  execution: <span style="color:#d0a8ff">local</span>
-</span></span><span style="display:flex;"><span>     script: k6/script.js
-</span></span><span style="display:flex;"><span>     output: -
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>  scenarios: (100.00%) <span style="color:#d0bf69">1</span> scenario, <span style="color:#d0bf69">20</span> max VUs, 1m30s max duration (incl. graceful stop):
-</span></span><span style="display:flex;"><span>           * load: Up to 20.00 iterations/s <span style="color:#fc5fa3">for</span> 1m0s over <span style="color:#d0bf69">2</span> stages (maxVUs: 20, gracefulStop: 30s)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>     ✓ status code is <span style="color:#d0bf69">200</span>
-</span></span><span style="display:flex;"><span>     ✓ node is kind-control-plane
-</span></span><span style="display:flex;"><span>     ✓ namespace is sample-app
-</span></span><span style="display:flex;"><span>     ✓ pod is sample-app-*
-</span></span><span style="display:flex;"><span>     ✓ deployment is stable or canary
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>   ✓ checks.........................: 100.00% ✓ <span style="color:#d0bf69">3100</span>      ✗ <span style="color:#d0bf69">0</span>
-</span></span><span style="display:flex;"><span>     data_received..................: <span style="color:#d0bf69">157</span> kB  2.6 kB/s
-</span></span><span style="display:flex;"><span>     data_sent......................: <span style="color:#d0bf69">71</span> kB   1.2 kB/s
-</span></span><span style="display:flex;"><span>     http_req_blocked...............: <span style="color:#41a1c0">avg</span>=42.6µs   <span style="color:#41a1c0">min</span>=2µs    <span style="color:#41a1c0">med</span>=15µs   <span style="color:#41a1c0">max</span>=2.44ms  p(90)=23µs   p(95)=36.29µs
-</span></span><span style="display:flex;"><span>     http_req_connecting............: <span style="color:#41a1c0">avg</span>=20.73µs  <span style="color:#41a1c0">min</span>=0s     <span style="color:#41a1c0">med</span>=0s     <span style="color:#41a1c0">max</span>=1.49ms  p(90)=0s     p(95)=0s
-</span></span><span style="display:flex;"><span>   ✓ http_req_duration..............: <span style="color:#41a1c0">avg</span>=4.73ms   <span style="color:#41a1c0">min</span>=829µs  <span style="color:#41a1c0">med</span>=4.09ms <span style="color:#41a1c0">max</span>=36.81ms p(90)=7.89ms p(95)=10.14ms
-</span></span><span style="display:flex;"><span>       { expected_response:true }...: <span style="color:#41a1c0">avg</span>=4.73ms   <span style="color:#41a1c0">min</span>=829µs  <span style="color:#41a1c0">med</span>=4.09ms <span style="color:#41a1c0">max</span>=36.81ms p(90)=7.89ms p(95)=10.14ms
-</span></span><span style="display:flex;"><span>     http_req_failed................: 0.00%   ✓ <span style="color:#d0bf69">0</span>         ✗ <span style="color:#d0bf69">620</span>
-</span></span><span style="display:flex;"><span>     http_req_rate..................: 50.00%  ✓ <span style="color:#d0bf69">620</span>       ✗ <span style="color:#d0bf69">620</span>
-</span></span><span style="display:flex;"><span>     ✓ { deployment:canary }........: 28.70%  ✓ <span style="color:#d0bf69">178</span>       ✗ <span style="color:#d0bf69">442</span>
-</span></span><span style="display:flex;"><span>     ✓ { deployment:stable }........: 71.29%  ✓ <span style="color:#d0bf69">442</span>       ✗ <span style="color:#d0bf69">178</span>
-</span></span><span style="display:flex;"><span>     http_req_receiving.............: <span style="color:#41a1c0">avg</span>=129.17µs <span style="color:#41a1c0">min</span>=21µs   <span style="color:#41a1c0">med</span>=128µs  <span style="color:#41a1c0">max</span>=2.05ms  p(90)=186µs  p(95)=214.04µs
-</span></span><span style="display:flex;"><span>     http_req_sending...............: <span style="color:#41a1c0">avg</span>=65.53µs  <span style="color:#41a1c0">min</span>=11µs   <span style="color:#41a1c0">med</span>=62µs   <span style="color:#41a1c0">max</span>=1.96ms  p(90)=92.1µs p(95)=104.04µs
-</span></span><span style="display:flex;"><span>     http_req_tls_handshaking.......: <span style="color:#41a1c0">avg</span>=0s       <span style="color:#41a1c0">min</span>=0s     <span style="color:#41a1c0">med</span>=0s     <span style="color:#41a1c0">max</span>=0s      p(90)=0s     p(95)=0s
-</span></span><span style="display:flex;"><span>     http_req_waiting...............: <span style="color:#41a1c0">avg</span>=4.53ms   <span style="color:#41a1c0">min</span>=774µs  <span style="color:#41a1c0">med</span>=3.88ms <span style="color:#41a1c0">max</span>=36.6ms  p(90)=7.7ms  p(95)=9.73ms
-</span></span><span style="display:flex;"><span>     http_reqs......................: <span style="color:#d0bf69">620</span>     10.333024/s
-</span></span><span style="display:flex;"><span>     iteration_duration.............: <span style="color:#41a1c0">avg</span>=5.4ms    <span style="color:#41a1c0">min</span>=1.07ms <span style="color:#41a1c0">med</span>=4.81ms <span style="color:#41a1c0">max</span>=38.46ms p(90)=8.76ms p(95)=10.76ms
-</span></span><span style="display:flex;"><span>     iterations.....................: <span style="color:#d0bf69">620</span>     10.333024/s
-</span></span><span style="display:flex;"><span>     vus............................: <span style="color:#d0bf69">0</span>       <span style="color:#41a1c0">min</span>=<span style="color:#d0bf69">0</span>       <span style="color:#41a1c0">max</span>=<span style="color:#d0bf69">1</span>
-</span></span><span style="display:flex;"><span>     vus_max........................: <span style="color:#d0bf69">20</span>      <span style="color:#41a1c0">min</span>=<span style="color:#d0bf69">20</span>      <span style="color:#41a1c0">max</span>=<span style="color:#d0bf69">20</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>running (1m00.0s), 00/20 VUs, <span style="color:#d0bf69">620</span> <span style="color:#d0a8ff">complete</span> and <span style="color:#d0bf69">0</span> interrupted iterations
-</span></span><span style="display:flex;"><span>load ✓ [======================================] 00/20 VUs  1m0s  00.71 iters/s
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">          /<span class="se">\ </span>     <span class="p">|</span>‾‾<span class="p">|</span> /‾‾/   /‾‾/
+</span></span><span class="line"><span class="cl">     /<span class="se">\ </span> /  <span class="se">\ </span>    <span class="p">|</span>  <span class="p">|</span>/  /   /  /
+</span></span><span class="line"><span class="cl">    /  <span class="se">\/</span>    <span class="se">\ </span>   <span class="p">|</span>     <span class="o">(</span>   /   ‾‾<span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>   /          <span class="se">\ </span>  <span class="p">|</span>  <span class="p">|</span><span class="se">\ </span> <span class="se">\ </span><span class="p">|</span>  <span class="o">(</span>‾<span class="o">)</span>  <span class="p">|</span>
+</span></span><span class="line"><span class="cl">  / __________ <span class="se">\ </span> <span class="p">|</span>__<span class="p">|</span> <span class="se">\_</span>_<span class="se">\ \_</span>____/ .io
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  execution: <span class="nb">local</span>
+</span></span><span class="line"><span class="cl">     script: k6/script.js
+</span></span><span class="line"><span class="cl">     output: -
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  scenarios: <span class="o">(</span>100.00%<span class="o">)</span> <span class="m">1</span> scenario, <span class="m">20</span> max VUs, 1m30s max duration <span class="o">(</span>incl. graceful stop<span class="o">)</span>:
+</span></span><span class="line"><span class="cl">           * load: Up to 20.00 iterations/s <span class="k">for</span> 1m0s over <span class="m">2</span> stages <span class="o">(</span>maxVUs: 20, gracefulStop: 30s<span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">     ✓ status code is <span class="m">200</span>
+</span></span><span class="line"><span class="cl">     ✓ node is kind-control-plane
+</span></span><span class="line"><span class="cl">     ✓ namespace is sample-app
+</span></span><span class="line"><span class="cl">     ✓ pod is sample-app-*
+</span></span><span class="line"><span class="cl">     ✓ deployment is stable or canary
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   ✓ checks.........................: 100.00% ✓ <span class="m">3100</span>      ✗ <span class="m">0</span>
+</span></span><span class="line"><span class="cl">     data_received..................: <span class="m">157</span> kB  2.6 kB/s
+</span></span><span class="line"><span class="cl">     data_sent......................: <span class="m">71</span> kB   1.2 kB/s
+</span></span><span class="line"><span class="cl">     http_req_blocked...............: <span class="nv">avg</span><span class="o">=</span>42.6µs   <span class="nv">min</span><span class="o">=</span>2µs    <span class="nv">med</span><span class="o">=</span>15µs   <span class="nv">max</span><span class="o">=</span>2.44ms  p<span class="o">(</span>90<span class="o">)=</span>23µs   p<span class="o">(</span>95<span class="o">)=</span>36.29µs
+</span></span><span class="line"><span class="cl">     http_req_connecting............: <span class="nv">avg</span><span class="o">=</span>20.73µs  <span class="nv">min</span><span class="o">=</span>0s     <span class="nv">med</span><span class="o">=</span>0s     <span class="nv">max</span><span class="o">=</span>1.49ms  p<span class="o">(</span>90<span class="o">)=</span>0s     p<span class="o">(</span>95<span class="o">)=</span>0s
+</span></span><span class="line"><span class="cl">   ✓ http_req_duration..............: <span class="nv">avg</span><span class="o">=</span>4.73ms   <span class="nv">min</span><span class="o">=</span>829µs  <span class="nv">med</span><span class="o">=</span>4.09ms <span class="nv">max</span><span class="o">=</span>36.81ms p<span class="o">(</span>90<span class="o">)=</span>7.89ms p<span class="o">(</span>95<span class="o">)=</span>10.14ms
+</span></span><span class="line"><span class="cl">       <span class="o">{</span> expected_response:true <span class="o">}</span>...: <span class="nv">avg</span><span class="o">=</span>4.73ms   <span class="nv">min</span><span class="o">=</span>829µs  <span class="nv">med</span><span class="o">=</span>4.09ms <span class="nv">max</span><span class="o">=</span>36.81ms p<span class="o">(</span>90<span class="o">)=</span>7.89ms p<span class="o">(</span>95<span class="o">)=</span>10.14ms
+</span></span><span class="line"><span class="cl">     http_req_failed................: 0.00%   ✓ <span class="m">0</span>         ✗ <span class="m">620</span>
+</span></span><span class="line"><span class="cl">     http_req_rate..................: 50.00%  ✓ <span class="m">620</span>       ✗ <span class="m">620</span>
+</span></span><span class="line"><span class="cl">     ✓ <span class="o">{</span> deployment:canary <span class="o">}</span>........: 28.70%  ✓ <span class="m">178</span>       ✗ <span class="m">442</span>
+</span></span><span class="line"><span class="cl">     ✓ <span class="o">{</span> deployment:stable <span class="o">}</span>........: 71.29%  ✓ <span class="m">442</span>       ✗ <span class="m">178</span>
+</span></span><span class="line"><span class="cl">     http_req_receiving.............: <span class="nv">avg</span><span class="o">=</span>129.17µs <span class="nv">min</span><span class="o">=</span>21µs   <span class="nv">med</span><span class="o">=</span>128µs  <span class="nv">max</span><span class="o">=</span>2.05ms  p<span class="o">(</span>90<span class="o">)=</span>186µs  p<span class="o">(</span>95<span class="o">)=</span>214.04µs
+</span></span><span class="line"><span class="cl">     http_req_sending...............: <span class="nv">avg</span><span class="o">=</span>65.53µs  <span class="nv">min</span><span class="o">=</span>11µs   <span class="nv">med</span><span class="o">=</span>62µs   <span class="nv">max</span><span class="o">=</span>1.96ms  p<span class="o">(</span>90<span class="o">)=</span>92.1µs p<span class="o">(</span>95<span class="o">)=</span>104.04µs
+</span></span><span class="line"><span class="cl">     http_req_tls_handshaking.......: <span class="nv">avg</span><span class="o">=</span>0s       <span class="nv">min</span><span class="o">=</span>0s     <span class="nv">med</span><span class="o">=</span>0s     <span class="nv">max</span><span class="o">=</span>0s      p<span class="o">(</span>90<span class="o">)=</span>0s     p<span class="o">(</span>95<span class="o">)=</span>0s
+</span></span><span class="line"><span class="cl">     http_req_waiting...............: <span class="nv">avg</span><span class="o">=</span>4.53ms   <span class="nv">min</span><span class="o">=</span>774µs  <span class="nv">med</span><span class="o">=</span>3.88ms <span class="nv">max</span><span class="o">=</span>36.6ms  p<span class="o">(</span>90<span class="o">)=</span>7.7ms  p<span class="o">(</span>95<span class="o">)=</span>9.73ms
+</span></span><span class="line"><span class="cl">     http_reqs......................: <span class="m">620</span>     10.333024/s
+</span></span><span class="line"><span class="cl">     iteration_duration.............: <span class="nv">avg</span><span class="o">=</span>5.4ms    <span class="nv">min</span><span class="o">=</span>1.07ms <span class="nv">med</span><span class="o">=</span>4.81ms <span class="nv">max</span><span class="o">=</span>38.46ms p<span class="o">(</span>90<span class="o">)=</span>8.76ms p<span class="o">(</span>95<span class="o">)=</span>10.76ms
+</span></span><span class="line"><span class="cl">     iterations.....................: <span class="m">620</span>     10.333024/s
+</span></span><span class="line"><span class="cl">     vus............................: <span class="m">0</span>       <span class="nv">min</span><span class="o">=</span><span class="m">0</span>       <span class="nv">max</span><span class="o">=</span><span class="m">1</span>
+</span></span><span class="line"><span class="cl">     vus_max........................: <span class="m">20</span>      <span class="nv">min</span><span class="o">=</span><span class="m">20</span>      <span class="nv">max</span><span class="o">=</span><span class="m">20</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">running <span class="o">(</span>1m00.0s<span class="o">)</span>, 00/20 VUs, <span class="m">620</span> <span class="nb">complete</span> and <span class="m">0</span> interrupted iterations
+</span></span><span class="line"><span class="cl">load ✓ <span class="o">[======================================]</span> 00/20 VUs  1m0s  00.71 iters/s
 </span></span></code></pre></div><p>That sounds about right!<br>
 Out of 620 requests, 178 (28%) were served by the <code>canary</code> Deployment while 442 (72%) were served by the <code>stable</code> one. Pretty good!</p>
 <h3 id="promoting-rollouts">Promoting Rollouts</h3>
 <hr>
 <p>Once feeling confident enough to proceed to the next <code>step</code>, we can now <strong>promote</strong> our Rollout, either from the dashboard via the <em>PROMOTE</em> button, or via the Kubectl Plugin.</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>kubectl argo rollouts promote sample-app -n sample-app
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">kubectl argo rollouts promote sample-app -n sample-app
 </span></span></code></pre></div><p><img src="/images/automated-canary-deployment/3.png" alt="Argo Rollouts Dashboard"></p>
 <blockquote>
 <p><em>Note: while the rollout is ongoing, keep firing some curl requests or run the k6 Load Test script again to observe the change in traffic distribution!</em></p>
 </blockquote>
 <p>And if feeling so confident that we want to skip all the Rollout <code>steps</code> and get straight to 100% canary traffic, then we can <strong>fully promote</strong> the Rollout, also either from the dashboard via the <em>PROMOTE-FULL</em> button, or from the command line.</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>kubectl argo rollouts promote sample-app -n sample-app --full
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">kubectl argo rollouts promote sample-app -n sample-app --full
 </span></span></code></pre></div><p>But if on the contrary, we found an issue while in the middle of rolling out a change, then we can easily <strong>abort</strong> the Rollout and return to 100% stable traffic, either from the dashboard via the <em>ABORT</em> button, or from the CLI.</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>kubectl argo rollouts abort sample-app -n sample-app
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">kubectl argo rollouts abort sample-app -n sample-app
 </span></span></code></pre></div><p>Finally, once the Rollout is complete and if something were to go wrong, just like one would do with a standard Deployment, we can easily <strong>undo</strong> a Rollout and roll it back to the previous revision, also either from the dashboard via the <em>ROLLBACK</em> button, or via Kubectl.</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>kubectl argo rollouts undo sample-app -n sample-app
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">kubectl argo rollouts undo sample-app -n sample-app
 </span></span></code></pre></div><h2 id="wrapping-up">Wrapping up</h2>
 <hr>
 <p>That’s it! You can now delete your Kind cluster.</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>kind delete cluster
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">kind delete cluster
 </span></span></code></pre></div><p>To summarize, using Argo Rollouts we were able to:</p>
 <ul>
 <li>Improve our Canary Deployment setup, by leveraging the Rollout custom resource, without which duplicated Deployment and Ingress resources would have to be created;</li>

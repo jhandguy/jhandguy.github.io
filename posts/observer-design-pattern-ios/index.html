@@ -6,6 +6,7 @@
     <title>Lightweight Design Patterns in iOS (Part 1) - Observer</title>
     <link rel="stylesheet" href="/css/bulma.min.css">
     <link rel="stylesheet" href="/css/custom.css">
+    <link rel="stylesheet" href="/css/hugo.css">
 </head>
 
 <body>
@@ -66,91 +67,91 @@ But guess what: you can do it yourself, with no more than 💯 <strong>lines</st
 <h2 id="define-an-observable">Define an Observable</h2>
 <hr>
 <p>To start, let’s create a <em>Result</em> enum.</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">enum</span> <span style="color:#5dd8ff">Result</span>&lt;T&gt; {
-</span></span><span style="display:flex;"><span>   <span style="color:#fc5fa3">case</span> success(T)
-</span></span><span style="display:flex;"><span>   <span style="color:#fc5fa3">case</span> failure(Error)
-</span></span><span style="display:flex;"><span>}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">enum</span> <span class="nc">Result</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">   <span class="k">case</span> <span class="n">success</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">   <span class="k">case</span> <span class="n">failure</span><span class="p">(</span><span class="n">Error</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><p>Then, let’s define the <em>Observer</em> type alias, which is no more than a <strong>closure</strong> taking a <em>Result</em> as parameter.</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">typealias</span> Observer&lt;T&gt; = (Result&lt;T&gt;) -&gt; <span style="color:#d0a8ff">Void</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">typealias</span> <span class="n">Observer</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;</span> <span class="p">=</span> <span class="p">(</span><span class="n">Result</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;)</span> <span class="p">-&gt;</span> <span class="nb">Void</span>
 </span></span></code></pre></div><p>Simple so far, right? Moving on! 🏃‍</p>
 <p>The next element we need is the <em>Request</em> enum for the <em>NetworkManager</em>.<br>
 It needs to contain a <em>url</em>, a <em>method</em> as well as <em>parameters</em>. ✅</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">enum</span> <span style="color:#5dd8ff">Request</span>: <span style="color:#d0a8ff">Hashable</span> {
-</span></span><span style="display:flex;"><span>   <span style="color:#fc5fa3">case</span> fetchSomething
-</span></span><span style="display:flex;"><span>   
-</span></span><span style="display:flex;"><span>   <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">url</span>: <span style="color:#d0a8ff">String</span> {
-</span></span><span style="display:flex;"><span>      <span style="color:#fc5fa3">switch</span> <span style="color:#fc5fa3">self</span> {
-</span></span><span style="display:flex;"><span>      <span style="color:#fc5fa3">case</span> .fetchSomething:
-</span></span><span style="display:flex;"><span>         <span style="color:#fc5fa3">return</span> <span style="color:#fc6a5d">&#34;https://api.com/something&#34;</span>
-</span></span><span style="display:flex;"><span>      }
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">method</span>: HTTPMethod {
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">switch</span> <span style="color:#fc5fa3">self</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#fc5fa3">case</span> .fetchSomething
-</span></span><span style="display:flex;"><span>            <span style="color:#fc5fa3">return</span> .<span style="color:#fc5fa3">get</span>
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">parameters</span>: Parameters {
-</span></span><span style="display:flex;"><span>       <span style="color:#fc5fa3">switch</span> <span style="color:#fc5fa3">self</span> {
-</span></span><span style="display:flex;"><span>       <span style="color:#fc5fa3">case</span> .fetchSomething:
-</span></span><span style="display:flex;"><span>          <span style="color:#fc5fa3">return</span> .url([<span style="color:#fc6a5d">&#34;api-key&#34;</span>: <span style="color:#fc6a5d">&#34;abcd1234&#34;</span>])
-</span></span><span style="display:flex;"><span>       }
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">enum</span> <span class="nc">Request</span><span class="p">:</span> <span class="nb">Hashable</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">   <span class="k">case</span> <span class="n">fetchSomething</span>
+</span></span><span class="line"><span class="cl">   
+</span></span><span class="line"><span class="cl">   <span class="kd">var</span> <span class="nv">url</span><span class="p">:</span> <span class="nb">String</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">switch</span> <span class="kc">self</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">case</span> <span class="p">.</span><span class="n">fetchSomething</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">         <span class="k">return</span> <span class="s">&#34;https://api.com/something&#34;</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">var</span> <span class="nv">method</span><span class="p">:</span> <span class="n">HTTPMethod</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">switch</span> <span class="kc">self</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">case</span> <span class="p">.</span><span class="n">fetchSomething</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="p">.</span><span class="kr">get</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">var</span> <span class="nv">parameters</span><span class="p">:</span> <span class="n">Parameters</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">       <span class="k">switch</span> <span class="kc">self</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">       <span class="k">case</span> <span class="p">.</span><span class="n">fetchSomething</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">          <span class="k">return</span> <span class="p">.</span><span class="n">url</span><span class="p">([</span><span class="s">&#34;api-key&#34;</span><span class="p">:</span> <span class="s">&#34;abcd1234&#34;</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">       <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><p>Yaaaaaay, a fancy enum as we all love it! 🎉</p>
 <p>But have you noticed? The enum <em>Request</em> is <em>Hashable</em>! 🤭<br>
 This means that a <em>Request</em> can be used as key to a Dictionary… 🤔<br>
 In this case, <strong>subscribe</strong> to a <em>Request</em> means that the <em>Observer(s)</em> will need to be grouped by <em>Request</em>. Which leads us to a Dictionary with <em>Requests</em> as <strong>keys</strong> and <em>Observers</em> as <strong>values</strong>: we are of course talking about the <strong>observables</strong>! 🤯</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">observables</span>: [Request: [Observer&lt;Data&gt;]]
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">var</span> <span class="nv">observables</span><span class="p">:</span> <span class="p">[</span><span class="n">Request</span><span class="p">:</span> <span class="p">[</span><span class="n">Observer</span><span class="p">&lt;</span><span class="n">Data</span><span class="p">&gt;]]</span>
 </span></span></code></pre></div><p>Looking good huh?! 😎<br>
 “Only one thing missing”- you’ll tell me - “how do we subscribe to them?” 🤔</p>
 <h2 id="subscribe-to-a-request">Subscribe to a Request</h2>
 <hr>
 <p>Looking now at the <em>NetworkManager</em>, its protocol is quite synthetic:<br>
 <strong>observe</strong> a <em>Request</em> with an <em>Observer</em> or simply <strong>execute</strong> a <em>Request</em>. 👌</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">protocol</span> <span style="color:#5dd8ff">NetworkManagerProtocol</span> {
-</span></span><span style="display:flex;"><span>   <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">observe</span>(<span style="color:#fc5fa3">_</span> request: Request, <span style="color:#fc5fa3">_</span> observer: @escaping Observer&lt;Data&gt;)
-</span></span><span style="display:flex;"><span>   <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">execute</span>(<span style="color:#fc5fa3">_</span> request: Request)
-</span></span><span style="display:flex;"><span>}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">protocol</span> <span class="nc">NetworkManagerProtocol</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">   <span class="kd">func</span> <span class="nf">observe</span><span class="p">(</span><span class="kc">_</span> <span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="kc">_</span> <span class="n">observer</span><span class="p">:</span> <span class="p">@</span><span class="n">escaping</span> <span class="n">Observer</span><span class="p">&lt;</span><span class="n">Data</span><span class="p">&gt;)</span>
+</span></span><span class="line"><span class="cl">   <span class="kd">func</span> <span class="nf">execute</span><span class="p">(</span><span class="kc">_</span> <span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><p>Nice and simple, all we want, is <strong>observe</strong> a <em>Request</em>, with a given <em>Observer</em> and in case of a pull-to-refresh action, simply <strong>executes</strong> a <em>Request</em> to notify the <strong>subscribed</strong> <em>Observer(s)</em>! 🚀</p>
 <p>Alright, let’s implement it then! 💪</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">extension</span> <span style="color:#5dd8ff">NetworkManager</span>: NetworkManagerProtocol {
-</span></span><span style="display:flex;"><span>   
-</span></span><span style="display:flex;"><span>   <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">observe</span>(<span style="color:#fc5fa3">_</span> request: Request, <span style="color:#fc5fa3">_</span> observer: @escaping Observer&lt;Data&gt;) {
-</span></span><span style="display:flex;"><span>      <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">observers</span> = observables[request] ?? []
-</span></span><span style="display:flex;"><span>      observers.append(observer)
-</span></span><span style="display:flex;"><span>      observables[request] = observers
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>      execute(request, with: [observer])
-</span></span><span style="display:flex;"><span>  }
-</span></span><span style="display:flex;"><span>  
-</span></span><span style="display:flex;"><span>   <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">execute</span>(<span style="color:#fc5fa3">_</span> request: Request) {
-</span></span><span style="display:flex;"><span>      <span style="color:#fc5fa3">guard</span> <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">observers</span> = observables[request] <span style="color:#fc5fa3">else</span> {
-</span></span><span style="display:flex;"><span>         <span style="color:#fc5fa3">return</span>
-</span></span><span style="display:flex;"><span>      }
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>      execute(request, with: observers)
-</span></span><span style="display:flex;"><span>   }
-</span></span><span style="display:flex;"><span>}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">extension</span> <span class="nc">NetworkManager</span><span class="p">:</span> <span class="n">NetworkManagerProtocol</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">   
+</span></span><span class="line"><span class="cl">   <span class="kd">func</span> <span class="nf">observe</span><span class="p">(</span><span class="kc">_</span> <span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="kc">_</span> <span class="n">observer</span><span class="p">:</span> <span class="p">@</span><span class="n">escaping</span> <span class="n">Observer</span><span class="p">&lt;</span><span class="n">Data</span><span class="p">&gt;)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="kd">var</span> <span class="nv">observers</span> <span class="p">=</span> <span class="n">observables</span><span class="p">[</span><span class="n">request</span><span class="p">]</span> <span class="p">??</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl">      <span class="n">observers</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">observer</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">      <span class="n">observables</span><span class="p">[</span><span class="n">request</span><span class="p">]</span> <span class="p">=</span> <span class="n">observers</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">      <span class="n">execute</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">with</span><span class="p">:</span> <span class="p">[</span><span class="n">observer</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  
+</span></span><span class="line"><span class="cl">   <span class="kd">func</span> <span class="nf">execute</span><span class="p">(</span><span class="kc">_</span> <span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">guard</span> <span class="kd">let</span> <span class="nv">observers</span> <span class="p">=</span> <span class="n">observables</span><span class="p">[</span><span class="n">request</span><span class="p">]</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">         <span class="k">return</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">      <span class="n">execute</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">with</span><span class="p">:</span> <span class="n">observers</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">   <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><p>And that’s it! We’re done! ✅<br>
 We now can <strong>decode</strong> Data to <em>Something</em> in a dedicated <em>Manager</em>! 👌</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">something</span>(<span style="color:#fc5fa3">_</span> observer: @escaping Observer&lt;Something&gt;) {
-</span></span><span style="display:flex;"><span>   networkManager
-</span></span><span style="display:flex;"><span>      .observe(.fetchSomething) { result <span style="color:#fc5fa3">in</span>
-</span></span><span style="display:flex;"><span>         ...
-</span></span><span style="display:flex;"><span>   }   
-</span></span><span style="display:flex;"><span>}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">something</span><span class="p">(</span><span class="kc">_</span> <span class="n">observer</span><span class="p">:</span> <span class="p">@</span><span class="n">escaping</span> <span class="n">Observer</span><span class="p">&lt;</span><span class="n">Something</span><span class="p">&gt;)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">   <span class="n">networkManager</span>
+</span></span><span class="line"><span class="cl">      <span class="p">.</span><span class="n">observe</span><span class="p">(.</span><span class="n">fetchSomething</span><span class="p">)</span> <span class="p">{</span> <span class="n">result</span> <span class="k">in</span>
+</span></span><span class="line"><span class="cl">         <span class="p">...</span>
+</span></span><span class="line"><span class="cl">   <span class="p">}</span>   
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><p>And use this <em>Manager</em> in the <em>ViewController</em> to update the view accordingly! 👍</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">override</span> <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">viewWillAppear</span>(<span style="color:#fc5fa3">_</span> animated: <span style="color:#d0a8ff">Bool</span>) {
-</span></span><span style="display:flex;"><span>   <span style="color:#fc5fa3">super</span>.viewWillAppear(animated)
-</span></span><span style="display:flex;"><span>  
-</span></span><span style="display:flex;"><span>   somethingManager
-</span></span><span style="display:flex;"><span>      .something { [<span style="color:#fc5fa3">weak</span> <span style="color:#fc5fa3">self</span>] result <span style="color:#fc5fa3">in</span>
-</span></span><span style="display:flex;"><span>         ...
-</span></span><span style="display:flex;"><span>   }
-</span></span><span style="display:flex;"><span>}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kr">override</span> <span class="kd">func</span> <span class="nf">viewWillAppear</span><span class="p">(</span><span class="kc">_</span> <span class="n">animated</span><span class="p">:</span> <span class="nb">Bool</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">   <span class="kc">super</span><span class="p">.</span><span class="n">viewWillAppear</span><span class="p">(</span><span class="n">animated</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  
+</span></span><span class="line"><span class="cl">   <span class="n">somethingManager</span>
+</span></span><span class="line"><span class="cl">      <span class="p">.</span><span class="n">something</span> <span class="p">{</span> <span class="p">[</span><span class="kr">weak</span> <span class="kc">self</span><span class="p">]</span> <span class="n">result</span> <span class="k">in</span>
+</span></span><span class="line"><span class="cl">         <span class="p">...</span>
+</span></span><span class="line"><span class="cl">   <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><p>Looks good! 😎<br>
 We got something pretty much looking like RxSwift there! 🙌<br>
 Now, don’t you see anything wrong in what we’ve done so far?<br>
@@ -162,94 +163,94 @@ Let’s implement a <strong>DisposeBag</strong> ourselves then! 💪</p>
 <hr>
 <p>So, to dispose of an <em>Observer</em>, we first need to identify it, as so far it is simply stored in an array, remember? 🙂</p>
 <p>How about having a Dictionary instead with <strong>unique identifiers</strong> as keys?! 😯</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">observables</span>: [Request: [UUID: Observer&lt;Data&gt;]]
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">var</span> <span class="nv">observables</span><span class="p">:</span> <span class="p">[</span><span class="n">Request</span><span class="p">:</span> <span class="p">[</span><span class="n">UUID</span><span class="p">:</span> <span class="n">Observer</span><span class="p">&lt;</span><span class="n">Data</span><span class="p">&gt;]]</span>
 </span></span></code></pre></div><p>Nice!<br>
 Now, an <strong>observable</strong> consists of a <em>Request</em>, which is <strong>observed</strong> by one or several <em>Observer(s)</em>.<br>
 Each one of them, is uniquely <strong>identified</strong> with a <em>UUID</em>! 👏</p>
 <p>Awesome, let’s change the <em>NetworkManager</em> a little bit… 😕</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">extension</span> <span style="color:#5dd8ff">NetworkManager</span>: NetworkManagerProtocol {
-</span></span><span style="display:flex;"><span>   
-</span></span><span style="display:flex;"><span>   <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">observe</span>(<span style="color:#fc5fa3">_</span> request: Request, <span style="color:#fc5fa3">_</span> observer: @escaping Observer&lt;Data&gt;) {
-</span></span><span style="display:flex;"><span>      <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">uuid</span> = UUID()
-</span></span><span style="display:flex;"><span>      <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">observers</span> = observables[request] ?? [:]
-</span></span><span style="display:flex;"><span>      observers[uuid] = observer
-</span></span><span style="display:flex;"><span>      observables[request] = observers
-</span></span><span style="display:flex;"><span>      
-</span></span><span style="display:flex;"><span>      execute(request, with: [observer])
-</span></span><span style="display:flex;"><span>   }
-</span></span><span style="display:flex;"><span>  
-</span></span><span style="display:flex;"><span>   <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">execute</span>(<span style="color:#fc5fa3">_</span> request: Request) {
-</span></span><span style="display:flex;"><span>      <span style="color:#fc5fa3">guard</span> <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">observers</span> = observables[request] <span style="color:#fc5fa3">else</span> {
-</span></span><span style="display:flex;"><span>         <span style="color:#fc5fa3">return</span>
-</span></span><span style="display:flex;"><span>      }
-</span></span><span style="display:flex;"><span>      
-</span></span><span style="display:flex;"><span>      execute(request, with: observers.<span style="color:#a167e6">map</span> { <span style="color:#41a1c0">$0</span>.value })
-</span></span><span style="display:flex;"><span>   }
-</span></span><span style="display:flex;"><span>}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">extension</span> <span class="nc">NetworkManager</span><span class="p">:</span> <span class="n">NetworkManagerProtocol</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">   
+</span></span><span class="line"><span class="cl">   <span class="kd">func</span> <span class="nf">observe</span><span class="p">(</span><span class="kc">_</span> <span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="kc">_</span> <span class="n">observer</span><span class="p">:</span> <span class="p">@</span><span class="n">escaping</span> <span class="n">Observer</span><span class="p">&lt;</span><span class="n">Data</span><span class="p">&gt;)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="kd">let</span> <span class="nv">uuid</span> <span class="p">=</span> <span class="n">UUID</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">      <span class="kd">var</span> <span class="nv">observers</span> <span class="p">=</span> <span class="n">observables</span><span class="p">[</span><span class="n">request</span><span class="p">]</span> <span class="p">??</span> <span class="p">[:]</span>
+</span></span><span class="line"><span class="cl">      <span class="n">observers</span><span class="p">[</span><span class="n">uuid</span><span class="p">]</span> <span class="p">=</span> <span class="n">observer</span>
+</span></span><span class="line"><span class="cl">      <span class="n">observables</span><span class="p">[</span><span class="n">request</span><span class="p">]</span> <span class="p">=</span> <span class="n">observers</span>
+</span></span><span class="line"><span class="cl">      
+</span></span><span class="line"><span class="cl">      <span class="n">execute</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">with</span><span class="p">:</span> <span class="p">[</span><span class="n">observer</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">   <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  
+</span></span><span class="line"><span class="cl">   <span class="kd">func</span> <span class="nf">execute</span><span class="p">(</span><span class="kc">_</span> <span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">guard</span> <span class="kd">let</span> <span class="nv">observers</span> <span class="p">=</span> <span class="n">observables</span><span class="p">[</span><span class="n">request</span><span class="p">]</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">         <span class="k">return</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="cl">      
+</span></span><span class="line"><span class="cl">      <span class="n">execute</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">with</span><span class="p">:</span> <span class="n">observers</span><span class="p">.</span><span class="bp">map</span> <span class="p">{</span> <span class="nv">$0</span><span class="p">.</span><span class="n">value</span> <span class="p">})</span>
+</span></span><span class="line"><span class="cl">   <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><p>Not so bad finally, it looks almost the same! 😲<br>
 Alright, last piece of the puzzle, I promise! 😇</p>
 <p>We need to implement a Disposable, so we can <strong>dispose</strong> of an <em>Observer</em>. 🗑</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">struct</span> <span style="color:#5dd8ff">Disposable</span> {
-</span></span><span style="display:flex;"><span>   <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">closure</span>: () -&gt; <span style="color:#d0a8ff">Void</span>
-</span></span><span style="display:flex;"><span>}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">struct</span> <span class="nc">Disposable</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">   <span class="kd">let</span> <span class="nv">closure</span><span class="p">:</span> <span class="p">()</span> <span class="p">-&gt;</span> <span class="nb">Void</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><p>Now, let’s make the <em>DisposeBag</em>! 👜</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">final</span> <span style="color:#fc5fa3">class</span> <span style="color:#5dd8ff">DisposeBag</span> {
-</span></span><span style="display:flex;"><span>   <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">disposables</span>: [Disposable] = []
-</span></span><span style="display:flex;"><span>  
-</span></span><span style="display:flex;"><span>   <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">dispose</span>() {
-</span></span><span style="display:flex;"><span>      disposables.forEach { <span style="color:#41a1c0">$0</span>.closure() }
-</span></span><span style="display:flex;"><span>      disposables = []
-</span></span><span style="display:flex;"><span>   }
-</span></span><span style="display:flex;"><span>}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kr">final</span> <span class="kd">class</span> <span class="nc">DisposeBag</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">   <span class="kd">var</span> <span class="nv">disposables</span><span class="p">:</span> <span class="p">[</span><span class="n">Disposable</span><span class="p">]</span> <span class="p">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl">  
+</span></span><span class="line"><span class="cl">   <span class="kd">func</span> <span class="nf">dispose</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">disposables</span><span class="p">.</span><span class="n">forEach</span> <span class="p">{</span> <span class="nv">$0</span><span class="p">.</span><span class="n">closure</span><span class="p">()</span> <span class="p">}</span>
+</span></span><span class="line"><span class="cl">      <span class="n">disposables</span> <span class="p">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl">   <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><p>Finally, let’s bind those two together! 💞</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">extension</span> <span style="color:#5dd8ff">Disposable</span> {
-</span></span><span style="display:flex;"><span>   <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">disposed</span>(by disposeBag: DisposeBag) {
-</span></span><span style="display:flex;"><span>      disposeBag.disposables.append(<span style="color:#fc5fa3">self</span>)
-</span></span><span style="display:flex;"><span>   }
-</span></span><span style="display:flex;"><span>}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">extension</span> <span class="nc">Disposable</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">   <span class="kd">func</span> <span class="nf">disposed</span><span class="p">(</span><span class="n">by</span> <span class="n">disposeBag</span><span class="p">:</span> <span class="n">DisposeBag</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">disposeBag</span><span class="p">.</span><span class="n">disposables</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="kc">self</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">   <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><p>That was easy! 😎<br>
 Almost there, only one last small tweak in the <em>NetworkManager</em> and we’re finished! 🏁<br>
 Let’s now return the <em>Disposable</em> when <strong>observing</strong> a <em>Request</em>!</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">protocol</span> <span style="color:#5dd8ff">NetworkManagerProtocol</span> {
-</span></span><span style="display:flex;"><span>   @discardableResult
-</span></span><span style="display:flex;"><span>   <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">observe</span>(<span style="color:#fc5fa3">_</span> request: Request, <span style="color:#fc5fa3">_</span> observer: @escaping Observer&lt;Data&gt;) -&gt; Disposable
-</span></span><span style="display:flex;"><span>   ...
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">extension</span> <span style="color:#5dd8ff">NetworkManager</span>: NetworkManagerProtocol {
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>   @discardableResult
-</span></span><span style="display:flex;"><span>   <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">observe</span>(<span style="color:#fc5fa3">_</span> request: Request, <span style="color:#fc5fa3">_</span> observer: @escaping Observer&lt;Data&gt;) {
-</span></span><span style="display:flex;"><span>      <span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">uuid</span> = UUID()
-</span></span><span style="display:flex;"><span>      <span style="color:#fc5fa3">var</span> <span style="color:#41a1c0">observers</span> = observables[request] ?? [:]
-</span></span><span style="display:flex;"><span>      observers[uuid] = observer
-</span></span><span style="display:flex;"><span>      observables[request] = observers
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>      execute(request, with: [observer])
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>      <span style="color:#fc5fa3">return</span> Disposable { [<span style="color:#fc5fa3">weak</span> <span style="color:#fc5fa3">self</span>] <span style="color:#fc5fa3">in</span>
-</span></span><span style="display:flex;"><span>         <span style="color:#fc5fa3">self</span>?.observables[request]?.removeValue(forKey: uuid)
-</span></span><span style="display:flex;"><span>      }
-</span></span><span style="display:flex;"><span>   }
-</span></span><span style="display:flex;"><span>   ...
-</span></span><span style="display:flex;"><span>}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">protocol</span> <span class="nc">NetworkManagerProtocol</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">   <span class="p">@</span><span class="n">discardableResult</span>
+</span></span><span class="line"><span class="cl">   <span class="kd">func</span> <span class="nf">observe</span><span class="p">(</span><span class="kc">_</span> <span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="kc">_</span> <span class="n">observer</span><span class="p">:</span> <span class="p">@</span><span class="n">escaping</span> <span class="n">Observer</span><span class="p">&lt;</span><span class="n">Data</span><span class="p">&gt;)</span> <span class="p">-&gt;</span> <span class="n">Disposable</span>
+</span></span><span class="line"><span class="cl">   <span class="p">...</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">extension</span> <span class="nc">NetworkManager</span><span class="p">:</span> <span class="n">NetworkManagerProtocol</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="p">@</span><span class="n">discardableResult</span>
+</span></span><span class="line"><span class="cl">   <span class="kd">func</span> <span class="nf">observe</span><span class="p">(</span><span class="kc">_</span> <span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="kc">_</span> <span class="n">observer</span><span class="p">:</span> <span class="p">@</span><span class="n">escaping</span> <span class="n">Observer</span><span class="p">&lt;</span><span class="n">Data</span><span class="p">&gt;)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="kd">let</span> <span class="nv">uuid</span> <span class="p">=</span> <span class="n">UUID</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">      <span class="kd">var</span> <span class="nv">observers</span> <span class="p">=</span> <span class="n">observables</span><span class="p">[</span><span class="n">request</span><span class="p">]</span> <span class="p">??</span> <span class="p">[:]</span>
+</span></span><span class="line"><span class="cl">      <span class="n">observers</span><span class="p">[</span><span class="n">uuid</span><span class="p">]</span> <span class="p">=</span> <span class="n">observer</span>
+</span></span><span class="line"><span class="cl">      <span class="n">observables</span><span class="p">[</span><span class="n">request</span><span class="p">]</span> <span class="p">=</span> <span class="n">observers</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">      <span class="n">execute</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">with</span><span class="p">:</span> <span class="p">[</span><span class="n">observer</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="n">Disposable</span> <span class="p">{</span> <span class="p">[</span><span class="kr">weak</span> <span class="kc">self</span><span class="p">]</span> <span class="k">in</span>
+</span></span><span class="line"><span class="cl">         <span class="kc">self</span><span class="p">?.</span><span class="n">observables</span><span class="p">[</span><span class="n">request</span><span class="p">]?.</span><span class="n">removeValue</span><span class="p">(</span><span class="n">forKey</span><span class="p">:</span> <span class="n">uuid</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="cl">   <span class="p">}</span>
+</span></span><span class="line"><span class="cl">   <span class="p">...</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><p>And we’re finally done! 🙌</p>
 <p>From now on, <strong>disposing</strong> an <strong>observable</strong> from the <em>ViewController</em> is ridiculously simple! 😆</p>
-<div class="highlight"><pre tabindex="0" style="color:#fff;background-color:#1f1f24;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#fc5fa3">let</span> <span style="color:#41a1c0">disposeBag</span> = DisposeBag()
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#fc5fa3">override</span> <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">viewWillAppear</span>(<span style="color:#fc5fa3">_</span> animated: <span style="color:#d0a8ff">Bool</span>) {
-</span></span><span style="display:flex;"><span>   <span style="color:#fc5fa3">super</span>.viewWillAppear(animated)
-</span></span><span style="display:flex;"><span>  
-</span></span><span style="display:flex;"><span>   somethingManager
-</span></span><span style="display:flex;"><span>      .something { [<span style="color:#fc5fa3">weak</span> <span style="color:#fc5fa3">self</span>] result <span style="color:#fc5fa3">in</span>
-</span></span><span style="display:flex;"><span>         ...
-</span></span><span style="display:flex;"><span>   }.disposed(by: disposeBag)
-</span></span><span style="display:flex;"><span>}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#fc5fa3">override</span> <span style="color:#fc5fa3">func</span> <span style="color:#41a1c0">viewWillDisappear</span>(<span style="color:#fc5fa3">_</span> animated: <span style="color:#d0a8ff">Bool</span>) {
-</span></span><span style="display:flex;"><span>   <span style="color:#fc5fa3">super</span>.viewWillDisappear(animated)
-</span></span><span style="display:flex;"><span>  
-</span></span><span style="display:flex;"><span>   disposeBag.dispose()
-</span></span><span style="display:flex;"><span>}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">let</span> <span class="nv">disposeBag</span> <span class="p">=</span> <span class="n">DisposeBag</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kr">override</span> <span class="kd">func</span> <span class="nf">viewWillAppear</span><span class="p">(</span><span class="kc">_</span> <span class="n">animated</span><span class="p">:</span> <span class="nb">Bool</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">   <span class="kc">super</span><span class="p">.</span><span class="n">viewWillAppear</span><span class="p">(</span><span class="n">animated</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  
+</span></span><span class="line"><span class="cl">   <span class="n">somethingManager</span>
+</span></span><span class="line"><span class="cl">      <span class="p">.</span><span class="n">something</span> <span class="p">{</span> <span class="p">[</span><span class="kr">weak</span> <span class="kc">self</span><span class="p">]</span> <span class="n">result</span> <span class="k">in</span>
+</span></span><span class="line"><span class="cl">         <span class="p">...</span>
+</span></span><span class="line"><span class="cl">   <span class="p">}.</span><span class="n">disposed</span><span class="p">(</span><span class="n">by</span><span class="p">:</span> <span class="n">disposeBag</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kr">override</span> <span class="kd">func</span> <span class="nf">viewWillDisappear</span><span class="p">(</span><span class="kc">_</span> <span class="n">animated</span><span class="p">:</span> <span class="nb">Bool</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">   <span class="kc">super</span><span class="p">.</span><span class="n">viewWillDisappear</span><span class="p">(</span><span class="n">animated</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  
+</span></span><span class="line"><span class="cl">   <span class="n">disposeBag</span><span class="p">.</span><span class="n">dispose</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><p>And boom! 💥<br>
 We just made our own lightweight RxSwift-like <strong>Observer Pattern</strong>, without importing a single Framework! 📦</p>
 <p>Was it worth it? Did that help you understand what problems the <strong>Observer Pattern</strong> is trying to solve?</p>
