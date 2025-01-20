@@ -13,7 +13,7 @@
       <link>https://jhandguy.github.io/posts/path-to-cicd-nirvana-ios/</link>
       <pubDate>Thu, 12 Sep 2019 00:00:00 +0000</pubDate>
       <guid>https://jhandguy.github.io/posts/path-to-cicd-nirvana-ios/</guid>
-      <description>For many companies, testing and releasing are still very blurry processes, which don’t seem to work as they should. Testing is mostly manual, slow and error-prone. Releasing is usually also manual and slow, making its frequency hard to maintain on a sprint-basis. Continuous Integration (CI) and Continuous Deployment (CD) are all about automating both testing and releasing, making it possible for a team to release every week or two. At EGYM, we have achieved just that and I am going to tell you all about it!</description>
+      <description>&lt;p&gt;For many companies, testing and releasing are still very blurry processes, which don’t seem to work as they should. Testing is mostly manual, slow and error-prone. Releasing is usually also manual and slow, making its frequency hard to maintain on a sprint-basis. Continuous Integration (CI) and Continuous Deployment (CD) are all about automating both testing and releasing, making it possible for a team to release every week or two. At EGYM, we have achieved just that and I am going to tell you all about it!&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>

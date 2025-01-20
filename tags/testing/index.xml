@@ -13,35 +13,35 @@
       <link>https://jhandguy.github.io/posts/robot-pattern-ios/</link>
       <pubDate>Fri, 03 May 2019 00:00:00 +0000</pubDate>
       <guid>https://jhandguy.github.io/posts/robot-pattern-ios/</guid>
-      <description>Most of the time, UI Testing gets abandoned because it becomes harder to maintain over time and one reason for that is: readability. We also tend to forget that UI tests should not only serve the purpose of verification but provide meaningful documentation that everybody (including non-developers) can understand. Alright, let’s get right into it, fellas!&#xA;What if we could write UI Tests in a human-readable language, that even a Product Owner could understand?</description>
+      <description>&lt;p&gt;Most of the time, UI Testing gets abandoned because it becomes harder to maintain over time and one reason for that is: &lt;strong&gt;readability&lt;/strong&gt;. We also tend to forget that UI tests should not only serve the purpose of verification but provide meaningful documentation that everybody (including non-developers) can understand. Alright, let’s get right into it, fellas!&lt;/p&gt;&#xA;&lt;blockquote&gt;&#xA;&lt;p&gt;What if we could write UI Tests in a human-readable language, that even a Product Owner could understand?&lt;/p&gt;</description>
     </item>
     <item>
       <title>UI Testing in iOS - Generating Accessibility Identifiers using Reflection</title>
       <link>https://jhandguy.github.io/posts/generating-accessibility-identifiers-ios/</link>
       <pubDate>Thu, 18 Apr 2019 00:00:00 +0000</pubDate>
       <guid>https://jhandguy.github.io/posts/generating-accessibility-identifiers-ios/</guid>
-      <description>One of the most annoying things about UI Testing in iOS is the need to assign Accessibility Identifiers to views that are hard to access otherwise. Could be that a view is deeply nested, or that it is not easily distinguishable from other views, lots of scenarios might lead to manually assign Accessibility Identifiers… But don’t you worry, friend, I got something for you!&#xA;What if we could generate and assign Accessibility Identifiers automatically, using reflection?</description>
+      <description>&lt;p&gt;One of the most annoying things about UI Testing in iOS is the need to assign Accessibility Identifiers to views that are hard to access otherwise. Could be that a view is deeply nested, or that it is not easily distinguishable from other views, lots of scenarios might lead to manually assign Accessibility Identifiers… But don’t you worry, friend, I got something for you!&lt;/p&gt;&#xA;&lt;blockquote&gt;&#xA;&lt;p&gt;What if we could generate and assign Accessibility Identifiers automatically, using reflection?&lt;/p&gt;</description>
     </item>
     <item>
       <title>Painless UI Testing in iOS (Part 3) - Disabling Animations</title>
       <link>https://jhandguy.github.io/posts/disabling-animations-ios/</link>
       <pubDate>Mon, 25 Feb 2019 00:00:00 +0000</pubDate>
       <guid>https://jhandguy.github.io/posts/disabling-animations-ios/</guid>
-      <description>Let’s be realistic, UI Testing is a pain. For everybody. And with everybody, I include both Android and iOS developers. The main reason for it is that we’ve all come to this point when one-tenth of the UI Tests fail, randomly, for no definite reason. Could be the CI Virtual Machine which was slower than usual, or a small latency in the emulator… Don’t get me started with execution time… We’ve all been through that.</description>
+      <description>&lt;p&gt;Let’s be realistic, UI Testing is a pain. For everybody. And with everybody, I include both Android and iOS developers. The main reason for it is that we’ve all come to this point when one-tenth of the UI Tests fail, randomly, for no definite reason. Could be the CI Virtual Machine which was slower than usual, or a small latency in the emulator… Don’t get me started with execution time… We’ve all been through that.&lt;br&gt;&#xA;Well, guess what!&lt;/p&gt;</description>
     </item>
     <item>
       <title>Painless UI Testing in iOS (Part 2) - Stubbing the Navigation</title>
       <link>https://jhandguy.github.io/posts/stubbing-the-navigation-ios/</link>
       <pubDate>Mon, 18 Feb 2019 00:00:00 +0000</pubDate>
       <guid>https://jhandguy.github.io/posts/stubbing-the-navigation-ios/</guid>
-      <description>Let’s be realistic, UI Testing is a pain. For everybody. And with everybody, I include both Android and iOS developers. The main reason for it is that we’ve all come to this point when one-tenth of the UI Tests fail, randomly, for no definite reason. Could be the CI Virtual Machine which was slower than usual, or a small latency in the emulator… Don’t get me started with execution time… We’ve all been through that.</description>
+      <description>&lt;p&gt;Let’s be realistic, UI Testing is a pain. For everybody. And with everybody, I include both Android and iOS developers. The main reason for it is that we’ve all come to this point when one-tenth of the UI Tests fail, randomly, for no definite reason. Could be the CI Virtual Machine which was slower than usual, or a small latency in the emulator… Don’t get me started with execution time… We’ve all been through that.&lt;br&gt;&#xA;Well, guess what!&lt;/p&gt;</description>
     </item>
     <item>
       <title>Painless UI Testing in iOS (Part 1) - Mocking the Network</title>
       <link>https://jhandguy.github.io/posts/mocking-the-network-ios/</link>
       <pubDate>Fri, 11 Jan 2019 00:00:00 +0000</pubDate>
       <guid>https://jhandguy.github.io/posts/mocking-the-network-ios/</guid>
-      <description>Let’s be realistic, UI Testing is a pain. For everybody. And with everybody, I include both Android and iOS developers. The main reason for it is that we’ve all come to this point when one-tenth of the UI Tests fail, randomly, for no definite reason. Could be the CI Virtual Machine which was slower than usual, or a small latency in the emulator… Don’t get me started with execution time… We’ve all been through that.</description>
+      <description>&lt;p&gt;Let’s be realistic, UI Testing is a pain. For everybody. And with everybody, I include both Android and iOS developers. The main reason for it is that we’ve all come to this point when one-tenth of the UI Tests fail, randomly, for no definite reason. Could be the CI Virtual Machine which was slower than usual, or a small latency in the emulator… Don’t get me started with execution time… We’ve all been through that.&lt;br&gt;&#xA;Well, guess what!&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>

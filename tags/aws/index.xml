@@ -13,7 +13,7 @@
       <link>https://jhandguy.github.io/posts/farewell-ecs-hello-eks/</link>
       <pubDate>Wed, 28 Feb 2024 00:00:00 +0000</pubDate>
       <guid>https://jhandguy.github.io/posts/farewell-ecs-hello-eks/</guid>
-      <description>Saying goodbye to old systems can sound scary, but for us at EGYM, migrating from Elastic Container Service (ECS) to Elastic Kubernetes Service (EKS) was a journey of growth and excitement.&#xA;🎬 Hi there, I’m Jean!&#xA;In this blog post, I’ll share the inside scoop on our successful migration from ECS to EKS, why we did it and how, complete with the magic formula for zero downtime!&#xA;Starting with the Why Let’s kick it off with a famous phrase in engineering:</description>
+      <description>&lt;p&gt;Saying goodbye to old systems can sound scary, but for us at EGYM, migrating from Elastic Container Service (ECS) to Elastic Kubernetes Service (EKS) was a journey of growth and excitement.&lt;/p&gt;&#xA;&lt;p&gt;🎬 Hi there, I’m Jean!&lt;/p&gt;&#xA;&lt;p&gt;In this blog post, I’ll share the inside scoop on our successful migration from ECS to EKS, why we did it and how, complete with the magic formula for &lt;strong&gt;zero downtime&lt;/strong&gt;!&lt;/p&gt;&#xA;&lt;h2 id=&#34;starting-with-the-why&#34;&gt;Starting with the Why&lt;/h2&gt;&#xA;&lt;hr&gt;&#xA;&lt;p&gt;Let’s kick it off with a famous phrase in engineering:&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>
