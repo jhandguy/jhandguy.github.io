@@ -50,13 +50,11 @@ This is often considered bad practice as it deteriorates the UX of an app drasti
 <p>Such updates are quite risky, as once an app is updated in the stores, there is no going back unless the previous version of the app is released again under a different version number.
 Web applications do not face such risks as they are easily rolled back. Also, just like for backend APIs, a web app can incrementally roll out such changes using a canary deployment.</p>
 <blockquote>
-<p><em>If you haven’t already, go read <a href="/posts/simple-canary-deployment/">Canary Deployment in Kubernetes (Part 1) — Simple Canary Deployment using Ingress NGINX</a> and learn how to implement a Simple Canary Deployment using Ingress NGINX!</em></p>
-</blockquote>
+<p><em>If you haven’t already, go read <a href="/posts/simple-canary-deployment/">Canary Deployment in Kubernetes (Part 1) — Simple Canary Deployment using Ingress NGINX</a> and learn how to implement a Simple Canary Deployment using Ingress NGINX!</em></p></blockquote>
 <p>However, this doesn’t mean that there are no solutions. In fact, it is possible to leverage backend canary deployments in order to incrementally roll out a mobile force update.
 Ingress NGINX, for instance, only provides traffic splitting based on <code>canary-weight</code> but it also features traffic routing based on <code>canary-by-header</code> which can be used for this purpose.</p>
 <blockquote>
-<p>What if we could route user traffic based on the version of the app they are using?</p>
-</blockquote>
+<p>What if we could route user traffic based on the version of the app they are using?</p></blockquote>
 <p>🎬 Hi there, I’m Jean!</p>
 <p>In this article, we’re going to learn how to leverage a simple <strong>canary deployment</strong> using <strong>Ingress NGINX</strong> and <strong>Firebase Remote Config</strong> to safely conduct an incremental <strong>mobile force update</strong>! 💪</p>
 <h2 id="smart-traffic-routing-with-firebase-remote-config">Smart Traffic Routing with Firebase Remote Config</h2>
@@ -102,7 +100,7 @@ This means that all users have now migrated to the <strong>v2</strong> version o
 <li>Incrementally rollout a non-backward-compatible change to minimize risk before conducting a force update.</li>
 </ul>
 <p>Was it worth it? Did that help you understand how to incrementally conduct a mobile force update using Ingress NGINX and Firebase Remote Config?</p>
-<p>If so, follow me on <a href="https://twitter.com/jhandguy">Twitter</a>, I’ll be happy to answer any of your questions and you’ll be the first one to know when a new article comes out! 👌</p>
+<p>If so, follow me on <a href="https://x.com/jhandguy">X</a>, I’ll be happy to answer any of your questions and you’ll be the first one to know when a new article comes out! 👌</p>
 <p>Bye-bye! 👋</p>
 
         </div>

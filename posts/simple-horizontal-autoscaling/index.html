@@ -56,8 +56,7 @@
 <p>Finally, reaching a certain threshold, scaling only vertically becomes very expensive and most importantly, isn’t limitless. In fact, there is only so much CPU and RAM a physical machine(or VM) alone can handle.<br>
 This is where horizontal scaling comes into play!</p>
 <blockquote>
-<p>Eventually, it is more efficient to duplicate an instance, than increase its resources.</p>
-</blockquote>
+<p>Eventually, it is more efficient to duplicate an instance, than increase its resources.</p></blockquote>
 <p>🎬 Hi there, I&rsquo;m Jean!</p>
 <p>In this 2 parts series, we&rsquo;re going to explore several ways to scale services horizontally in Kubernetes, and the first one is…<br>
 🥁<br>
@@ -69,12 +68,11 @@ This is where horizontal scaling comes into play!</p>
 <li><a href="https://kind.sigs.k8s.io/docs/user/quick-start/#installation">Kind</a></li>
 <li><a href="https://kubernetes.io/docs/tasks/tools/">Kubectl</a></li>
 <li><a href="https://helm.sh/docs/intro/install/">Helm</a></li>
-<li><a href="https://k6.io/docs/getting-started/installation/">K6</a></li>
+<li><a href="https://grafana.com/docs/k6/latest/set-up/install-k6/">K6</a></li>
 </ul>
 <blockquote>
 <p><em>Note: for MacOS users or Linux users using Homebrew, simply run:</em><br>
-<code>brew install kind kubectl helm k6</code></p>
-</blockquote>
+<code>brew install kind kubectl helm k6</code></p></blockquote>
 <p>All set? Let’s go! 🏁</p>
 <h2 id="creating-kind-cluster">Creating Kind Cluster</h2>
 <hr>
@@ -130,8 +128,7 @@ metrics-server   1/1     1            1           38s
 <blockquote>
 <p><em>A <a href="https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/">HorizontalPodAutoscaler</a> (HPA for short) automatically updates a workload resource (such as a <a href="https://kubernetes.io/docs/concepts/workloads/controllers/deployment/">Deployment</a> or <a href="https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/">StatefulSet</a>), with the aim of automatically scaling the workload to match demand.</em><br>
 <em>Horizontal scaling means that the response to increased load is to deploy more <a href="https://kubernetes.io/docs/concepts/workloads/pods/">Pods</a>. This is different from vertical scaling, which for Kubernetes would mean assigning more resources (for example: memory or CPU) to the Pods that are already running for the workload.</em><br>
-<em>If the load decreases, and the number of Pods is above the configured minimum, the HorizontalPodAutoscaler instructs the workload resource (the Deployment, StatefulSet, or other similar resource) to scale back down.</em></p>
-</blockquote>
+<em>If the load decreases, and the number of Pods is above the configured minimum, the HorizontalPodAutoscaler instructs the workload resource (the Deployment, StatefulSet, or other similar resource) to scale back down.</em></p></blockquote>
 <p>Now that we know what an HPA is, let&rsquo;s get started, shall we? 🧐</p>
 <h2 id="autoscaling-native-services-based-on-cpu-and-memory-usage">Autoscaling Native Services based on CPU and Memory Usage</h2>
 <hr>
@@ -168,10 +165,9 @@ Max replicas:                                            8
 <p>This means that as soon as either the CPU or memory utilization breaches the <strong>50%</strong> threshold, the HPA will trigger an upscale.</p>
 <p>Under minimal load, the HPA will still retain a replica count of <strong>2</strong>, while the maximum amount of Pods the HPA is allowed to spin up under high load is <strong>8</strong>.</p>
 <blockquote>
-<p><em>Note: in a production environment, it is recommended to have a minimum replica count of at least 3, to guarantee maintained availability in the case of <a href="https://kubernetes.io/docs/concepts/scheduling-eviction/_print/#pod-disruption">Pod Disruption</a>.</em></p>
-</blockquote>
+<p><em>Note: in a production environment, it is recommended to have a minimum replica count of at least 3, to guarantee maintained availability in the case of <a href="https://kubernetes.io/docs/concepts/scheduling-eviction/_print/#pod-disruption">Pod Disruption</a>.</em></p></blockquote>
 <p>Now, this is the moment you&rsquo;ve certainly expected… It&rsquo;s Load Testing time! 😎</p>
-<p>For Load Testing, I really recommend <a href="https://k6.io/docs/">k6</a> from the Grafana Labs team. It is a dead-simple yet super powerful tool with very extensive documentation.</p>
+<p>For Load Testing, I really recommend <a href="https://grafana.com/docs/k6/latest/">k6</a> from the Grafana Labs team. It is a dead-simple yet super powerful tool with very extensive documentation.</p>
 <p>See for yourself!</p>
 <pre><code class="language-shell">k6 run k6/script.js
 </code></pre>
@@ -361,8 +357,7 @@ load ✓ [======================================] 000/100 VUs  5m0s  000.65 iter
 <p>As you can observe, our Kotlin/JVM service has performed very well under heavy load, with a Success Share of 100%, a median latency of ~3ms, and a 95th percentile latency of ~50ms!</p>
 <p>Once again, the HPA was able to scale the Deployment from 2 to 8 Pods swiftly and automatically, based on the Pods CPU usage alone!</p>
 <blockquote>
-<p><em>Note: if you keep the Deployment idle for a few minutes, you should see the HPA gradually scaling back down to 2 Pods, due to low CPU usage.</em></p>
-</blockquote>
+<p><em>Note: if you keep the Deployment idle for a few minutes, you should see the HPA gradually scaling back down to 2 Pods, due to low CPU usage.</em></p></blockquote>
 <h2 id="wrapping-up">Wrapping up</h2>
 <hr>
 <p>That&rsquo;s it! You can now stop and delete your Kind cluster.</p>
@@ -374,7 +369,7 @@ load ✓ [======================================] 000/100 VUs  5m0s  000.65 iter
 <li>Autoscale horizontally our JVM service written in Kotlin/JVM, based on CPU usage.</li>
 </ul>
 <p>Was it worth it? Did that help you understand how to implement Horizontal Pod Autoscaler in Kubernetes using Metrics Server?</p>
-<p>If so, follow me on <a href="https://twitter.com/jhandguy">Twitter</a>, I’ll be happy to answer any of your questions and you’ll be the first one to know when a new article comes out! 👌</p>
+<p>If so, follow me on <a href="https://x.com/jhandguy">X</a>, I’ll be happy to answer any of your questions and you’ll be the first one to know when a new article comes out! 👌</p>
 <p>See you next month, for Part 2 of my series <strong>Horizontal Pod Autoscaler in Kubernetes</strong>!</p>
 <p>Bye-bye! 👋</p>
 

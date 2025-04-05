@@ -55,8 +55,7 @@
 <p>Finally, reaching a certain threshold, scaling only vertically becomes very expensive and most importantly, isn’t limitless. In fact, there is only so much CPU and RAM a physical machine(or VM) alone can handle.<br>
 This is where horizontal scaling comes into play!</p>
 <blockquote>
-<p>Eventually, it is more efficient to duplicate an instance, than increase its resources.</p>
-</blockquote>
+<p>Eventually, it is more efficient to duplicate an instance, than increase its resources.</p></blockquote>
 <p>🎬 Hi there, I&rsquo;m Jean!</p>
 <p>In this 2 parts series, we&rsquo;re going to explore several ways to scale services horizontally in Kubernetes, and the second one is…<br>
 🥁<br>
@@ -68,12 +67,11 @@ This is where horizontal scaling comes into play!</p>
 <li><a href="https://kind.sigs.k8s.io/docs/user/quick-start/#installation">Kind</a></li>
 <li><a href="https://kubernetes.io/docs/tasks/tools/">Kubectl</a></li>
 <li><a href="https://helm.sh/docs/intro/install/">Helm</a></li>
-<li><a href="https://k6.io/docs/getting-started/installation/">K6</a></li>
+<li><a href="https://grafana.com/docs/k6/latest/set-up/install-k6/">K6</a></li>
 </ul>
 <blockquote>
 <p><em>Note: for MacOS users or Linux users using Homebrew, simply run:</em><br>
-<code>brew install kind kubectl helm k6</code></p>
-</blockquote>
+<code>brew install kind kubectl helm k6</code></p></blockquote>
 <p>All set? Let’s go! 🏁</p>
 <h2 id="creating-kind-cluster">Creating Kind Cluster</h2>
 <hr>
@@ -129,8 +127,7 @@ prometheus-kube-state-metrics         1/1     1            1
 <p><a href="https://github.com/kubernetes-sigs/prometheus-adapter">Prometheus Adapter</a> is a source of custom metrics, which collects them from Prometheus and exposes them in Kubernetes API server through <a href="https://github.com/kubernetes/metrics">Metrics API</a> for use by <a href="https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/">Horizontal Pod Autoscaler</a> and <a href="https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler/">Vertical Pod Autoscaler</a>.</p>
 <p>Unlike <a href="https://github.com/kubernetes-sigs/metrics-server">Metrics Server</a> which is limited to resource metrics, Prometheus Adapter exposes custom metrics measurable from within a Pod&rsquo;s container, such as memory usage, GC duration, but also request throughput, latency, etc.</p>
 <blockquote>
-<p><em>If you haven&rsquo;t already, go read <a href="/posts/simple-horizontal-autoscaling/">Horizontal Pod Autoscaler in Kubernetes (Part 1) - Simple Autoscaling using Metrics Server</a> and learn how to implement a Horizontal Pod Autoscaler using Metrics Server!</em></p>
-</blockquote>
+<p><em>If you haven&rsquo;t already, go read <a href="/posts/simple-horizontal-autoscaling/">Horizontal Pod Autoscaler in Kubernetes (Part 1) - Simple Autoscaling using Metrics Server</a> and learn how to implement a Horizontal Pod Autoscaler using Metrics Server!</em></p></blockquote>
 <p>Prometheus Adapter can be installed via its <a href="https://github.com/prometheus-community/helm-charts/tree/main/charts/prometheus-adapter">Helm chart</a>.</p>
 <pre><code class="language-shell">helm install prometheus-community/prometheus-adapter --name-template prometheus-adapter --create-namespace -n prometheus-adapter --values kind/prometheus-adapter-values.yaml --version 4.9.0 --wait
 </code></pre>
@@ -159,15 +156,13 @@ Max replicas:                                       8
 </code></pre>
 <p>As you can see, this HPA is configured to scale the service based on requests per second (rps), with an average of <strong>10</strong>.</p>
 <blockquote>
-<p><em>Note: as you probably have noticed, the current value for the request throughput is <strong>unknown</strong>, this is expected as the service hasn&rsquo;t served any requests yet, thus no timeseries for this metric are present in Prometheus.</em></p>
-</blockquote>
+<p><em>Note: as you probably have noticed, the current value for the request throughput is <strong>unknown</strong>, this is expected as the service hasn&rsquo;t served any requests yet, thus no timeseries for this metric are present in Prometheus.</em></p></blockquote>
 <p>This means that as soon as the request throughput breaches the <strong>10rps</strong> threshold, the HPA will trigger an upscale.</p>
 <p>Under minimal load, the HPA will still retain a replica count of <strong>2</strong>, while the maximum amount of Pods the HPA is allowed to spin up under high load is <strong>8</strong>.</p>
 <blockquote>
-<p><em>Note: in a production environment, it is recommended to have a minimum replica count of at least 3, to guarantee maintained availability in the case of <a href="https://kubernetes.io/docs/concepts/scheduling-eviction/_print/#pod-disruption">Pod Disruption</a>.</em></p>
-</blockquote>
+<p><em>Note: in a production environment, it is recommended to have a minimum replica count of at least 3, to guarantee maintained availability in the case of <a href="https://kubernetes.io/docs/concepts/scheduling-eviction/_print/#pod-disruption">Pod Disruption</a>.</em></p></blockquote>
 <p>Now, this is the moment you&rsquo;ve certainly expected… It&rsquo;s Load Testing time! 😎</p>
-<p>For Load Testing, I really recommend <a href="https://k6.io/docs/">k6</a> from the Grafana Labs team. It is a dead-simple yet super powerful tool with very extensive documentation.</p>
+<p>For Load Testing, I really recommend <a href="https://grafana.com/docs/k6/latest/">k6</a> from the Grafana Labs team. It is a dead-simple yet super powerful tool with very extensive documentation.</p>
 <p>See for yourself!</p>
 <pre><code class="language-shell">k6 run k6/script.js
 </code></pre>
@@ -252,7 +247,7 @@ load ✓ [======================================] 000/100 VUs  5m0s  000.65 iter
 <li>Autoscale horizontally our service, based on Prometheus metrics.</li>
 </ul>
 <p>Was it worth it? Did that help you understand how to implement Horizontal Pod Autoscaler in Kubernetes using Prometheus Adapter?</p>
-<p>If so, follow me on <a href="https://twitter.com/jhandguy">Twitter</a>, I’ll be happy to answer any of your questions and you’ll be the first one to know when a new article comes out! 👌</p>
+<p>If so, follow me on <a href="https://x.com/jhandguy">X</a>, I’ll be happy to answer any of your questions and you’ll be the first one to know when a new article comes out! 👌</p>
 <p>Bye-bye! 👋</p>
 
         </div>

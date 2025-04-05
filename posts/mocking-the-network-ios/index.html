@@ -44,8 +44,7 @@
             <p>Let’s be realistic, UI Testing is a pain. For everybody. And with everybody, I include both Android and iOS developers. The main reason for it is that we’ve all come to this point when one-tenth of the UI Tests fail, randomly, for no definite reason. Could be the CI Virtual Machine which was slower than usual, or a small latency in the emulator… Don’t get me started with execution time… We’ve all been through that.<br>
 Well, guess what!</p>
 <blockquote>
-<p>The time has come to make UI Testing great again.</p>
-</blockquote>
+<p>The time has come to make UI Testing great again.</p></blockquote>
 <p>🎬 Hi there, I’m Jean!</p>
 <p>In this article, I am going to walk you through <strong>3 tips to make your UI Tests faster and more reliable</strong>! 💪<br>
 By the way, I am a loyal XCUITest soldier so, XCTest it is gonna be! ✊<br>
@@ -53,8 +52,7 @@ Of course, those tips will also be valid for any UI Testing framework. 👍</p>
 <h2 id="mocking-the-network">Mocking the Network</h2>
 <hr>
 <blockquote>
-<p>There is no way around it, if you want to avoid flakiness during UI Testing, you have to mock the network.</p>
-</blockquote>
+<p>There is no way around it, if you want to avoid flakiness during UI Testing, you have to mock the network.</p></blockquote>
 <p>Now, in iOS, there is no straightforward way of doing it. 🤔<br>
 We have to inject mocked data to the host executable at runtime, through an environment variable. 💉<br>
 But first, we need to prepare our <em>Network</em> layer for this kind of mocking and there are several ways of doing it. Personally, I like to protocolize the <em>URLSession</em> to inject a mocked implementation in my <em>NetworkManager</em>! 🤓<br>
@@ -405,7 +403,7 @@ final class SomethingUITest: XCTestCase {
 The Network layer is now completely under our control and can be mocked with the snap of a finger! 👍<br>
 We can specify at runtime, on a per-test basis, which <em>Responses</em> to return, just by defining a <strong>Dictionary</strong> of <em>Requests</em> and <em>Responses</em>. 🗃</p>
 <p>Was it worth it? Did that help you overcome the problems of UI Testing, starting with <strong>Mocking the Network</strong>? Are you now feeling more confident about writing UI Tests?</p>
-<p>If so, follow me on <a href="https://twitter.com/jhandguy">Twitter</a>, I’ll be happy to answer any of your questions and you’ll be the first one to know when a new article comes out! 👌</p>
+<p>If so, follow me on <a href="https://x.com/jhandguy">X</a>, I’ll be happy to answer any of your questions and you’ll be the first one to know when a new article comes out! 👌</p>
 <p>If you’d like to see a <strong>real-life example of an app doing extensive UI Testing</strong>, don’t hesitate to check out my <a href="https://github.com/jhandguy/SwiftKotlination">Github</a> repo! 📦</p>
 <p>See you next week, for Part 2 of my series <strong>Painless UI Testing in iOS</strong>!</p>
 <p>Bye Bye! 👋</p>

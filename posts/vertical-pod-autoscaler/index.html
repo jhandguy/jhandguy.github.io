@@ -51,16 +51,13 @@
         <div class="content has-text-justified-tablet">
             <p>In Kubernetes, we usually think about the Horizontal Pod Autoscaler (HPA) when referring to autoscaling. In most cases, it will be the preferred way of scaling services, based on CPU usage, memory usage, or custom metrics.</p>
 <blockquote>
-<p><em>If you haven&rsquo;t already, go read <a href="/posts/simple-horizontal-autoscaling/">Horizontal Pod Autoscaler in Kubernetes (Part 1) - Simple Autoscaling using Metrics Server</a> and learn how to implement a Horizontal Pod Autoscaler using Metrics Server!</em></p>
-</blockquote>
+<p><em>If you haven&rsquo;t already, go read <a href="/posts/simple-horizontal-autoscaling/">Horizontal Pod Autoscaler in Kubernetes (Part 1) - Simple Autoscaling using Metrics Server</a> and learn how to implement a Horizontal Pod Autoscaler using Metrics Server!</em></p></blockquote>
 <p>However, while HPA can scale up and down replicas based on the current load, it is not capable of optimizing resource usage over the long term:  This is where the Vertical Pod Autoscaler (VPA) comes in.</p>
 <blockquote>
-<p>The VPA can be leveraged to optimize resource usage over time, based on mid to long-term observation.</p>
-</blockquote>
+<p>The VPA can be leveraged to optimize resource usage over time, based on mid to long-term observation.</p></blockquote>
 <p>Please note that to avoid a race condition, the VPA should only be used together with HPAs that are based on custom metrics. In addition, the VPA should not be used with JVM-based services due to limited visibility into the actual memory usage of the workload (learn more about its limitations <a href="https://cloud.google.com/kubernetes-engine/docs/concepts/verticalpodautoscaler#limitations">here</a>).</p>
 <blockquote>
-<p><em>If you haven&rsquo;t already, go read <a href="/posts/advanced-horizontal-autoscaling/">Horizontal Pod Autoscaler in Kubernetes (Part 2) - Advanced Autoscaling using Prometheus Adapter</a> and learn how to implement a Horizontal Pod Autoscaler using Prometheus Adapter!</em></p>
-</blockquote>
+<p><em>If you haven&rsquo;t already, go read <a href="/posts/advanced-horizontal-autoscaling/">Horizontal Pod Autoscaler in Kubernetes (Part 2) - Advanced Autoscaling using Prometheus Adapter</a> and learn how to implement a Horizontal Pod Autoscaler using Prometheus Adapter!</em></p></blockquote>
 <p>🎬 Hi there, I&rsquo;m Jean!</p>
 <p>In this article, we&rsquo;re going to learn how to use Vertical Pod Autoscaler (VPA) to vertically scale services in Kubernetes automatically based on resource metrics! 💪</p>
 <h2 id="requirements">Requirements</h2>
@@ -70,12 +67,11 @@
 <li><a href="https://kind.sigs.k8s.io/docs/user/quick-start/#installation">Kind</a></li>
 <li><a href="https://kubernetes.io/docs/tasks/tools/">Kubectl</a></li>
 <li><a href="https://helm.sh/docs/intro/install/">Helm</a></li>
-<li><a href="https://k6.io/docs/getting-started/installation/">K6</a></li>
+<li><a href="https://grafana.com/docs/k6/latest/set-up/install-k6/">K6</a></li>
 </ul>
 <blockquote>
 <p><em>Note: for MacOS users or Linux users using Homebrew, simply run:</em><br>
-<code>brew install kind kubectl helm k6</code></p>
-</blockquote>
+<code>brew install kind kubectl helm k6</code></p></blockquote>
 <p>All set? Let’s go! 🏁</p>
 <h2 id="creating-kind-cluster">Creating Kind Cluster</h2>
 <hr>
@@ -102,6 +98,7 @@ kubectl cluster-info --context kind-kind
 Have a question, bug, or feature request? Let us know! https://kind.sigs.k8s.io/#community 🙂
 </code></pre>
 <h2 id="installing-cert-manager">Installing cert-manager</h2>
+<hr>
 <p><a href="https://github.com/cert-manager/cert-manager">cert-manager</a> is a Kubernetes addon that automates the management and issuance of TLS certificates from various issuing sources. It ensures certificates are valid and up to date periodically, and attempts to renew certificates at an appropriate time before expiry.</p>
 <p>cert-manager can be installed via its <a href="https://github.com/cert-manager/cert-manager/tree/master/deploy/charts/cert-manager">Helm chart</a>.</p>
 <pre><code class="language-shell">helm repo add jetstack https://charts.jetstack.io
@@ -145,8 +142,7 @@ metrics-server   1/1     1            1           38s
 It will also maintain ratios between limits and requests that were specified in the initial container configuration.</p>
 <p>It can both down-scale pods that are over-requesting resources, and also up-scale pods that are under-requesting resources based on their usage over time.</p>
 <blockquote>
-<p><em>Note: VPA is still in its beta phase, using it for production is at your own risk.</em></p>
-</blockquote>
+<p><em>Note: VPA is still in its beta phase, using it for production is at your own risk.</em></p></blockquote>
 <p>As of this writing, Kubernetes  does not provide an official Helm chart, so I went ahead and built one!</p>
 <pre><code class="language-shell">helm install helm-chart --name-template vertical-pod-autoscaler --create-namespace -n vertical-pod-autoscaler --wait
 </code></pre>
@@ -226,7 +222,7 @@ Its <strong>spec</strong> states that the minimum allowed CPU/memory is <em>10m/
           memory: 20Mi
 </code></pre>
 <p>Now, let&rsquo;s give some load to our service and see what happens!</p>
-<p>For Load Testing, I really recommend <a href="https://k6.io/docs/">k6</a> from the Grafana Labs team. It is a dead-simple yet super powerful tool with very extensive documentation.</p>
+<p>For Load Testing, I really recommend <a href="https://grafana.com/docs/k6/latest/">k6</a> from the Grafana Labs team. It is a dead-simple yet super powerful tool with very extensive documentation.</p>
 <p>See for yourself!</p>
 <pre><code class="language-shell">k6 run k6/script.js
 </code></pre>
@@ -314,8 +310,7 @@ load ✓ [======================================] 000/200 VUs  10m0s  00.41 iter
 <p>This is due to the fact that vertical scaling, in essence, cannot happen without a restart: a pod&rsquo;s CPU and/or memory cannot be increased in place. Instead, the pod must be terminated and a new one created with increased resources.</p>
 <p>So how do we ensure the availability of our service during vertical autoscaling then?</p>
 <blockquote>
-<p>This is where the Pod Disruption Budget (PDB) comes in!</p>
-</blockquote>
+<p>This is where the Pod Disruption Budget (PDB) comes in!</p></blockquote>
 <p>We&rsquo;ll get to that in a minute, let&rsquo;s uninstall our Helm release first! (we won&rsquo;t be needing this one anymore)</p>
 <pre><code class="language-shell">helm uninstall sample-app -n sample-app
 </code></pre>
@@ -410,7 +405,7 @@ This time, our service handled pod disruption beautifully and not a single reque
 <li>Prevent downtime during pod eviction thanks to Pod Disruption Budget.</li>
 </ul>
 <p>Was it worth it? Did that help you understand how to implement Vertical Pod Autoscaler in Kubernetes?</p>
-<p>If so, follow me on <a href="https://twitter.com/jhandguy">Twitter</a>, I’ll be happy to answer any of your questions and you’ll be the first one to know when a new article comes out! 👌</p>
+<p>If so, follow me on <a href="https://x.com/jhandguy">X</a>, I’ll be happy to answer any of your questions and you’ll be the first one to know when a new article comes out! 👌</p>
 <p>Bye-bye! 👋</p>
 
         </div>

@@ -61,8 +61,7 @@
 <p>What if we could smoke test our change in production <strong>before</strong> it actually hits real users? What if we could roll out a change incrementally to <strong>some users</strong> instead of all of them at once? What if we could detect a faulty deployment and roll it back automatically?<br>
 Well, that, my friend, is what Canary Deployment is all about!</p>
 <blockquote>
-<p>Minimizing the impact on real users while deploying a risky change to production.</p>
-</blockquote>
+<p>Minimizing the impact on real users while deploying a risky change to production.</p></blockquote>
 <p>🎬 Hi there, I’m Jean!</p>
 <p>In this 3 parts series, we’re going to explore several ways to do Canary Deployment in Kubernetes, and the first one is…<br>
 🥁<br>
@@ -75,12 +74,11 @@ Well, that, my friend, is what Canary Deployment is all about!</p>
 <li><a href="https://kubernetes.io/docs/tasks/tools/">Kubectl</a></li>
 <li><a href="https://argoproj.github.io/argo-rollouts/installation/#kubectl-plugin-installation">Argo Rollouts Kubectl Plugin</a></li>
 <li><a href="https://helm.sh/docs/intro/install/">Helm</a></li>
-<li><a href="https://k6.io/docs/getting-started/installation/">K6</a></li>
+<li><a href="https://grafana.com/docs/k6/latest/set-up/install-k6/">K6</a></li>
 </ul>
 <blockquote>
 <p><em>Note: for MacOS users or Linux users using Homebrew, simply run:</em><br>
-<code>brew install kind kubectl argoproj/tap/kubectl-argo-rollouts helm k6</code></p>
-</blockquote>
+<code>brew install kind kubectl argoproj/tap/kubectl-argo-rollouts helm k6</code></p></blockquote>
 <p>All set? Let’s go! 🏁</p>
 <h2 id="creating-kind-cluster">Creating Kind Cluster</h2>
 <hr>
@@ -113,8 +111,7 @@ Have a question, bug, or feature request? Let us know! https://kind.sigs.k8s.io/
 <h3 id="installing-nginx-ingress-controller">Installing NGINX Ingress Controller</h3>
 <hr>
 <blockquote>
-<p><em>If you haven’t already, go read <a href="/posts/simple-canary-deployment/">Canary Deployment in Kubernetes (Part 1) — Simple Canary Deployment using Ingress NGINX</a> and learn how to implement a Simple Canary Deployment using Ingress NGINX!</em></p>
-</blockquote>
+<p><em>If you haven’t already, go read <a href="/posts/simple-canary-deployment/">Canary Deployment in Kubernetes (Part 1) — Simple Canary Deployment using Ingress NGINX</a> and learn how to implement a Simple Canary Deployment using Ingress NGINX!</em></p></blockquote>
 <p><a href="https://github.com/kubernetes/ingress-nginx">NGINX Ingress Controller</a> is one of the <a href="https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/#additional-controllers">many available Kubernetes Ingress Controllers</a>, which acts as a load balancer and satisfies routing rules specified in <a href="https://kubernetes.io/docs/concepts/services-networking/ingress/#what-is-ingress">Ingress</a> resources, using the <a href="https://nginx.org/en/">NGINX reverse proxy</a>.</p>
 <p>NGINX Ingress Controller can be installed via its <a href="https://github.com/kubernetes/ingress-nginx/tree/main/charts/ingress-nginx">Helm chart</a>.</p>
 <pre><code class="language-shell">helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
@@ -128,8 +125,7 @@ ingress-nginx-controller   1/1     1            1           4m35s
 <h3 id="installing-argo-rollouts">Installing Argo Rollouts</h3>
 <hr>
 <blockquote>
-<p><em>If you haven’t already, go read <a href="/posts/automated-canary-deployment/">Canary Deployment in Kubernetes (Part 2) — Automated Canary Deployment using Argo Rollouts</a> and learn how to implement a Canary Deployment using Argo Rollouts!</em></p>
-</blockquote>
+<p><em>If you haven’t already, go read <a href="/posts/automated-canary-deployment/">Canary Deployment in Kubernetes (Part 2) — Automated Canary Deployment using Argo Rollouts</a> and learn how to implement a Canary Deployment using Argo Rollouts!</em></p></blockquote>
 <p>Argo Rollouts can be installed via its <a href="https://github.com/argoproj/argo-helm/tree/master/charts/argo-rollouts">Helm chart</a>.</p>
 <pre><code class="language-shell">helm repo add argo https://argoproj.github.io/argo-helm
 helm install argo/argo-rollouts --name-template argo-rollouts --create-namespace -n argo-rollouts --set dashboard.enabled=true --version 2.32.5 --wait
@@ -309,8 +305,7 @@ Events:             &lt;none&gt;
 To monitor the progress of the Rollout, however, it is the <em>Status</em> and the <em>Events</em> that we will be looking at.</p>
 <p>Right now, the measurement’s value is empty (<code>[]</code>), this is because the service has not recorded any metrics yet. Let’s change that and send some successful requests for Prometheus to scrape! 🚀</p>
 <blockquote>
-<p>Since the PromQL query targets the canary Service specifically, we must make sure to always land in the canary Deployment using the Ingress <code>canary-by-header</code> annotation (learn more about it in <a href="/posts/simple-canary-deployment/">Part 1</a>).</p>
-</blockquote>
+<p>Since the PromQL query targets the canary Service specifically, we must make sure to always land in the canary Deployment using the Ingress <code>canary-by-header</code> annotation (learn more about it in <a href="/posts/simple-canary-deployment/">Part 1</a>).</p></blockquote>
 <pre><code class="language-shell">curl localhost/success -H &quot;Host: sample.app&quot; -H &quot;X-Canary: always&quot;
 </code></pre>
 <p>After firing some requests and waiting about a minute for Prometheus to scrape the metrics and the <strong>AnalysisRun</strong> to measure the <code>success-share</code> metric, you should see one of the measurements with a value of <code>[1]</code>, meaning that the Success Share has been successfully measured at 100%! 💯</p>
@@ -381,7 +376,7 @@ kubectl argo rollouts promote sample-app -n sample-app
 <h3 id="load-testing-with-k6">Load Testing with k6</h3>
 <hr>
 <p>Instead of running some <code>curl</code> commands like we previously did, how about we execute a Load Test instead?</p>
-<p>For Load Testing, I really recommend <a href="https://k6.io/docs/">k6</a> from the Grafana Labs team. It is a dead-simple yet super powerful tool with very extensive documentation.</p>
+<p>For Load Testing, I really recommend <a href="https://grafana.com/docs/k6/latest/">k6</a> from the Grafana Labs team. It is a dead-simple yet super powerful tool with very extensive documentation.</p>
 <p>See for yourself!</p>
 <pre><code class="language-shell">k6 run k6/script.js
 </code></pre>
@@ -464,7 +459,7 @@ Events:             &lt;none&gt;
 <li>Restart the aborted Rollout effortlessly once the issue is fixed.</li>
 </ul>
 <p>Was it worth it? Did that help you understand how to implement Canary Deployment in Kubernetes using Argo Rollouts and Prometheus?</p>
-<p>If so, follow me on <a href="https://twitter.com/jhandguy">Twitter</a>, I’ll be happy to answer any of your questions and you’ll be the first one to know when a new article comes out! 👌</p>
+<p>If so, follow me on <a href="https://x.com/jhandguy">X</a>, I’ll be happy to answer any of your questions and you’ll be the first one to know when a new article comes out! 👌</p>
 <p>Bye-bye! 👋</p>
 
         </div>

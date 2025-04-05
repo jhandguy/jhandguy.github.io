@@ -55,8 +55,7 @@
 <p>What if we could smoke test our change in production <strong>before</strong> it actually hits real users? What if we could roll out a change incrementally to <strong>some users</strong> instead of all of them at once? What if we could detect a faulty deployment and roll it back automatically?<br>
 Well, that, my friend, is what Canary Deployment is all about!</p>
 <blockquote>
-<p>Minimizing the impact on real users while deploying a risky change to production.</p>
-</blockquote>
+<p>Minimizing the impact on real users while deploying a risky change to production.</p></blockquote>
 <p>🎬 Hi there, I’m Jean!</p>
 <p>In this 3 parts series, we’re going to explore several ways to do Canary Deployment in Kubernetes, and the first one is…<br>
 🥁<br>
@@ -68,12 +67,11 @@ Well, that, my friend, is what Canary Deployment is all about!</p>
 <li><a href="https://kind.sigs.k8s.io/docs/user/quick-start/#installation">Kind</a></li>
 <li><a href="https://kubernetes.io/docs/tasks/tools/">Kubectl</a></li>
 <li><a href="https://helm.sh/docs/intro/install/">Helm</a></li>
-<li><a href="https://k6.io/docs/getting-started/installation/">K6</a></li>
+<li><a href="https://grafana.com/docs/k6/latest/set-up/install-k6/">K6</a></li>
 </ul>
 <blockquote>
 <p><em>Note: for MacOS users or Linux users using Homebrew, simply run:</em><br>
-<code>brew install kind kubectl helm k6</code></p>
-</blockquote>
+<code>brew install kind kubectl helm k6</code></p></blockquote>
 <p>All set? Let’s go! 🏁</p>
 <h2 id="creating-kind-cluster">Creating Kind Cluster</h2>
 <hr>
@@ -155,8 +153,7 @@ metadata:
 ...
 </code></pre>
 <blockquote>
-<p>This is where the magic happens! 🪄</p>
-</blockquote>
+<p>This is where the magic happens! 🪄</p></blockquote>
 <p>Let’s dive into each of these <a href="https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/">annotations</a> real quick:</p>
 <ul>
 <li><strong><a href="https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#canary">nginx.ingress.kubernetes.io/canary</a></strong><br>
@@ -243,7 +240,7 @@ Annotations:  ...
 <h3 id="load-testing-with-k6">Load Testing with k6</h3>
 <hr>
 <p>Now we’ve made a few requests, let’s see how it behaves under load and whether or not it indeed guarantees about 50% traffic distribution!</p>
-<p>For Load Testing, I really recommend <a href="https://k6.io/docs/">k6</a> from the Grafana Labs team. It is a dead-simple yet super powerful tool with very extensive documentation.</p>
+<p>For Load Testing, I really recommend <a href="https://grafana.com/docs/k6/latest/">k6</a> from the Grafana Labs team. It is a dead-simple yet super powerful tool with very extensive documentation.</p>
 <p>See for yourself!</p>
 <pre><code class="language-shell">k6 run k6/script.js
 </code></pre>
@@ -306,7 +303,7 @@ Out of 619 requests, 295 (48%) were served by the <code>canary</code> Deployment
 <li>Incrementally expose our change to <strong>some</strong> users to minimize risk.</li>
 </ul>
 <p>Was it worth it? Did that help you understand how to implement Canary Deployment in Kubernetes using Ingress NGINX?</p>
-<p>If so, follow me on <a href="https://twitter.com/jhandguy">Twitter</a>, I’ll be happy to answer any of your questions and you’ll be the first one to know when a new article comes out! 👌</p>
+<p>If so, follow me on <a href="https://x.com/jhandguy">X</a>, I’ll be happy to answer any of your questions and you’ll be the first one to know when a new article comes out! 👌</p>
 <p>See you next week, for Part 2 of my series <strong>Canary Deployment in Kubernetes</strong>!</p>
 <p>Bye-bye! 👋</p>
 
